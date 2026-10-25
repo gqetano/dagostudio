@@ -1,0 +1,732 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>STUDIO DAGO — Plane</title>
+<style>
+:root{
+ --ui-bg:#fcfcfb;--stage:#fff;--ink:#000;--muted:#000;--line:#e7e7e4;
+ --pill:#d8d8d8;--pill-hover:#c6c6c6;--type:12.6px;--unit:46px;
+ --font:-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{font-family:var(--font);font-size:var(--type);line-height:1.15;font-weight:700;color:var(--ink);background:var(--ui-bg);overflow:hidden;text-transform:uppercase}
+button,input{font-family:inherit;font-size:inherit;text-transform:inherit}
+button{ -webkit-tap-highlight-color:transparent }
+.workspace{display:grid;grid-template-columns:318px minmax(0,1fr);height:100dvh;min-height:470px;width:100%}
+.sidebar{
+ background:var(--ui-bg);border-right:1px solid var(--line);z-index:2;
+ display:flex;flex-direction:column;padding:18px 14px 18px;
+ min-height:0;overflow-y:auto;gap:0;
+}
+.brand{
+ display:flex;justify-content:flex-start;align-items:center;min-height:var(--unit);
+ background:transparent;border-radius:0;padding:4px 12px;
+}
+.brand-logo{display:block;width:205px;max-width:100%;height:auto;pointer-events:none}
+.menu{padding-top:20px;display:flex;flex-direction:column;gap:18px}
+.section{display:flex;flex-direction:column;gap:6px}
+.head{
+ display:flex;align-items:center;justify-content:space-between;
+ margin-bottom:2px;padding-left:12px;
+ font-size:var(--type);font-weight:700;letter-spacing:-.04em;text-transform:uppercase;color:var(--ink);
+}
+/* Rounded slider and palette rows mirror the floating Spin toolbar. */
+.range-wrap,.color-row{
+ display:flex;align-items:center;flex-wrap:nowrap;gap:8px;
+ min-height:var(--unit);width:100%;padding:0 12px;
+ border-radius:999px;background:var(--pill);
+}
+.range-wrap .name,.color-row .name{
+ font-size:var(--type);font-weight:700;letter-spacing:-.045em;white-space:nowrap;flex:none;
+}
+.range-wrap .name{min-width:70px}
+.range-wrap .tiny{
+ font-size:var(--type);font-weight:700;letter-spacing:-.045em;
+ font-variant-numeric:tabular-nums;white-space:nowrap;flex:none;text-align:right;
+}
+.range-wrap .range{min-width:30px;flex:1 1 0}
+.range{
+ display:block;appearance:none;-webkit-appearance:none;background:transparent;
+ height:24px;margin:0;border:0;padding:0;cursor:pointer;touch-action:manipulation;
+}
+.range::-webkit-slider-runnable-track{height:2px;background:#181a16;border-radius:2px}
+.range::-moz-range-track{height:2px;background:#181a16;border-radius:2px}
+.range::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;margin-top:-6px;background:#1c1e1b;border:0;border-radius:50%}
+.range::-moz-range-thumb{width:14px;height:14px;background:#1c1e1b;border:0;border-radius:50%}
+.range:focus-visible{outline:2px solid #20211e;outline-offset:3px}
+.divider{display:none}
+.color-row{justify-content:space-between}
+.swatches{display:flex;gap:6px;align-items:center;padding:4px 2px;flex:none}
+.swatch{
+ width:22px;height:22px;flex:none;border-radius:50%;border:1px solid #bcbcb9;
+ cursor:pointer;position:relative;padding:0;background:var(--swatch);
+}
+.swatch.active:after{content:"";position:absolute;inset:-4px;border:1.5px solid #1d1d1b;border-radius:50%;pointer-events:none}
+.picker-shell{
+ display:block;position:relative;width:22px;height:22px;flex:none;border-radius:50%;
+ background:conic-gradient(#ff4343,#ffdd66,#5de5a6,#3987ff,#be6cf5,#ff4343);
+ border:1px solid #bcbcb9;cursor:pointer;
+}
+.picker-shell:before{content:"";position:absolute;inset:6px;background:var(--picked,var(--ui-bg));border-radius:50%;pointer-events:none}
+.picker-shell.active:after{content:"";position:absolute;inset:-4px;border:1.5px solid #1d1d1b;border-radius:50%;pointer-events:none}
+.picker-shell input{position:absolute;inset:-4px;width:30px;height:30px;opacity:0;cursor:pointer}
+.swatch:focus-visible,.picker-shell:focus-within{outline:2px solid #20211e;outline-offset:4px}
+.bottom{
+ margin-top:auto;padding:22px 12px 0;
+ display:flex;flex-direction:column;align-items:flex-start;gap:11px;
+}
+.text-action{
+ appearance:none;display:inline-block;width:auto;height:auto;margin:0;padding:0;border:0;
+ border-radius:0;background:none;box-shadow:none;color:#000;
+ font-size:var(--type);line-height:1.2;font-weight:700;letter-spacing:-.045em;
+ text-align:left;text-decoration:none;text-underline-offset:4px;cursor:pointer;
+}
+.text-action:hover{text-decoration:underline;color:#20211e}
+.text-action:focus-visible{outline:2px solid #20211e;outline-offset:4px}
+.text-action:disabled{cursor:default;text-decoration:none}
+.stage{
+ position:relative;min-width:0;overflow:hidden;touch-action:none;cursor:pointer;
+ background:var(--stage);container-type:inline-size;
+}
+.stage.dragging{cursor:grabbing}
+.stage canvas{display:none}
+.stage:focus-visible{outline:2px solid #999;outline-offset:-2px}
+.scene3d{position:absolute;inset:0;transform-style:preserve-3d;pointer-events:none}
+.scene3d .pivot{position:absolute;left:50%;top:50%;width:0;height:0;transform-style:preserve-3d;will-change:transform}
+.scene3d .blade{position:absolute;top:0;left:0;transform-style:preserve-3d;backface-visibility:visible}
+.scene3d .blade img{display:block;width:100%;height:100%;backface-visibility:visible;user-select:none;-webkit-user-drag:none}
+.canvas-actions{
+ position:absolute;z-index:5;bottom:22px;left:50%;transform:translateX(-50%);
+ display:flex;align-items:stretch;gap:0;padding:0;border:0;box-shadow:none;background:none;
+ max-width:calc(100% - 24px);height:var(--unit);color:#000;touch-action:pan-x;
+}
+.canvas-motion,.motion-field,.direction-button{background:var(--pill);border:0;border-radius:999px}
+.canvas-motion{
+ flex:0 0 102px;width:102px;height:var(--unit);padding:0 12px;
+ color:#000;font-size:var(--type);line-height:1;font-weight:700;
+ letter-spacing:-.035em;text-transform:uppercase;cursor:pointer;
+ transition:background .16s ease;touch-action:manipulation;
+}
+.canvas-motion:hover{background:var(--pill-hover)}
+.canvas-motion:active,.canvas-motion.on{background:#bcbcbc}
+.canvas-motion:focus-visible,.direction-button:focus-visible{outline:2px solid #1d1d1b;outline-offset:-5px}
+.motion-field{
+ display:flex;align-items:center;flex-flow:row nowrap;gap:9px;min-width:0;height:var(--unit);
+ padding:0 12px;white-space:nowrap;
+}
+.motion-field.turns-field{flex:0 1 192px;width:192px}
+.motion-field.duration-field{flex:0 1 190px;width:190px}
+.motion-field .name,.motion-field .tiny{
+ margin:0;color:#000;font-size:var(--type);line-height:1;font-weight:700;
+ letter-spacing:-.055em;text-transform:uppercase;white-space:nowrap;
+}
+.motion-field .range{width:30px;min-width:30px;flex:1 1 auto}
+.motion-direction{display:flex;align-items:center;flex:none;height:var(--unit)}
+.motion-direction .name{
+ position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;
+ clip:rect(0,0,0,0);white-space:nowrap;border:0;
+}
+.direction-buttons{display:flex;align-items:stretch;gap:0;height:100%}
+.direction-button{
+ display:grid;place-items:center;width:var(--unit);height:var(--unit);flex:0 0 var(--unit);padding:0;
+ color:#151614;font-size:var(--type);line-height:1;font-weight:700;
+ cursor:pointer;transition:background .16s ease,color .16s ease;
+}
+.direction-button:hover{background:#c4c4c4;color:#000}
+.direction-button.active{background:#21221f;color:#fff}
+.direction-button.active:hover{background:#3a3b37;color:#fff}
+.corner{display:none}
+/* The controls wrap only when the canvas no longer accommodates five wide capsules. */
+@container (max-width:625px){
+ .canvas-actions{
+  width:min(440px,calc(100% - 24px));height:auto;bottom:16px;
+  display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;
+ }
+ .canvas-motion{grid-column:1/3;grid-row:1;width:100%;height:46px;flex-basis:auto}
+ .motion-direction{grid-column:3/5;grid-row:1;height:46px;width:100%}
+ .direction-buttons{width:100%;gap:4px}
+ .direction-button{width:auto;height:46px;flex:1 1 0}
+ .motion-field{height:46px;gap:9px;padding:0 13px}
+ .motion-field.turns-field{grid-column:1/-1;grid-row:2;width:100%;flex-basis:auto}
+ .motion-field.duration-field{grid-column:1/-1;grid-row:3;width:100%;flex-basis:auto}
+}
+@media(max-width:920px) and (min-width:701px){
+ .workspace{grid-template-columns:292px minmax(0,1fr)}
+ .sidebar{padding:15px 10px}
+ .menu{padding-top:18px;gap:16px}
+ .brand-logo{width:194px}
+ .range-wrap,.color-row{padding:0 11px;gap:7px}
+ .range-wrap .name{min-width:69px}
+ .swatches{gap:5px}
+ .swatch,.picker-shell{width:22px;height:22px}
+}
+@media(max-width:700px){
+ body{overflow:auto}
+ /* Lead with the interactive canvas; settings follow as a normal page section. */
+ .workspace{display:flex;flex-direction:column;min-height:100dvh;height:auto}
+ .stage{order:0;flex:0 0 auto;height:78dvh;min-height:440px}
+ .sidebar{order:1;flex:0 0 auto;overflow:visible;border-right:0;border-bottom:0;border-top:1px solid var(--line);padding:20px 16px 24px}
+ /* The logo is already visible in the canvas, so omit the duplicate header. */
+ .brand{display:none}
+ .menu{padding-top:0;gap:16px}
+ .head{margin-bottom:0}
+ .range-wrap,.color-row{min-height:46px}
+ .section{gap:6px}
+ .bottom{margin-top:16px;padding:4px 12px 0;display:flex;flex-direction:row;flex-wrap:wrap;gap:10px 18px}
+ .canvas-actions{bottom:12px}
+}
+@media(max-width:400px){
+ .sidebar{padding:12px 10px 14px}
+ .range-wrap,.color-row{padding:0 11px}
+ .range-wrap .name{min-width:68px}
+ .swatches{gap:5px}
+ .swatch,.picker-shell{width:22px;height:22px}
+ .bottom{gap:10px 16px}
+ .canvas-actions{width:calc(100% - 16px)}
+}
+</style>
+</head>
+<body>
+<div class="workspace">
+<aside class="sidebar">
+  <div class="brand" aria-label="STUDIO DAGO"><img class="brand-logo" id="brandLogo" alt="STUDIO DAGO" /></div>
+  <div class="menu">
+    <section class="section">
+      <div class="head"><span>Composizione</span></div>
+      <div class="range-wrap"><label for="elements" class="name">Elementi</label><input class="range" id="elements" type="range" min="1" max="10" step="1" value="1" aria-label="Elementi"><span class="tiny" id="elementsVal">1</span></div>
+      <div class="range-wrap"><label for="spread" class="name">Distanza</label><input class="range" id="spread" type="range" min="0" max="360" step="1" value="120" aria-label="Distanza"><span class="tiny" id="spreadVal">120°</span></div>
+    </section>
+    <div class="divider"></div>
+    <section class="section">
+      <div class="head"><span>Colori</span></div>
+      <div class="color-row">
+        <span class="name">Sfondo</span>
+        <div class="swatches" id="bgSwatches" role="group" aria-label="Colore dello sfondo">
+          <button type="button" class="swatch" data-bg="#000000" style="--swatch:#000000" aria-label="Sfondo nero" aria-pressed="false" title="Nero"></button>
+          <button type="button" class="swatch" data-bg="#808080" style="--swatch:#808080" aria-label="Sfondo grigio" aria-pressed="false" title="Grigio"></button>
+          <button type="button" class="swatch active" data-bg="#ffffff" style="--swatch:#ffffff" aria-label="Sfondo bianco" aria-pressed="true" title="Bianco"></button>
+          <label class="picker-shell" id="bgPickerShell" title="Altro colore per lo sfondo" aria-label="Altro colore per lo sfondo"><input type="color" id="bgPicker" value="#ffffff" aria-label="Scegli un colore personalizzato per lo sfondo"></label>
+        </div>
+      </div>
+      <div class="color-row">
+        <span class="name">Logo</span>
+        <div class="swatches" id="logoSwatches" role="group" aria-label="Colore del logo">
+          <button type="button" class="swatch active" data-logo="#000000" style="--swatch:#000000" aria-label="Logo nero" aria-pressed="true" title="Nero"></button>
+          <button type="button" class="swatch" data-logo="#808080" style="--swatch:#808080" aria-label="Logo grigio" aria-pressed="false" title="Grigio"></button>
+          <button type="button" class="swatch" data-logo="#ffffff" style="--swatch:#ffffff" aria-label="Logo bianco" aria-pressed="false" title="Bianco"></button>
+          <label class="picker-shell" id="logoPickerShell" title="Altro colore per il logo" aria-label="Altro colore per il logo"><input type="color" id="logoPicker" value="#000000" aria-label="Scegli un colore personalizzato per il logo"></label>
+        </div>
+      </div>
+    </section>
+  </div>
+  <div class="bottom">
+    <button type="button" class="text-action" id="reset">Reimposta vista</button>
+    <button type="button" class="text-action" id="export">Save SVG</button>
+    <button type="button" class="text-action" id="exportVideo"><span id="exportVideoLabel">Esporta MP4</span></button>
+  </div>
+</aside>
+<main class="stage" id="stage" tabindex="0" aria-label="Canvas interattivo: clicca ovunque per un flip di 180 gradi, trascina per cambiare prospettiva">
+  <div class="canvas-actions" id="canvasActions" role="group" aria-label="Controlli Spin">
+    <button type="button" class="canvas-motion" id="motion" aria-label="Avvia Spin">Spin</button>
+    <div class="motion-field turns-field">
+      <label for="turns" class="name">Giri</label>
+      <input class="range" id="turns" type="range" min="1" max="5" step="1" value="5" aria-label="Numero di giri dello Spin">
+      <span class="tiny" id="turnsVal" aria-live="off">5</span>
+    </div>
+    <div class="motion-field duration-field">
+      <label for="duration" class="name">Durata</label>
+      <input class="range" id="duration" type="range" min="4" max="16" step="1" value="8" aria-label="Durata dello Spin">
+      <span class="tiny" id="durationVal" aria-live="off">8 s</span>
+    </div>
+    <div class="motion-direction" aria-label="Direzione Spin">
+      <span class="name" id="directionLabel">Direzione</span>
+      <div class="direction-buttons" role="group" aria-labelledby="directionLabel" id="directionButtons">
+        <button type="button" class="direction-button active" data-direction="right" aria-label="Da sinistra a destra" aria-pressed="true" title="Sinistra → destra">→</button>
+        <button type="button" class="direction-button" data-direction="left" aria-label="Da destra a sinistra" aria-pressed="false" title="Destra → sinistra">←</button>
+      </div>
+    </div>
+  </div>
+</main>
+</div>
+<script>
+(()=>{
+'use strict';
+const $=id=>document.getElementById(id);
+const stage=$('stage');
+const LOGO_SRC='data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHN2ZyBpZD0iTGl2ZWxsb18yIiBkYXRhLW5hbWU9IkxpdmVsbG8gMiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB2aWV3Qm94PSIwIDAgNTYuNTIgMTEuNDQiPgogIDxnIGlkPSJMaXZlbGxvXzEtMiIgZGF0YS1uYW1lPSJMaXZlbGxvIDEiPgogICAgPGc+CiAgICAgIDxwYXRoIGQ9Ik0wLDUuODNjMC0xLjk0LDEuMS0zLjIzLDIuODQtMy4yMy41MywwLC45Ni4xMiwxLjI3LjMxVi4wNWgyLjU1djguODhoLTIuNTV2LS4xOWMtLjMxLjE5LS43NC4zMS0xLjI3LjMxLTEuNzQsMC0yLjg0LTEuMjctMi44NC0zLjIxWk00LjExLDUuODFjMC0uNjgtLjI5LTEuMDctLjc1LTEuMDdzLS43NC4zOC0uNzQsMS4wNy4yNiwxLjA3Ljc0LDEuMDcuNzUtLjM4Ljc1LTEuMDdaIi8+CiAgICAgIDxwYXRoIGQ9Ik03LjE1LDUuODNjMC0xLjk0LDEuMS0zLjIzLDIuODQtMy4yMy41MywwLC45Ni4xMiwxLjI3LjMxdi0uMTloMi41NXY2LjJoLTIuNTV2LS4xOGMtLjMyLjE5LS43NC4zLTEuMjcuMy0xLjc0LDAtMi44NC0xLjI3LTIuODQtMy4yMVpNMTEuMjcsNS44MWMwLS42OC0uMjktMS4wNy0uNzUtMS4wN3MtLjc0LjM4LS43NCwxLjA3LjI2LDEuMDcuNzQsMS4wNy43NS0uMzguNzUtMS4wN1oiLz4KICAgICAgPHBhdGggZD0iTTE0LjIxLDEwLjM1bDEuMDYtMS44NmMuNjEuNDcsMS40Ni44LDIuMTUuOHMxLjA5LS4yNSwxLjA5LS44di0uMTljLS4zMy4yMy0uODIuNC0xLjQ2LjQtMS42NiwwLTIuNy0xLjE2LTIuNy0zLjA1czEuMDQtMy4wNSwyLjctMy4wNWMuNjUsMCwxLjEzLjE3LDEuNDYuNHYtLjI4aDIuNTV2NS44NWMwLDEuOC0xLjM0LDIuODctMy40NSwyLjg3LTEuMzUsMC0yLjU3LS40Mi0zLjM5LTEuMDlaTTE4LjUsNS42NWMwLS41OS0uMzEtLjk2LS43OC0uOTZzLS43Ny4zNS0uNzcuOTYuMjkuOTYuNzcuOTYuNzgtLjM4Ljc4LS45NloiLz4KICAgICAgPHBhdGggZD0iTTUzLjMzLDkuMDljLTEuNzEsMC0yLjc3LS44LTIuNzYtMi4yMiwwLS45NS41OS0xLjYyLDEuNzYtMS44OWwxLjMyLS4zMWMuMTYtLjA0LjIyLS4wNS4yMi0uMTEsMC0uMDctLjEyLS4xMy0uMzYtLjEzLS42MSwwLTEuMTkuMjItMS43Ny42OGwtMS4wMS0xLjUzYy42Ny0uNiwxLjYyLS45NCwyLjctLjk0LDEuNzgsMCwyLjcuOTgsMi42OSwyLjE2LDAsLjk2LS41OSwxLjYzLTEuNjYsMS44OWwtMS40Mi4zNGMtLjE0LjA0LS4xOC4wNi0uMTguMTIsMCwuMDguMTEuMTQuNDEuMTUuNywwLDEuNi0uMzMsMi4xOS0uODlsMS4wNywxLjUzYy0uODIuNzUtMS45MiwxLjE2LTMuMTksMS4xNVoiLz4KICAgICAgPHBhdGggZD0iTTQ2LjY2LDljLS40NywwLS45NC0uMDQtMS4xLS4wNnYtMi4zMmMuMDkuMDEuMzguMDQuNjkuMDQsMS4wMiwwLDEuMzctLjIxLDEuMzctLjk3di0uNjJzLTIuMSwwLTIuMSwwdi0yLjMzczIuMTQsMCwyLjE0LDB2LTEuNjJzMi41MiwwLDIuNTIsMGwtLjAyLDUuMTJjMCwyLjA2LTEuNTEsMi43NS0zLjUxLDIuNzVaIi8+CiAgICAgIDxwYXRoIGQ9Ik00Mi44NSw5LjA1Yy0uNDIsMC0uOC0uMTEtMS4wOC0uMjl2LjE3cy0yLjU2LDAtMi41NiwwbC4wMi02LjJoMi41NXMtLjAxLDMuMzMtLjAxLDMuMzNjMCwuMzcuMTUuNTguNDMuNTguMjUsMCwuNDEtLjE3LjQxLS40OHYtMy40MnMyLjU3LDAsMi41NywwdjMuNzdjLS4wMiwxLjQ2LS44NSwyLjU1LTIuMzQsMi41NVoiLz4KICAgICAgPHBhdGggZD0iTTM1Ljg5LDkuMDJjLS41MywwLS45Ni0uMTItMS4yNy0uMzJ2LjE5cy0yLjU2LDAtMi41NiwwbC4wMy04Ljg3aDIuNTVzLS4wMSwyLjg4LS4wMSwyLjg4Yy4zMS0uMTkuNzQtLjMxLDEuMjctLjMxLDEuNzQsMCwyLjg0LDEuMjksMi44MywzLjI0cy0xLjEyLDMuMjEtMi44NSwzLjJaTTM1LjM4LDYuODZjLjQ4LDAsLjc1LS4zOC43NS0xLjA2cy0uMjYtMS4wNy0uNzQtMS4wNy0uNzYuMzgtLjc2LDEuMDYuMjgsMS4wNy43NSwxLjA3WiIvPgogICAgICA8cGF0aCBkPSJNMzEuMzksMy4wNmgtMi42cy4wMS0zLjA2LjAxLTMuMDZoMi42cy0uMDEsMy4wNi0uMDEsMy4wNlpNMzEuMzQsOC44OGgtMi41NXMuMDItNS4zMS4wMi01LjMxaDIuNTVzLS4wMiw1LjMxLS4wMiw1LjMxWiIvPgogICAgICA8cGF0aCBkPSJNMjQuOTEsOC45OWMtMi4wNCwwLTMuNC0xLjI4LTMuMzktMy4yNHMxLjM4LTMuMjIsMy40Mi0zLjIxLDMuNDEsMS4yOCwzLjQxLDMuMjQtMS4zOSwzLjIyLTMuNDMsMy4yMVpNMjQuOTIsNi44NWMuNDksMCwuNzYtLjQuNzYtMS4wOHMtLjI2LTEuMDktLjc1LTEuMDktLjc0LjQtLjc1LDEuMDkuMjYsMS4wOC43NCwxLjA4WiIvPgogICAgPC9nPgogIDwvZz4KPC9zdmc+';
+const LOGO_SVG=atob(LOGO_SRC.split(',')[1]);
+const LOGO_ASPECT=56.52/11.44;
+$('brandLogo').src=LOGO_SRC;
+function svgTint(hex){return 'data:image/svg+xml;charset=utf-8,'+encodeURIComponent(LOGO_SVG.replace('<svg ','<svg fill="'+hex+'" '));}
+
+const state={yaw:-.36,pitch:.13,spin:0,spinPitch:0,spinAnimation:null,motionMode:'spin',lastMotionMode:'spin',duration:8,turns:5,direction:'right',flipDuration:1.4,flipSign:1,copies:1,spread:120,zoom:1,bgColor:'#ffffff',logoColor:'#000000',aspect:LOGO_ASPECT,src:svgTint('#000000'),image:null};
+const visual=document.createElement('div');visual.className='scene3d';stage.appendChild(visual);
+const pivot=document.createElement('div');pivot.className='pivot';visual.appendChild(pivot);
+const logoImage=new Image(); logoImage.decoding='async'; logoImage.onload=()=>{state.image=logoImage;rebuild();}; logoImage.src=state.src;
+function planeDimensions(){const r=stage.getBoundingClientRect();let w=Math.min(r.width*.66,900),h=w/state.aspect;const maxH=r.height*.58;if(h>maxH){w*=maxH/h;h=maxH;}return {w,h};}
+function spreadAngle(i){if(state.copies===1)return 0;const denom=state.spread>=359?state.copies:state.copies-1;return (i-(state.copies-1)/2)*state.spread/denom;}
+function rebuild(){pivot.replaceChildren();const {w,h}=planeDimensions();visual.style.perspective=Math.round(Math.max(600,Math.min(stage.clientWidth,stage.clientHeight)*1.7))+'px';for(let i=0;i<state.copies;i++){const blade=document.createElement('div');blade.className='blade';blade.style.width=w+'px';blade.style.height=h+'px';blade.style.transform='translate(-50%, -50%) rotateY('+spreadAngle(i)+'deg)';const image=document.createElement('img');image.src=state.src;image.alt='';image.draggable=false;blade.appendChild(image);pivot.appendChild(blade);}}
+
+// One 180° click flip: slow at the ends and very quick through the middle.
+// Normalised logistic position makes the ANGULAR SPEED have a narrow central peak.
+// It is not a ping-pong loop: the artwork stays on the opposite face afterward.
+function flipEase(t){
+ t=Math.max(0,Math.min(1,t));
+ const steepness=16;
+ const low=1/(1+Math.exp(steepness*.5));
+ const sigmoid=1/(1+Math.exp(-steepness*(t-.5)));
+ return (sigmoid-low)/(1-2*low);
+}
+// Spin keeps its old fast start + gradually slowing finish.
+function easeOutCubic(t){t=Math.max(0,Math.min(1,t));return 1-Math.pow(1-t,3);}
+function motionRadians(view,progress){
+ return view.motionMode==='flip'
+  ? view.flipSign*Math.PI*flipEase(progress)
+  : (view.direction==='left'?-1:1)*view.turns*2*Math.PI*easeOutCubic(progress);
+}
+function applyMotionAt(view,progress){return {...view,spin:view.spin+motionRadians(view,progress)};}
+function cancelMotion(){
+ if(!state.spinAnimation)return;
+ state.yaw+=state.spin;
+ state.pitch+=state.spinPitch;
+ state.spin=0;
+ state.spinPitch=0;
+ state.spinAnimation=null;
+ $('motion').classList.remove('on');
+}
+function prepareMotion(){
+ // Freeze the currently visible view, without fighting the cursor parallax.
+ cancelMotion();
+ state.yaw+=input.hoverYaw;
+ state.pitch+=input.hoverPitch;
+ input.hoverYaw=0;input.hoverPitch=0;input.targetYaw=0;input.targetPitch=0;
+ input.coastYaw=0;input.coastPitch=0;
+ state.spin=0;state.spinPitch=0;
+}
+function startFlip(){
+ prepareMotion();
+ state.motionMode=state.lastMotionMode='flip';
+ state.spinAnimation={start:performance.now(),duration:state.flipDuration*1000,motionMode:'flip',flipSign:state.flipSign};
+ state.flipSign*=-1; // Next click returns to the previous readable face.
+}
+function startSpin(){
+ prepareMotion();
+ state.motionMode=state.lastMotionMode='spin';
+ state.spinAnimation={start:performance.now(),duration:state.duration*1000,motionMode:'spin',direction:state.direction,turns:state.turns};
+ $('motion').classList.add('on');
+}
+$('motion').onclick=e=>{e.stopPropagation();startSpin();};
+$('duration').oninput=e=>{state.duration=+e.target.value;$('durationVal').textContent=state.duration+' s';};
+$('turns').oninput=e=>{state.turns=+e.target.value;$('turnsVal').textContent=String(state.turns);};
+// The first (and only) Illustrator logo reverses on the horizontal axis.
+for(const button of $('directionButtons').querySelectorAll('button')){
+ button.onclick=()=>{
+  state.direction=button.dataset.direction;
+  for(const option of $('directionButtons').querySelectorAll('button')){
+   const selected=option.dataset.direction===state.direction;
+   option.classList.toggle('active',selected);
+   option.setAttribute('aria-pressed',String(selected));
+  }
+ };
+}
+function updateElements(n){state.copies=Math.min(10,Math.max(1,Number(n)));$('elementsVal').textContent=state.copies;rebuild();}
+$('elements').oninput=e=>updateElements(e.target.value);
+$('spread').oninput=e=>{state.spread=+e.target.value;$('spreadVal').textContent=state.spread+'°';rebuild();};
+function activateSwatch(id,attr,color){
+ for(const b of $(id).querySelectorAll('button')){
+  const selected=b.getAttribute(attr)===color;
+  b.classList.toggle('active',selected);b.setAttribute('aria-pressed',String(selected));
+ }
+}
+function setBgColor(color){
+ state.bgColor=color.toLowerCase();stage.style.background=state.bgColor;
+ activateSwatch('bgSwatches','data-bg',state.bgColor);
+ $('bgPicker').value=state.bgColor;
+ $('bgPickerShell').style.setProperty('--picked',state.bgColor);
+ $('bgPickerShell').classList.toggle('active',!['#000000','#808080','#ffffff'].includes(state.bgColor));
+}
+let imageRequest=0;
+function updateLogoTexture(){
+ const src=svgTint(state.logoColor),ticket=++imageRequest,im=new Image();
+ im.decoding='async';
+ im.onload=()=>{if(ticket!==imageRequest)return;state.image=im;state.src=src;rebuild();};
+ im.onerror=()=>console.error('Impossibile visualizzare il logo SVG');
+ im.src=src;
+}
+function setLogoColor(color){
+ state.logoColor=color.toLowerCase();
+ activateSwatch('logoSwatches','data-logo',state.logoColor);
+ $('logoPicker').value=state.logoColor;
+ $('logoPickerShell').style.setProperty('--picked',state.logoColor);
+ $('logoPickerShell').classList.toggle('active',!['#000000','#808080','#ffffff'].includes(state.logoColor));
+ updateLogoTexture();
+}
+for(const button of $('bgSwatches').querySelectorAll('button'))button.onclick=()=>setBgColor(button.dataset.bg);
+for(const button of $('logoSwatches').querySelectorAll('button'))button.onclick=()=>setLogoColor(button.dataset.logo);
+$('bgPicker').addEventListener('input',e=>setBgColor(e.target.value));
+$('logoPicker').addEventListener('input',e=>setLogoColor(e.target.value));
+$('reset').onclick=()=>{
+ cancelMotion();state.yaw=-.36;state.pitch=.13;state.spin=0;state.spinPitch=0;state.zoom=1;state.flipSign=1;
+ input.coastYaw=0;input.coastPitch=0;input.hoverYaw=0;input.hoverPitch=0;input.targetYaw=0;input.targetPitch=0;
+ $('elements').value='1';updateElements(1);
+};
+function project(u,v,angle,w,h,W,H,focal,view){
+ const x=(u-.5)*w,y=(.5-v)*h,theta=view.yaw+view.spin+angle;
+ const sx=Math.sin(theta),cx=Math.cos(theta),sp=Math.sin(view.pitch+view.spinPitch),cp=Math.cos(view.pitch+view.spinPitch);
+ const ax=x*cx,az=-x*sx,wy=y*cp-az*sp,wz=y*sp+az*cp;
+ const k=focal/(focal-wz);
+ return [W/2+ax*k*view.zoom,H/2-wy*k*view.zoom,wz];
+}
+function triangle(ctx,img,srcPts,dstPts){
+ const [s0,s1,s2]=srcPts,[p0,p1,p2]=dstPts;
+ const det=(s0[0]-s2[0])*(s1[1]-s2[1])-(s1[0]-s2[0])*(s0[1]-s2[1]);if(Math.abs(det)<1e-8)return;
+ const a=((p0[0]-p2[0])*(s1[1]-s2[1])-(p1[0]-p2[0])*(s0[1]-s2[1]))/det;
+ const b=((p0[1]-p2[1])*(s1[1]-s2[1])-(p1[1]-p2[1])*(s0[1]-s2[1]))/det;
+ const c=((p1[0]-p2[0])*(s0[0]-s2[0])-(p0[0]-p2[0])*(s1[0]-s2[0]))/det;
+ const d=((p1[1]-p2[1])*(s0[0]-s2[0])-(p0[1]-p2[1])*(s1[0]-s2[0]))/det;
+ const e=p0[0]-a*s0[0]-c*s0[1],f=p0[1]-b*s0[0]-d*s0[1];
+ ctx.save();ctx.beginPath();
+ const cx=(p0[0]+p1[0]+p2[0])/3,cy=(p0[1]+p1[1]+p2[1])/3;
+ function extend(p){const dx=p[0]-cx,dy=p[1]-cy,length=Math.max(.001,Math.hypot(dx,dy));return [p[0]+dx/length*.8,p[1]+dy/length*.8];}
+ const q0=extend(p0),q1=extend(p1),q2=extend(p2);
+ ctx.moveTo(q0[0],q0[1]);ctx.lineTo(q1[0],q1[1]);ctx.lineTo(q2[0],q2[1]);ctx.closePath();ctx.clip();ctx.setTransform(a,b,c,d,e,f);ctx.drawImage(img,0,0);ctx.restore();
+}
+// The canvas output is rendered from the same SVG, angles and camera as the live preview.
+// Render each zero-thickness SVG plane with a single coherent affine map.
+// This is robust through the mirrored 180° viewpoint and keeps the lettering
+// fully intact in H.264 frames. Depth ordering remains back-to-front.
+function renderToCanvas(ctx,W,H,quality,view){
+ const img=state.image;if(!img||!img.complete)return;
+ ctx.setTransform(1,0,0,1,0,0);ctx.fillStyle=state.bgColor;ctx.fillRect(0,0,W,H);
+ const dims=planeDimensions(),rect=stage.getBoundingClientRect(),sx=W/rect.width,sy=H/rect.height;
+ const w=dims.w*sx,h=dims.h*sy,focal=Math.max(600,Math.min(rect.width,rect.height)*1.7)*sx;
+ const iw=img.naturalWidth,ih=img.naturalHeight,planes=[];
+ for(let j=0;j<state.copies;j++){
+  const angle=spreadAngle(j)*Math.PI/180,theta=view.yaw+view.spin+angle;
+  planes.push({angle,depth:-Math.sin(theta)});
+ }
+ planes.sort((a,b)=>a.depth-b.depth);
+ for(const {angle} of planes){
+  const p0=project(0,0,angle,w,h,W,H,focal,view);
+  const p1=project(1,0,angle,w,h,W,H,focal,view);
+  const p3=project(0,1,angle,w,h,W,H,focal,view);
+  ctx.save();
+  ctx.setTransform((p1[0]-p0[0])/iw,(p1[1]-p0[1])/iw,
+                   (p3[0]-p0[0])/ih,(p3[1]-p0[1])/ih,p0[0],p0[1]);
+  ctx.drawImage(img,0,0,iw,ih);
+  ctx.restore();
+ }
+}
+function download(blob,name){const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),30000);}
+// Save the CURRENT 3D perspective as a standalone, editable vector SVG.
+// Every curved outline remains a native SVG path (no bitmap/data:image embedded).
+// Perspective is approximated by a fine mesh of affine-mapped clipped vector paths.
+function projectiveAffine(source,dest){
+ const [s0,s1,s2]=source,[p0,p1,p2]=dest;
+ const det=(s0[0]-s2[0])*(s1[1]-s2[1])-(s1[0]-s2[0])*(s0[1]-s2[1]);
+ if(Math.abs(det)<1e-11)return null;
+ const a=((p0[0]-p2[0])*(s1[1]-s2[1])-(p1[0]-p2[0])*(s0[1]-s2[1]))/det;
+ const b=((p0[1]-p2[1])*(s1[1]-s2[1])-(p1[1]-p2[1])*(s0[1]-s2[1]))/det;
+ const c=((p1[0]-p2[0])*(s0[0]-s2[0])-(p0[0]-p2[0])*(s1[0]-s2[0]))/det;
+ const d=((p1[1]-p2[1])*(s0[0]-s2[0])-(p0[1]-p2[1])*(s1[0]-s2[0]))/det;
+ const e=p0[0]-a*s0[0]-c*s0[1],f=p0[1]-b*s0[0]-d*s0[1];
+ return [a,b,c,d,e,f];
+}
+function createVectorSVG(){
+ const rect=stage.getBoundingClientRect(),W=Math.max(1,Math.round(rect.width)),H=Math.max(1,Math.round(rect.height));
+ const view=currentView(),{w,h}=planeDimensions(),focal=Math.max(600,Math.min(rect.width,rect.height)*1.7);
+ const original=new DOMParser().parseFromString(LOGO_SVG,'image/svg+xml').documentElement;
+ const vb=original.getAttribute('viewBox').split(/[ ,]+/).map(Number);
+ const [vx,vy,vw,vh]=vb;
+ // Source geometry stays in its original Illustrator coordinate space.
+ const sourceMarkup=Array.from(original.children).map(node=>new XMLSerializer().serializeToString(node)).join('');
+ const defs=['<g id="studio-dago-source" fill="'+state.logoColor+'">'+sourceMarkup+'</g>'];
+ const groups=[];
+ const planes=[];
+ for(let j=0;j<state.copies;j++){
+  const angle=spreadAngle(j)*Math.PI/180;
+  const theta=view.yaw+view.spin+angle;
+  planes.push({angle,depth:-Math.sin(theta)});
+ }
+ // Back-to-front stacking, consistent with the motion renderer.
+ planes.sort((a,b)=>a.depth-b.depth);
+ const nx=24,ny=6;
+ let id=0;
+ const num=x=>Number(x.toFixed(7)).toString();
+ for(const {angle} of planes){
+  const layers=[];
+  for(let row=0;row<ny;row++)for(let col=0;col<nx;col++){
+   const u0=col/nx,u1=(col+1)/nx,v0=row/ny,v1=(row+1)/ny;
+   const s0=[vx+u0*vw,vy+v0*vh],s1=[vx+u1*vw,vy+v0*vh],s2=[vx+u1*vw,vy+v1*vh],s3=[vx+u0*vw,vy+v1*vh];
+   const p0=project(u0,v0,angle,w,h,W,H,focal,view),p1=project(u1,v0,angle,w,h,W,H,focal,view),p2=project(u1,v1,angle,w,h,W,H,focal,view),p3=project(u0,v1,angle,w,h,W,H,focal,view);
+   for(const [ss,dd] of [[[s0,s1,s2],[p0,p1,p2]],[[s0,s2,s3],[p0,p2,p3]]]){
+    const matrix=projectiveAffine(ss,dd);if(!matrix)continue;
+    const clipId='mesh-'+(++id);
+    // Overlap neighbouring vector clip triangles by about a pixel to prevent
+    // hairline anti-alias seams. The actual path geometry remains vector.
+    const cx=(ss[0][0]+ss[1][0]+ss[2][0])/3,cy=(ss[0][1]+ss[1][1]+ss[2][1])/3;
+    const coords=ss.map(([x,y])=>{const dx=x-cx,dy=y-cy,len=Math.max(.001,Math.hypot(dx,dy));return num(x+dx/len*.115)+','+num(y+dy/len*.115);}).join(' ');
+    defs.push('<clipPath id="'+clipId+'" clipPathUnits="userSpaceOnUse"><polygon points="'+coords+'"/></clipPath>');
+    layers.push('<g transform="matrix('+matrix.map(num).join(' ')+')"><g clip-path="url(#'+clipId+')"><use href="#studio-dago-source"/></g></g>');
+   }
+  }
+  groups.push('<g>'+layers.join('')+'</g>');
+ }
+ return '<?xml version="1.0" encoding="UTF-8"?>\n'+
+ '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="'+W+'" height="'+H+'" viewBox="0 0 '+W+' '+H+'">\n'+
+ '<title>STUDIO DAGO</title><defs>'+defs.join('')+'</defs>\n'+
+ '<rect width="100%" height="100%" fill="'+state.bgColor+'"/>\n'+groups.join('')+'\n</svg>';
+}
+function exportSVG(){
+ try{
+  const svg=createVectorSVG();
+  download(new Blob([svg],{type:'image/svg+xml;charset=utf-8'}),'studio-dago.svg');
+ }catch(error){console.error(error);alert('Salvataggio SVG non riuscito.');}
+}
+$('export').onclick=exportSVG;
+
+// Minimal, self-contained H.264/AVC-to-MP4 muxer. No external packages or web access.
+function bytes(...values){return Uint8Array.from(values);}
+function ascii(s){return Uint8Array.from([...s].map(c=>c.charCodeAt(0)));}
+function be16(n){return bytes((n>>>8)&255,n&255);}
+function be32(n){return bytes((n>>>24)&255,(n>>>16)&255,(n>>>8)&255,n&255);}
+function concat(...parts){const total=parts.reduce((a,p)=>a+p.length,0),result=new Uint8Array(total);let pos=0;for(const part of parts){result.set(part,pos);pos+=part.length;}return result;}
+function box(type,...items){const payload=concat(...items);return concat(be32(payload.length+8),ascii(type),payload);}
+function full(type,flags,...items){return box(type,be32(flags),...items);}
+const unity=concat(be32(65536),be32(0),be32(0),be32(0),be32(65536),be32(0),be32(0),be32(0),be32(1073741824));
+function muxMP4(chunks,avcC,width,height,fps){
+ const timescale=30000,sampleDuration=timescale/fps,mediaDuration=chunks.length*sampleDuration;
+ const movieDuration=Math.round(chunks.length*1000/fps);
+ const ftyp=box('ftyp',ascii('isom'),be32(512),ascii('isomiso2avc1mp41'));
+ const payload=concat(...chunks.map(c=>c.data));
+ const mdat=box('mdat',payload);
+ const avc1=box('avc1',bytes(0,0,0,0,0,0),be16(1),new Uint8Array(16),be16(width),be16(height),be32(0x00480000),be32(0x00480000),be32(0),be16(1),new Uint8Array(32),be16(24),be16(65535),box('avcC',avcC));
+ const stsd=full('stsd',0,be32(1),avc1);
+ const stts=full('stts',0,be32(1),be32(chunks.length),be32(sampleDuration));
+ const stsc=full('stsc',0,be32(1),be32(1),be32(chunks.length),be32(1));
+ const stsz=full('stsz',0,be32(0),be32(chunks.length),...chunks.map(c=>be32(c.data.length)));
+ const stco=full('stco',0,be32(1),be32(ftyp.length+8));
+ const keyframes=chunks.map((c,i)=>c.key?i+1:0).filter(Boolean);
+ const stss=full('stss',0,be32(keyframes.length),...keyframes.map(be32));
+ const stbl=box('stbl',stsd,stts,stsc,stsz,stco,stss);
+ const dinf=box('dinf',full('dref',0,be32(1),full('url ',1)));
+ const minf=box('minf',full('vmhd',1,be16(0),new Uint8Array(6)),dinf,stbl);
+ const mdhd=full('mdhd',0,be32(0),be32(0),be32(timescale),be32(mediaDuration),be16(0x55c4),be16(0));
+ const hdlr=full('hdlr',0,be32(0),ascii('vide'),new Uint8Array(12),ascii('VideoHandler\0'));
+ const mdia=box('mdia',mdhd,hdlr,minf);
+ const tkhd=full('tkhd',7,be32(0),be32(0),be32(1),be32(0),be32(movieDuration),new Uint8Array(8),be16(0),be16(0),be16(0),be16(0),unity,be32(width*65536),be32(height*65536));
+ const trak=box('trak',tkhd,mdia);
+ const mvhd=full('mvhd',0,be32(0),be32(0),be32(1000),be32(movieDuration),be32(65536),be16(256),new Uint8Array(10),unity,new Uint8Array(24),be32(2));
+ return new Blob([ftyp,mdat,box('moov',mvhd,trak)],{type:'video/mp4'});
+}
+function encodeSettings(width,height){return {codec:'avc1.42001f',width,height,bitrate:2600000,framerate:30,latencyMode:'realtime',avc:{format:'avc'}};}
+function sizeForVideo(){const r=stage.getBoundingClientRect(),ratio=Math.min(1.5,1280/r.width,1280/r.height);
+ const width=Math.max(2,Math.round(r.width*ratio/2)*2),height=Math.max(2,Math.round(r.height*ratio/2)*2);return {width,height};}
+const videoBtn=$('exportVideo'),videoLabel=$('exportVideoLabel');
+function yieldUI(){return new Promise(resolve=>setTimeout(resolve,0));}
+async function exportWithWebCodecs(canvas,ctx,view,frameCount,fps){
+ const {width,height}=canvas,config=encodeSettings(width,height);
+ if(!(await VideoEncoder.isConfigSupported(config)).supported)throw Error('Codifica H.264 non disponibile');
+ const chunks=[];let avcC=null,encodingError=null;
+ const encoder=new VideoEncoder({output:(chunk,meta)=>{
+  if(meta?.decoderConfig?.description)avcC=new Uint8Array(meta.decoderConfig.description);
+  const data=new Uint8Array(chunk.byteLength);chunk.copyTo(data);
+  chunks.push({timestamp:chunk.timestamp,data,key:chunk.type==='key'});
+ },error:e=>{encodingError=e;}});
+ try{
+  encoder.configure(config);
+  for(let i=0;i<frameCount;i++){
+   if(encodingError)throw encodingError;
+   renderToCanvas(ctx,width,height,'video',applyMotionAt(view,(i/fps)/view.duration));
+   const frame=new VideoFrame(canvas,{timestamp:Math.round(i*1000000/fps),duration:Math.round(1000000/fps)});
+   encoder.encode(frame,{keyFrame:i%60===0});frame.close();
+   if(i%5===0){videoLabel.textContent='Esportazione '+Math.round(i/frameCount*100)+'%';await yieldUI();}
+   if(encoder.encodeQueueSize>15)await encoder.flush();
+  }
+  await encoder.flush();if(encodingError)throw encodingError;
+ }finally{encoder.close();}
+ chunks.sort((a,b)=>a.timestamp-b.timestamp);
+ if(!avcC||!chunks.length)throw Error('Dati H.264 mancanti');
+ return muxMP4(chunks,avcC,width,height,fps);
+}
+async function exportWithMediaRecorder(canvas,ctx,view,frameCount,fps){
+ const mime=['video/mp4;codecs=avc1.42E01E','video/mp4;codecs=avc1','video/mp4'].find(t=>MediaRecorder.isTypeSupported(t));
+ if(!mime)throw Error('MP4 non supportato');
+ const stream=canvas.captureStream(30),chunks=[];
+ const recorder=new MediaRecorder(stream,{mimeType:mime,videoBitsPerSecond:2600000});
+ const completed=new Promise((resolve,reject)=>{
+  recorder.ondataavailable=e=>{if(e.data?.size)chunks.push(e.data);};
+  recorder.onerror=e=>reject(e.error||Error('Registrazione non riuscita'));
+  recorder.onstop=()=>resolve(new Blob(chunks,{type:'video/mp4'}));
+ });
+ recorder.start();let start=performance.now(),stopped=false;
+ try{
+  await new Promise(resolve=>{
+   function tick(now){
+    const elapsed=Math.min(frameCount/fps,(now-start)/1000);
+    renderToCanvas(ctx,canvas.width,canvas.height,'video',applyMotionAt(view,elapsed/view.duration));
+    const percent=Math.round(100*elapsed/(frameCount/fps));videoLabel.textContent='Esportazione '+percent+'%';
+    if(elapsed<frameCount/fps)requestAnimationFrame(tick);else resolve();
+   }requestAnimationFrame(tick);
+  });
+ }finally{if(recorder.state!=='inactive'){recorder.stop();stopped=true;}stream.getTracks().forEach(t=>t.stop());}
+ const output=await completed;if(!output.size)throw Error('Video vuoto');return output;
+}
+async function exportMP4(){
+ if(videoBtn.disabled||!state.image?.complete)return;
+ videoBtn.disabled=true;videoBtn.style.opacity='.55';videoLabel.textContent='Esportazione 0%';
+ try{
+  const {width,height}=sizeForVideo(),canvas=document.createElement('canvas');canvas.width=width;canvas.height=height;
+  const ctx=canvas.getContext('2d',{alpha:false});const view=currentView();
+  // Export whichever motion the user used last (Spin button or logo click).
+  view.spin=0;view.spinPitch=0;
+  view.motionMode=state.lastMotionMode;
+  view.duration=view.motionMode==='flip'?state.flipDuration:state.duration;
+  const fps=30,frameCount=Math.ceil((view.duration+.45)*fps);
+  let output;
+  if(typeof VideoEncoder!=='undefined'&&typeof VideoFrame!=='undefined'){
+   try{output=await exportWithWebCodecs(canvas,ctx,view,frameCount,fps);}catch(e){
+    if(typeof MediaRecorder==='undefined'||!canvas.captureStream)throw e;
+    output=await exportWithMediaRecorder(canvas,ctx,view,frameCount,fps);
+   }
+  }else if(typeof MediaRecorder!=='undefined'&&canvas.captureStream){output=await exportWithMediaRecorder(canvas,ctx,view,frameCount,fps);}
+  else throw Error('Questo browser non può esportare MP4. Usa una versione recente di Chrome, Edge o Safari.');
+  download(output,'studio-dago-'+view.motionMode+'.mp4');
+ }catch(error){console.error(error);alert('Esportazione MP4 non disponibile: '+(error?.message||'errore sconosciuto'));}
+ finally{videoBtn.disabled=false;videoBtn.style.opacity='';videoLabel.textContent='Esporta MP4';}
+}
+videoBtn.onclick=exportMP4;
+// The entire stage is an interaction surface, not just the visible logo.
+// Mouse parallax and click-to-flip are canvas-wide; drag still orbits.
+const input={
+ down:false,dragging:false,id:null,x:0,y:0,startX:0,startY:0,
+ lastTime:0,lastMotion:0,velYaw:0,velPitch:0,coastYaw:0,coastPitch:0,
+ targetYaw:0,targetPitch:0,hoverYaw:0,hoverPitch:0
+};
+const clamp=(value,min,max)=>Math.max(min,Math.min(max,value));
+function currentView(){return {...state,yaw:state.yaw+input.hoverYaw,pitch:state.pitch+input.hoverPitch};}
+function hoverAt(e){
+ if(state.spinAnimation)return;
+ if(e.pointerType!=='mouse'&&e.pointerType!=='pen')return;
+ const r=stage.getBoundingClientRect();
+ const x=clamp((e.clientX-r.left)/r.width*2-1,-1,1);
+ const y=clamp((e.clientY-r.top)/r.height*2-1,-1,1);
+ input.targetYaw=x*.62; // Deliberately visible, up to ~35 degrees on either side.
+ input.targetPitch=-y*.42; // Up to ~24 degrees vertically, across the entire canvas.
+}
+stage.addEventListener('pointerenter',e=>{if(!input.down)hoverAt(e);});
+stage.addEventListener('pointerleave',()=>{
+ if(!input.down){input.targetYaw=0;input.targetPitch=0;}
+});
+stage.addEventListener('pointerdown',e=>{
+ if(e.target.closest('#canvasActions'))return;
+ if(e.button!==0&&e.pointerType==='mouse')return;
+ input.down=true;input.dragging=false;input.id=e.pointerId;
+ input.x=input.startX=e.clientX;input.y=input.startY=e.clientY;
+ input.lastTime=performance.now();input.lastMotion=0;
+ input.velYaw=0;input.velPitch=0;
+ cancelMotion();
+ input.coastYaw=0;input.coastPitch=0;
+ input.targetYaw=0;input.targetPitch=0;
+ stage.setPointerCapture(e.pointerId);
+});
+stage.addEventListener('pointermove',e=>{
+ if(!input.down||e.pointerId!==input.id){hoverAt(e);return;}
+ const now=performance.now(),dx=e.clientX-input.x,dy=e.clientY-input.y;
+ const elapsed=Math.max(.008,Math.min(.12,(now-input.lastTime)/1000));
+ input.x=e.clientX;input.y=e.clientY;input.lastTime=now;
+ if(!input.dragging&&Math.hypot(input.x-input.startX,input.y-input.startY)<3)return;
+ if(!input.dragging){
+  input.dragging=true;stage.classList.add('dragging');
+  // A throw adds temporary inertia and friction to the manual orientation.
+ }
+ const deltaYaw=dx*.009,deltaPitch=dy*.009;
+ state.yaw+=deltaYaw;state.pitch+=deltaPitch;
+ if(dx||dy){
+  const blend=.48;
+  input.velYaw=clamp(input.velYaw*(1-blend)+clamp(deltaYaw/elapsed,-22,22)*blend,-22,22);
+  input.velPitch=clamp(input.velPitch*(1-blend)+clamp(deltaPitch/elapsed,-22,22)*blend,-22,22);
+  input.lastMotion=now;
+ }
+});
+function endDrag(e){
+ if(!input.down||e.pointerId!==input.id)return;
+ const wasDragging=input.dragging;
+ const clickedCanvas=!wasDragging&&e.type==='pointerup';
+ input.down=false;input.dragging=false;input.id=null;
+ stage.classList.remove('dragging');
+ if(wasDragging&&e.type==='pointerup'){
+  const age=(performance.now()-input.lastMotion)/1000;
+  const weight=Math.exp(-Math.max(0,age)*5);
+  input.coastYaw=input.velYaw*weight;
+  input.coastPitch=input.velPitch*weight;
+ }else{input.coastYaw=0;input.coastPitch=0;}
+ input.velYaw=0;input.velPitch=0;
+ // If the pointer is still inside the canvas, normal parallax resumes.
+ const r=stage.getBoundingClientRect();
+ if(e.clientX>=r.left&&e.clientX<=r.right&&e.clientY>=r.top&&e.clientY<=r.bottom)hoverAt(e);
+ else{input.targetYaw=0;input.targetPitch=0;}
+ if(stage.hasPointerCapture(e.pointerId))stage.releasePointerCapture(e.pointerId);
+ if(clickedCanvas)startFlip();
+}
+stage.addEventListener('pointerup',endDrag);
+stage.addEventListener('pointercancel',endDrag);
+stage.addEventListener('wheel',e=>{
+ e.preventDefault();state.zoom=clamp(state.zoom*Math.exp(-e.deltaY*.001),.35,2.5);
+},{passive:false});
+window.addEventListener('keydown',e=>{
+ if((e.key==='Enter'||e.code==='Space')&&document.activeElement===stage){e.preventDefault();startFlip();}
+ if(e.key.toLowerCase()==='r'&&!['INPUT','BUTTON'].includes(e.target.tagName))$('reset').click();
+});
+window.addEventListener('blur',()=>{input.targetYaw=0;input.targetPitch=0;});
+window.addEventListener('resize',rebuild);
+rebuild();
+let last=performance.now();
+function loop(now){
+ const dt=Math.min(.07,Math.max(0,(now-last)/1000));last=now;
+ if(!input.down){
+  // Time-based exponential drag gives the momentum a fidget-spinner-like tail.
+  if(Math.abs(input.coastYaw)+Math.abs(input.coastPitch)>.002){
+   const friction=1.65;
+   const decay=Math.exp(-friction*dt);
+   // Integral of the decaying angular velocity: stable at any refresh rate.
+   const step=(1-decay)/friction;
+   state.yaw+=input.coastYaw*step;state.pitch+=input.coastPitch*step;
+   input.coastYaw*=decay;input.coastPitch*=decay;
+  }else{input.coastYaw=0;input.coastPitch=0;}
+
+ }
+ if(state.spinAnimation){
+  const t=(now-state.spinAnimation.start)/state.spinAnimation.duration;
+  state.spin=motionRadians(state.spinAnimation,t);
+  state.spinPitch=0;
+  if(t>=1){
+   // Preserve exactly the finishing viewpoint for Spin or a 180° click flip.
+   state.yaw+=state.spin;state.pitch+=state.spinPitch;
+   state.yaw=(state.yaw+Math.PI)%(Math.PI*2);
+   if(state.yaw<0)state.yaw+=Math.PI*2;
+   state.yaw-=Math.PI;
+   state.pitch=(state.pitch+Math.PI)%(Math.PI*2);
+   if(state.pitch<0)state.pitch+=Math.PI*2;
+   state.pitch-=Math.PI;
+   state.spin=0;state.spinPitch=0;state.spinAnimation=null;
+   $('motion').classList.remove('on');
+  }
+ }
+ const ease=1-Math.exp(-dt*10.5);
+ input.hoverYaw+=(input.targetYaw-input.hoverYaw)*ease;
+ input.hoverPitch+=(input.targetPitch-input.hoverPitch)*ease;
+ const yaw=state.yaw+state.spin+input.hoverYaw;
+ const pitch=state.pitch+state.spinPitch+input.hoverPitch;
+ pivot.style.transform='rotateX('+pitch+'rad) rotateY('+yaw+'rad)';
+  visual.style.transform='scale('+state.zoom+')';
+ requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>
