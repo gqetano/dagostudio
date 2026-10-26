@@ -163,29 +163,67 @@ button{ -webkit-tap-highlight-color:transparent }
  .swatches{gap:5px}
  .swatch,.picker-shell{width:22px;height:22px}
 }
+/* On phones the work stays centered while a three-page control deck is docked below. */
+.mobile-dock{display:none}
 @media(max-width:700px){
- body{overflow:auto}
- /* Lead with the interactive canvas; settings follow as a normal page section. */
- .workspace{display:flex;flex-direction:column;min-height:100dvh;height:auto}
- .stage{order:0;flex:0 0 auto;height:78dvh;min-height:440px}
- .sidebar{order:1;flex:0 0 auto;overflow:visible;border-right:0;border-bottom:0;border-top:1px solid var(--line);padding:20px 16px 24px}
- /* The logo is already visible in the canvas, so omit the duplicate header. */
- .brand{display:none}
- .menu{padding-top:0;gap:16px}
- .head{margin-bottom:0}
- .range-wrap,.color-row{min-height:46px}
- .section{gap:6px}
- .bottom{margin-top:16px;padding:4px 12px 0;display:flex;flex-direction:row;flex-wrap:wrap;gap:10px 18px}
- .canvas-actions{bottom:12px}
+ html,body{height:100%;overflow:hidden;overscroll-behavior:none}
+ .workspace{display:block;width:100%;height:100dvh;min-height:0}
+ .stage{display:block;height:100dvh;min-height:0;width:100%;touch-action:none}
+ .sidebar{display:none}
+ .mobile-dock{
+  display:flex;position:fixed;z-index:20;left:0;right:0;bottom:0;
+  flex-direction:column;gap:0;max-width:100%;
+  padding:9px 10px max(13px,env(safe-area-inset-bottom));
+  background:linear-gradient(to bottom,rgba(252,252,251,0),rgba(252,252,251,.95) 27%,#fcfcfb 65%);
+ }
+ .mobile-dots{display:flex;align-items:center;justify-content:center;gap:7px;height:26px;margin-bottom:5px}
+ .mobile-dot{appearance:none;width:11px;height:11px;border:0;padding:0;border-radius:50%;background:#d3d3d3;cursor:pointer;touch-action:manipulation;transition:background .15s ease}
+ .mobile-dot.active{background:#050505}
+ .mobile-dot:focus-visible{outline:2px solid #000;outline-offset:3px}
+ .mobile-pages{
+  display:flex;flex:0 0 auto;width:100%;overflow-x:auto;overflow-y:hidden;
+  scroll-snap-type:x mandatory;scroll-behavior:smooth;
+  scrollbar-width:none;-ms-overflow-style:none;
+  overscroll-behavior-x:contain;touch-action:pan-x;
+ }
+ .mobile-pages::-webkit-scrollbar{display:none}
+ .mobile-page{display:flex;flex-direction:column;justify-content:flex-end;width:100%;flex:0 0 100%;min-width:0;min-height:148px;scroll-snap-align:start;scroll-snap-stop:always;padding:0;}
+ .mobile-page .section{gap:5px}
+ .mobile-page .head{margin:0 0 3px;padding-left:12px}
+ .mobile-page .range-wrap,.mobile-page .color-row{height:var(--unit);min-height:var(--unit);padding:0 12px}
+ .mobile-page .menu{padding:0}
+ .mobile-page .bottom{
+  display:flex;flex-flow:row wrap;align-items:center;justify-content:space-between;
+  margin-top:14px;padding:4px 12px 0;gap:8px 10px;
+ }
+ .mobile-page .bottom .text-action{font-size:var(--type);white-space:nowrap;}
+ .mobile-page .canvas-actions{
+  position:static;left:auto;bottom:auto;transform:none;
+  width:100%;max-width:none;height:auto;display:grid;
+  grid-template-columns:minmax(0,1fr) var(--unit) var(--unit);
+  grid-template-rows:repeat(3,var(--unit));gap:5px;
+  color:#000;touch-action:auto;
+ }
+ .mobile-page .canvas-motion{grid-column:1;grid-row:1;width:100%;height:var(--unit);flex-basis:auto}
+ .mobile-page .motion-direction{grid-column:2/4;grid-row:1;width:100%;height:var(--unit)}
+ .mobile-page .direction-buttons{width:100%;height:100%;gap:5px}
+ .mobile-page .direction-button{width:var(--unit);height:var(--unit);flex:1 1 0;}
+ .mobile-page .motion-field{width:100%;min-width:0;height:var(--unit);gap:9px;padding:0 12px;flex-basis:auto}
+ .mobile-page .motion-field.turns-field{grid-column:1/-1;grid-row:2;width:100%;flex-basis:auto}
+ .mobile-page .motion-field.duration-field{grid-column:1/-1;grid-row:3;width:100%;flex-basis:auto}
+ .mobile-page .motion-field .range{width:30px;min-width:30px;flex:1 1 auto}
+ .mobile-page .swatches{gap:6px}
+ .mobile-page .color-row .name{white-space:nowrap}
+ .mobile-page .color-row{justify-content:space-between}
+ .mobile-page .range-wrap .name{min-width:75px}
 }
 @media(max-width:400px){
- .sidebar{padding:12px 10px 14px}
- .range-wrap,.color-row{padding:0 11px}
- .range-wrap .name{min-width:68px}
- .swatches{gap:5px}
- .swatch,.picker-shell{width:22px;height:22px}
- .bottom{gap:10px 16px}
- .canvas-actions{width:calc(100% - 16px)}
+ .mobile-dock{padding-left:10px;padding-right:10px}
+ .mobile-page .range-wrap,.mobile-page .color-row{padding:0 12px}
+ .mobile-page .swatches{gap:6px}
+ .mobile-page .swatch,.mobile-page .picker-shell{width:22px;height:22px}
+ .mobile-page .bottom{gap:8px 10px}
+ .mobile-page .range-wrap .name{min-width:70px}
 }
 </style>
 </head>
@@ -250,19 +288,87 @@ button{ -webkit-tap-highlight-color:transparent }
     </div>
   </div>
 </main>
+<nav class="mobile-dock" id="mobileDock" aria-label="Pannelli di controllo">
+  <div class="mobile-dots" role="tablist" aria-label="Pannelli">
+    <button type="button" class="mobile-dot active" data-page="0" role="tab" aria-label="Spin" aria-selected="true" aria-controls="mobilePageMotion"></button>
+    <button type="button" class="mobile-dot" data-page="1" role="tab" aria-label="Composizione" aria-selected="false" aria-controls="mobilePageComposition"></button>
+    <button type="button" class="mobile-dot" data-page="2" role="tab" aria-label="Colori ed esportazione" aria-selected="false" aria-controls="mobilePageColors"></button>
+  </div>
+  <div class="mobile-pages" id="mobilePages">
+    <div class="mobile-page" id="mobilePageMotion" role="tabpanel" aria-label="Spin"></div>
+    <div class="mobile-page" id="mobilePageComposition" role="tabpanel" aria-label="Composizione"></div>
+    <div class="mobile-page" id="mobilePageColors" role="tabpanel" aria-label="Colori ed esportazione"></div>
+  </div>
+</nav>
 </div>
 <script>
 (()=>{
 'use strict';
 const $=id=>document.getElementById(id);
 const stage=$('stage');
+// Keep exactly one set of live controls. Move it to the mobile slide deck
+// at 700px and return it to its original desktop positions above that size.
+const mobileMQ=window.matchMedia('(max-width:700px)');
+const desktopMenu=document.querySelector('.sidebar .menu');
+const desktopBottom=document.querySelector('.sidebar .bottom');
+const composeSection=desktopMenu.querySelectorAll('.section')[0];
+const colorsSection=desktopMenu.querySelectorAll('.section')[1];
+const desktopActions=$('canvasActions');
+const mobilePages=$('mobilePages');
+const mobileDots=Array.from(document.querySelectorAll('.mobile-dot'));
+let currentMobilePage=0;
+function activateMobilePage(index){
+ currentMobilePage=Math.max(0,Math.min(2,index));
+ mobileDots.forEach((dot,i)=>{
+  const active=i===currentMobilePage;
+  dot.classList.toggle('active',active);
+  dot.setAttribute('aria-selected',String(active));
+  dot.tabIndex=active?0:-1;
+ });
+}
+function goMobilePage(index){
+ activateMobilePage(index);
+ mobilePages.scrollTo({left:mobilePages.clientWidth*currentMobilePage,behavior:'smooth'});
+}
+mobileDots.forEach(dot=>dot.addEventListener('click',()=>goMobilePage(Number(dot.dataset.page))));
+let pageScrollTick=false;
+mobilePages.addEventListener('scroll',()=>{
+ if(pageScrollTick)return;
+ pageScrollTick=true;
+ requestAnimationFrame(()=>{
+  pageScrollTick=false;
+  if(mobilePages.clientWidth)activateMobilePage(Math.round(mobilePages.scrollLeft/mobilePages.clientWidth));
+ });
+},{passive:true});
+function arrangeControls(){
+ if(mobileMQ.matches){
+  $('mobilePageMotion').appendChild(desktopActions);
+  $('mobilePageComposition').appendChild(composeSection);
+  $('mobilePageColors').appendChild(colorsSection);
+  $('mobilePageColors').appendChild(desktopBottom);
+  // Returning to a mobile viewport should always open with the Spin controls.
+  goMobilePage(0);
+ }else{
+  stage.appendChild(desktopActions);
+  desktopMenu.appendChild(composeSection);
+  desktopMenu.appendChild(colorsSection);
+  document.querySelector('.sidebar').appendChild(desktopBottom);
+  mobilePages.scrollLeft=0;
+  activateMobilePage(0);
+ }
+}
+mobileMQ.addEventListener('change',arrangeControls);
+arrangeControls();
 const LOGO_SRC='data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHN2ZyBpZD0iTGl2ZWxsb18yIiBkYXRhLW5hbWU9IkxpdmVsbG8gMiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB2aWV3Qm94PSIwIDAgNTYuNTIgMTEuNDQiPgogIDxnIGlkPSJMaXZlbGxvXzEtMiIgZGF0YS1uYW1lPSJMaXZlbGxvIDEiPgogICAgPGc+CiAgICAgIDxwYXRoIGQ9Ik0wLDUuODNjMC0xLjk0LDEuMS0zLjIzLDIuODQtMy4yMy41MywwLC45Ni4xMiwxLjI3LjMxVi4wNWgyLjU1djguODhoLTIuNTV2LS4xOWMtLjMxLjE5LS43NC4zMS0xLjI3LjMxLTEuNzQsMC0yLjg0LTEuMjctMi44NC0zLjIxWk00LjExLDUuODFjMC0uNjgtLjI5LTEuMDctLjc1LTEuMDdzLS43NC4zOC0uNzQsMS4wNy4yNiwxLjA3Ljc0LDEuMDcuNzUtLjM4Ljc1LTEuMDdaIi8+CiAgICAgIDxwYXRoIGQ9Ik03LjE1LDUuODNjMC0xLjk0LDEuMS0zLjIzLDIuODQtMy4yMy41MywwLC45Ni4xMiwxLjI3LjMxdi0uMTloMi41NXY2LjJoLTIuNTV2LS4xOGMtLjMyLjE5LS43NC4zLTEuMjcuMy0xLjc0LDAtMi44NC0xLjI3LTIuODQtMy4yMVpNMTEuMjcsNS44MWMwLS42OC0uMjktMS4wNy0uNzUtMS4wN3MtLjc0LjM4LS43NCwxLjA3LjI2LDEuMDcuNzQsMS4wNy43NS0uMzguNzUtMS4wN1oiLz4KICAgICAgPHBhdGggZD0iTTE0LjIxLDEwLjM1bDEuMDYtMS44NmMuNjEuNDcsMS40Ni44LDIuMTUuOHMxLjA5LS4yNSwxLjA5LS44di0uMTljLS4zMy4yMy0uODIuNC0xLjQ2LjQtMS42NiwwLTIuNy0xLjE2LTIuNy0zLjA1czEuMDQtMy4wNSwyLjctMy4wNWMuNjUsMCwxLjEzLjE3LDEuNDYuNHYtLjI4aDIuNTV2NS44NWMwLDEuOC0xLjM0LDIuODctMy40NSwyLjg3LTEuMzUsMC0yLjU3LS40Mi0zLjM5LTEuMDlaTTE4LjUsNS42NWMwLS41OS0uMzEtLjk2LS43OC0uOTZzLS43Ny4zNS0uNzcuOTYuMjkuOTYuNzcuOTYuNzgtLjM4Ljc4LS45NloiLz4KICAgICAgPHBhdGggZD0iTTUzLjMzLDkuMDljLTEuNzEsMC0yLjc3LS44LTIuNzYtMi4yMiwwLS45NS41OS0xLjYyLDEuNzYtMS44OWwxLjMyLS4zMWMuMTYtLjA0LjIyLS4wNS4yMi0uMTEsMC0uMDctLjEyLS4xMy0uMzYtLjEzLS42MSwwLTEuMTkuMjItMS43Ny42OGwtMS4wMS0xLjUzYy42Ny0uNiwxLjYyLS45NCwyLjctLjk0LDEuNzgsMCwyLjcuOTgsMi42OSwyLjE2LDAsLjk2LS41OSwxLjYzLTEuNjYsMS44OWwtMS40Mi4zNGMtLjE0LjA0LS4xOC4wNi0uMTguMTIsMCwuMDguMTEuMTQuNDEuMTUuNywwLDEuNi0uMzMsMi4xOS0uODlsMS4wNywxLjUzYy0uODIuNzUtMS45MiwxLjE2LTMuMTksMS4xNVoiLz4KICAgICAgPHBhdGggZD0iTTQ2LjY2LDljLS40NywwLS45NC0uMDQtMS4xLS4wNnYtMi4zMmMuMDkuMDEuMzguMDQuNjkuMDQsMS4wMiwwLDEuMzctLjIxLDEuMzctLjk3di0uNjJzLTIuMSwwLTIuMSwwdi0yLjMzczIuMTQsMCwyLjE0LDB2LTEuNjJzMi41MiwwLDIuNTIsMGwtLjAyLDUuMTJjMCwyLjA2LTEuNTEsMi43NS0zLjUxLDIuNzVaIi8+CiAgICAgIDxwYXRoIGQ9Ik00Mi44NSw5LjA1Yy0uNDIsMC0uOC0uMTEtMS4wOC0uMjl2LjE3cy0yLjU2LDAtMi41NiwwbC4wMi02LjJoMi41NXMtLjAxLDMuMzMtLjAxLDMuMzNjMCwuMzcuMTUuNTguNDMuNTguMjUsMCwuNDEtLjE3LjQxLS40OHYtMy40MnMyLjU3LDAsMi41NywwdjMuNzdjLS4wMiwxLjQ2LS44NSwyLjU1LTIuMzQsMi41NVoiLz4KICAgICAgPHBhdGggZD0iTTM1Ljg5LDkuMDJjLS41MywwLS45Ni0uMTItMS4yNy0uMzJ2LjE5cy0yLjU2LDAtMi41NiwwbC4wMy04Ljg3aDIuNTVzLS4wMSwyLjg4LS4wMSwyLjg4Yy4zMS0uMTkuNzQtLjMxLDEuMjctLjMxLDEuNzQsMCwyLjg0LDEuMjksMi44MywzLjI0cy0xLjEyLDMuMjEtMi44NSwzLjJaTTM1LjM4LDYuODZjLjQ4LDAsLjc1LS4zOC43NS0xLjA2cy0uMjYtMS4wNy0uNzQtMS4wNy0uNzYuMzgtLjc2LDEuMDYuMjgsMS4wNy43NSwxLjA3WiIvPgogICAgICA8cGF0aCBkPSJNMzEuMzksMy4wNmgtMi42cy4wMS0zLjA2LjAxLTMuMDZoMi42cy0uMDEsMy4wNi0uMDEsMy4wNlpNMzEuMzQsOC44OGgtMi41NXMuMDItNS4zMS4wMi01LjMxaDIuNTVzLS4wMiw1LjMxLS4wMiw1LjMxWiIvPgogICAgICA8cGF0aCBkPSJNMjQuOTEsOC45OWMtMi4wNCwwLTMuNC0xLjI4LTMuMzktMy4yNHMxLjM4LTMuMjIsMy40Mi0zLjIxLDMuNDEsMS4yOCwzLjQxLDMuMjQtMS4zOSwzLjIyLTMuNDMsMy4yMVpNMjQuOTIsNi44NWMuNDksMCwuNzYtLjQuNzYtMS4wOHMtLjI2LTEuMDktLjc1LTEuMDktLjc0LjQtLjc1LDEuMDkuMjYsMS4wOC43NCwxLjA4WiIvPgogICAgPC9nPgogIDwvZz4KPC9zdmc+';
 const LOGO_SVG=atob(LOGO_SRC.split(',')[1]);
 const LOGO_ASPECT=56.52/11.44;
 $('brandLogo').src=LOGO_SRC;
 function svgTint(hex){return 'data:image/svg+xml;charset=utf-8,'+encodeURIComponent(LOGO_SVG.replace('<svg ','<svg fill="'+hex+'" '));}
 
-const state={yaw:-.36,pitch:.13,spin:0,spinPitch:0,spinAnimation:null,motionMode:'spin',lastMotionMode:'spin',duration:8,turns:5,direction:'right',flipDuration:1.4,flipSign:1,copies:1,spread:120,zoom:1,bgColor:'#ffffff',logoColor:'#000000',aspect:LOGO_ASPECT,src:svgTint('#000000'),image:null};
+// Vertical tilt is strictly limited; flipping remains around the vertical Y axis.
+const MAX_PITCH=.19; // about 11 degrees in either direction
+const INITIAL_PITCH=.08;
+const state={yaw:-.36,pitch:INITIAL_PITCH,spin:0,spinPitch:0,spinAnimation:null,motionMode:'spin',lastMotionMode:'spin',duration:8,turns:5,direction:'right',flipDuration:1.4,flipSign:1,copies:1,spread:120,zoom:1,bgColor:'#ffffff',logoColor:'#000000',aspect:LOGO_ASPECT,src:svgTint('#000000'),image:null};
 const visual=document.createElement('div');visual.className='scene3d';stage.appendChild(visual);
 const pivot=document.createElement('div');pivot.className='pivot';visual.appendChild(pivot);
 const logoImage=new Image(); logoImage.decoding='async'; logoImage.onload=()=>{state.image=logoImage;rebuild();}; logoImage.src=state.src;
@@ -291,7 +397,7 @@ function applyMotionAt(view,progress){return {...view,spin:view.spin+motionRadia
 function cancelMotion(){
  if(!state.spinAnimation)return;
  state.yaw+=state.spin;
- state.pitch+=state.spinPitch;
+ state.pitch=clamp(state.pitch+state.spinPitch,-MAX_PITCH,MAX_PITCH);
  state.spin=0;
  state.spinPitch=0;
  state.spinAnimation=null;
@@ -301,7 +407,7 @@ function prepareMotion(){
  // Freeze the currently visible view, without fighting the cursor parallax.
  cancelMotion();
  state.yaw+=input.hoverYaw;
- state.pitch+=input.hoverPitch;
+ state.pitch=clamp(state.pitch+input.hoverPitch,-MAX_PITCH,MAX_PITCH);
  input.hoverYaw=0;input.hoverPitch=0;input.targetYaw=0;input.targetPitch=0;
  input.coastYaw=0;input.coastPitch=0;
  state.spin=0;state.spinPitch=0;
@@ -369,7 +475,7 @@ for(const button of $('logoSwatches').querySelectorAll('button'))button.onclick=
 $('bgPicker').addEventListener('input',e=>setBgColor(e.target.value));
 $('logoPicker').addEventListener('input',e=>setLogoColor(e.target.value));
 $('reset').onclick=()=>{
- cancelMotion();state.yaw=-.36;state.pitch=.13;state.spin=0;state.spinPitch=0;state.zoom=1;state.flipSign=1;
+ cancelMotion();state.yaw=-.36;state.pitch=INITIAL_PITCH;state.spin=0;state.spinPitch=0;state.zoom=1;state.flipSign=1;
  input.coastYaw=0;input.coastPitch=0;input.hoverYaw=0;input.hoverPitch=0;input.targetYaw=0;input.targetPitch=0;
  $('elements').value='1';updateElements(1);
 };
@@ -607,7 +713,7 @@ const input={
  targetYaw:0,targetPitch:0,hoverYaw:0,hoverPitch:0
 };
 const clamp=(value,min,max)=>Math.max(min,Math.min(max,value));
-function currentView(){return {...state,yaw:state.yaw+input.hoverYaw,pitch:state.pitch+input.hoverPitch};}
+function currentView(){return {...state,yaw:state.yaw+input.hoverYaw,pitch:clamp(state.pitch+input.hoverPitch,-MAX_PITCH,MAX_PITCH)};}
 function hoverAt(e){
  if(state.spinAnimation)return;
  if(e.pointerType!=='mouse'&&e.pointerType!=='pen')return;
@@ -615,7 +721,7 @@ function hoverAt(e){
  const x=clamp((e.clientX-r.left)/r.width*2-1,-1,1);
  const y=clamp((e.clientY-r.top)/r.height*2-1,-1,1);
  input.targetYaw=x*.62; // Deliberately visible, up to ~35 degrees on either side.
- input.targetPitch=-y*.42; // Up to ~24 degrees vertically, across the entire canvas.
+ input.targetPitch=-y*.095; // About 5 degrees: just enough to suggest three dimensions.
 }
 stage.addEventListener('pointerenter',e=>{if(!input.down)hoverAt(e);});
 stage.addEventListener('pointerleave',()=>{
@@ -643,12 +749,15 @@ stage.addEventListener('pointermove',e=>{
   input.dragging=true;stage.classList.add('dragging');
   // A throw adds temporary inertia and friction to the manual orientation.
  }
- const deltaYaw=dx*.009,deltaPitch=dy*.009;
- state.yaw+=deltaYaw;state.pitch+=deltaPitch;
+ const deltaYaw=dx*.009,deltaPitch=dy*.0028;
+ state.yaw+=deltaYaw;
+ const oldPitch=state.pitch;
+ state.pitch=clamp(state.pitch+deltaPitch,-MAX_PITCH,MAX_PITCH);
+ const actualPitch=state.pitch-oldPitch;
  if(dx||dy){
   const blend=.48;
   input.velYaw=clamp(input.velYaw*(1-blend)+clamp(deltaYaw/elapsed,-22,22)*blend,-22,22);
-  input.velPitch=clamp(input.velPitch*(1-blend)+clamp(deltaPitch/elapsed,-22,22)*blend,-22,22);
+  input.velPitch=actualPitch===0?0:clamp(input.velPitch*(1-blend)+clamp(actualPitch/elapsed,-1.5,1.5)*blend,-1.5,1.5);
   input.lastMotion=now;
  }
 });
@@ -694,7 +803,10 @@ function loop(now){
    const decay=Math.exp(-friction*dt);
    // Integral of the decaying angular velocity: stable at any refresh rate.
    const step=(1-decay)/friction;
-   state.yaw+=input.coastYaw*step;state.pitch+=input.coastPitch*step;
+   state.yaw+=input.coastYaw*step;
+   const oldPitch=state.pitch;
+   state.pitch=clamp(state.pitch+input.coastPitch*step,-MAX_PITCH,MAX_PITCH);
+   if(state.pitch===oldPitch)input.coastPitch=0;
    input.coastYaw*=decay;input.coastPitch*=decay;
   }else{input.coastYaw=0;input.coastPitch=0;}
 
@@ -705,13 +817,11 @@ function loop(now){
   state.spinPitch=0;
   if(t>=1){
    // Preserve exactly the finishing viewpoint for Spin or a 180° click flip.
-   state.yaw+=state.spin;state.pitch+=state.spinPitch;
+   state.yaw+=state.spin;state.pitch=clamp(state.pitch+state.spinPitch,-MAX_PITCH,MAX_PITCH);
    state.yaw=(state.yaw+Math.PI)%(Math.PI*2);
    if(state.yaw<0)state.yaw+=Math.PI*2;
    state.yaw-=Math.PI;
-   state.pitch=(state.pitch+Math.PI)%(Math.PI*2);
-   if(state.pitch<0)state.pitch+=Math.PI*2;
-   state.pitch-=Math.PI;
+   // Pitch is deliberately bounded: there is no full X-axis rotation.
    state.spin=0;state.spinPitch=0;state.spinAnimation=null;
    $('motion').classList.remove('on');
   }
@@ -720,7 +830,7 @@ function loop(now){
  input.hoverYaw+=(input.targetYaw-input.hoverYaw)*ease;
  input.hoverPitch+=(input.targetPitch-input.hoverPitch)*ease;
  const yaw=state.yaw+state.spin+input.hoverYaw;
- const pitch=state.pitch+state.spinPitch+input.hoverPitch;
+ const pitch=clamp(state.pitch+state.spinPitch+input.hoverPitch,-MAX_PITCH,MAX_PITCH);
  pivot.style.transform='rotateX('+pitch+'rad) rotateY('+yaw+'rad)';
   visual.style.transform='scale('+state.zoom+')';
  requestAnimationFrame(loop);

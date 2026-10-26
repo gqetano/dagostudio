@@ -18,7 +18,7 @@ Un'esperienza interattiva per esplorare il logo STUDIO DAGO in prospettiva, camb
 ## Uso
 
 - **Clic sul canvas:** flip di 180°.
-- **Trascina:** cambia la prospettiva; **rotella:** zoom senza deformazioni.
+- **Trascina:** ruota liberamente in orizzontale, con una leggera inclinazione verticale limitata per preservare la leggibilità; **rotella:** zoom senza deformazioni.
 - **Spin:** animazione con numero di giri, durata e direzione selezionabili.
 - **Barra delle impostazioni:** elementi, distanza, colore del logo e dello sfondo.
 - **Save SVG / Esporta MP4:** scarica i risultati.
