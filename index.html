@@ -1,842 +1,636 @@
 <!doctype html>
 <html lang="it">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>STUDIO DAGO — Plane</title>
-<style>
-:root{
- --ui-bg:#fcfcfb;--stage:#fff;--ink:#000;--muted:#000;--line:#e7e7e4;
- --pill:#d8d8d8;--pill-hover:#c6c6c6;--type:12.6px;--unit:46px;
- --font:-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;
-}
-*{box-sizing:border-box}
-html,body{margin:0;height:100%}
-body{font-family:var(--font);font-size:var(--type);line-height:1.15;font-weight:700;color:var(--ink);background:var(--ui-bg);overflow:hidden;text-transform:uppercase}
-button,input{font-family:inherit;font-size:inherit;text-transform:inherit}
-button{ -webkit-tap-highlight-color:transparent }
-.workspace{display:grid;grid-template-columns:318px minmax(0,1fr);height:100dvh;min-height:470px;width:100%}
-.sidebar{
- background:var(--ui-bg);border-right:1px solid var(--line);z-index:2;
- display:flex;flex-direction:column;padding:18px 14px 18px;
- min-height:0;overflow-y:auto;gap:0;
-}
-.brand{
- display:flex;justify-content:flex-start;align-items:center;min-height:var(--unit);
- background:transparent;border-radius:0;padding:4px 12px;
-}
-.brand-logo{display:block;width:205px;max-width:100%;height:auto;pointer-events:none}
-.menu{padding-top:20px;display:flex;flex-direction:column;gap:18px}
-.section{display:flex;flex-direction:column;gap:6px}
-.head{
- display:flex;align-items:center;justify-content:space-between;
- margin-bottom:2px;padding-left:12px;
- font-size:var(--type);font-weight:700;letter-spacing:-.04em;text-transform:uppercase;color:var(--ink);
-}
-/* Rounded slider and palette rows mirror the floating Spin toolbar. */
-.range-wrap,.color-row{
- display:flex;align-items:center;flex-wrap:nowrap;gap:8px;
- min-height:var(--unit);width:100%;padding:0 12px;
- border-radius:999px;background:var(--pill);
-}
-.range-wrap .name,.color-row .name{
- font-size:var(--type);font-weight:700;letter-spacing:-.045em;white-space:nowrap;flex:none;
-}
-.range-wrap .name{min-width:70px}
-.range-wrap .tiny{
- font-size:var(--type);font-weight:700;letter-spacing:-.045em;
- font-variant-numeric:tabular-nums;white-space:nowrap;flex:none;text-align:right;
-}
-.range-wrap .range{min-width:30px;flex:1 1 0}
-.range{
- display:block;appearance:none;-webkit-appearance:none;background:transparent;
- height:24px;margin:0;border:0;padding:0;cursor:pointer;touch-action:manipulation;
-}
-.range::-webkit-slider-runnable-track{height:2px;background:#181a16;border-radius:2px}
-.range::-moz-range-track{height:2px;background:#181a16;border-radius:2px}
-.range::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;margin-top:-6px;background:#1c1e1b;border:0;border-radius:50%}
-.range::-moz-range-thumb{width:14px;height:14px;background:#1c1e1b;border:0;border-radius:50%}
-.range:focus-visible{outline:2px solid #20211e;outline-offset:3px}
-.divider{display:none}
-.color-row{justify-content:space-between}
-.swatches{display:flex;gap:6px;align-items:center;padding:4px 2px;flex:none}
-.swatch{
- width:22px;height:22px;flex:none;border-radius:50%;border:1px solid #bcbcb9;
- cursor:pointer;position:relative;padding:0;background:var(--swatch);
-}
-.swatch.active:after{content:"";position:absolute;inset:-4px;border:1.5px solid #1d1d1b;border-radius:50%;pointer-events:none}
-.picker-shell{
- display:block;position:relative;width:22px;height:22px;flex:none;border-radius:50%;
- background:conic-gradient(#ff4343,#ffdd66,#5de5a6,#3987ff,#be6cf5,#ff4343);
- border:1px solid #bcbcb9;cursor:pointer;
-}
-.picker-shell:before{content:"";position:absolute;inset:6px;background:var(--picked,var(--ui-bg));border-radius:50%;pointer-events:none}
-.picker-shell.active:after{content:"";position:absolute;inset:-4px;border:1.5px solid #1d1d1b;border-radius:50%;pointer-events:none}
-.picker-shell input{position:absolute;inset:-4px;width:30px;height:30px;opacity:0;cursor:pointer}
-.swatch:focus-visible,.picker-shell:focus-within{outline:2px solid #20211e;outline-offset:4px}
-.bottom{
- margin-top:auto;padding:22px 12px 0;
- display:flex;flex-direction:column;align-items:flex-start;gap:11px;
-}
-.text-action{
- appearance:none;display:inline-block;width:auto;height:auto;margin:0;padding:0;border:0;
- border-radius:0;background:none;box-shadow:none;color:#000;
- font-size:var(--type);line-height:1.2;font-weight:700;letter-spacing:-.045em;
- text-align:left;text-decoration:none;text-underline-offset:4px;cursor:pointer;
-}
-.text-action:hover{text-decoration:underline;color:#20211e}
-.text-action:focus-visible{outline:2px solid #20211e;outline-offset:4px}
-.text-action:disabled{cursor:default;text-decoration:none}
-.stage{
- position:relative;min-width:0;overflow:hidden;touch-action:none;cursor:pointer;
- background:var(--stage);container-type:inline-size;
-}
-.stage.dragging{cursor:grabbing}
-.stage canvas{display:none}
-.stage:focus-visible{outline:2px solid #999;outline-offset:-2px}
-.scene3d{position:absolute;inset:0;transform-style:preserve-3d;pointer-events:none}
-.scene3d .pivot{position:absolute;left:50%;top:50%;width:0;height:0;transform-style:preserve-3d;will-change:transform}
-.scene3d .blade{position:absolute;top:0;left:0;transform-style:preserve-3d;backface-visibility:visible}
-.scene3d .blade img{display:block;width:100%;height:100%;backface-visibility:visible;user-select:none;-webkit-user-drag:none}
-.canvas-actions{
- position:absolute;z-index:5;bottom:22px;left:50%;transform:translateX(-50%);
- display:flex;align-items:stretch;gap:0;padding:0;border:0;box-shadow:none;background:none;
- max-width:calc(100% - 24px);height:var(--unit);color:#000;touch-action:pan-x;
-}
-.canvas-motion,.motion-field,.direction-button{background:var(--pill);border:0;border-radius:999px}
-.canvas-motion{
- flex:0 0 102px;width:102px;height:var(--unit);padding:0 12px;
- color:#000;font-size:var(--type);line-height:1;font-weight:700;
- letter-spacing:-.035em;text-transform:uppercase;cursor:pointer;
- transition:background .16s ease;touch-action:manipulation;
-}
-.canvas-motion:hover{background:var(--pill-hover)}
-.canvas-motion:active,.canvas-motion.on{background:#bcbcbc}
-.canvas-motion:focus-visible,.direction-button:focus-visible{outline:2px solid #1d1d1b;outline-offset:-5px}
-.motion-field{
- display:flex;align-items:center;flex-flow:row nowrap;gap:9px;min-width:0;height:var(--unit);
- padding:0 12px;white-space:nowrap;
-}
-.motion-field.turns-field{flex:0 1 192px;width:192px}
-.motion-field.duration-field{flex:0 1 190px;width:190px}
-.motion-field .name,.motion-field .tiny{
- margin:0;color:#000;font-size:var(--type);line-height:1;font-weight:700;
- letter-spacing:-.055em;text-transform:uppercase;white-space:nowrap;
-}
-.motion-field .range{width:30px;min-width:30px;flex:1 1 auto}
-.motion-direction{display:flex;align-items:center;flex:none;height:var(--unit)}
-.motion-direction .name{
- position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;
- clip:rect(0,0,0,0);white-space:nowrap;border:0;
-}
-.direction-buttons{display:flex;align-items:stretch;gap:0;height:100%}
-.direction-button{
- display:grid;place-items:center;width:var(--unit);height:var(--unit);flex:0 0 var(--unit);padding:0;
- color:#151614;font-size:var(--type);line-height:1;font-weight:700;
- cursor:pointer;transition:background .16s ease,color .16s ease;
-}
-.direction-button:hover{background:#c4c4c4;color:#000}
-.direction-button.active{background:#21221f;color:#fff}
-.direction-button.active:hover{background:#3a3b37;color:#fff}
-.corner{display:none}
-/* The controls wrap only when the canvas no longer accommodates five wide capsules. */
-@container (max-width:625px){
- .canvas-actions{
-  width:min(440px,calc(100% - 24px));height:auto;bottom:16px;
-  display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;
- }
- .canvas-motion{grid-column:1/3;grid-row:1;width:100%;height:46px;flex-basis:auto}
- .motion-direction{grid-column:3/5;grid-row:1;height:46px;width:100%}
- .direction-buttons{width:100%;gap:4px}
- .direction-button{width:auto;height:46px;flex:1 1 0}
- .motion-field{height:46px;gap:9px;padding:0 13px}
- .motion-field.turns-field{grid-column:1/-1;grid-row:2;width:100%;flex-basis:auto}
- .motion-field.duration-field{grid-column:1/-1;grid-row:3;width:100%;flex-basis:auto}
-}
-@media(max-width:920px) and (min-width:701px){
- .workspace{grid-template-columns:292px minmax(0,1fr)}
- .sidebar{padding:15px 10px}
- .menu{padding-top:18px;gap:16px}
- .brand-logo{width:194px}
- .range-wrap,.color-row{padding:0 11px;gap:7px}
- .range-wrap .name{min-width:69px}
- .swatches{gap:5px}
- .swatch,.picker-shell{width:22px;height:22px}
-}
-/* On phones the work stays centered while a three-page control deck is docked below. */
-.mobile-dock{display:none}
-@media(max-width:700px){
- html,body{height:100%;overflow:hidden;overscroll-behavior:none}
- .workspace{display:block;width:100%;height:100dvh;min-height:0}
- .stage{display:block;height:100dvh;min-height:0;width:100%;touch-action:none}
- .sidebar{display:none}
- .mobile-dock{
-  display:flex;position:fixed;z-index:20;left:0;right:0;bottom:0;
-  flex-direction:column;gap:0;max-width:100%;
-  padding:9px 10px max(13px,env(safe-area-inset-bottom));
-  background:linear-gradient(to bottom,rgba(252,252,251,0),rgba(252,252,251,.95) 27%,#fcfcfb 65%);
- }
- .mobile-dots{display:flex;align-items:center;justify-content:center;gap:7px;height:26px;margin-bottom:5px}
- .mobile-dot{appearance:none;width:11px;height:11px;border:0;padding:0;border-radius:50%;background:#d3d3d3;cursor:pointer;touch-action:manipulation;transition:background .15s ease}
- .mobile-dot.active{background:#050505}
- .mobile-dot:focus-visible{outline:2px solid #000;outline-offset:3px}
- .mobile-pages{
-  display:flex;flex:0 0 auto;width:100%;overflow-x:auto;overflow-y:hidden;
-  scroll-snap-type:x mandatory;scroll-behavior:smooth;
-  scrollbar-width:none;-ms-overflow-style:none;
-  overscroll-behavior-x:contain;touch-action:pan-x;
- }
- .mobile-pages::-webkit-scrollbar{display:none}
- .mobile-page{display:flex;flex-direction:column;justify-content:flex-end;width:100%;flex:0 0 100%;min-width:0;min-height:148px;scroll-snap-align:start;scroll-snap-stop:always;padding:0;}
- .mobile-page .section{gap:5px}
- .mobile-page .head{margin:0 0 3px;padding-left:12px}
- .mobile-page .range-wrap,.mobile-page .color-row{height:var(--unit);min-height:var(--unit);padding:0 12px}
- .mobile-page .menu{padding:0}
- .mobile-page .bottom{
-  display:flex;flex-flow:row wrap;align-items:center;justify-content:space-between;
-  margin-top:14px;padding:4px 12px 0;gap:8px 10px;
- }
- .mobile-page .bottom .text-action{font-size:var(--type);white-space:nowrap;}
- .mobile-page .canvas-actions{
-  position:static;left:auto;bottom:auto;transform:none;
-  width:100%;max-width:none;height:auto;display:grid;
-  grid-template-columns:minmax(0,1fr) var(--unit) var(--unit);
-  grid-template-rows:repeat(3,var(--unit));gap:5px;
-  color:#000;touch-action:auto;
- }
- .mobile-page .canvas-motion{grid-column:1;grid-row:1;width:100%;height:var(--unit);flex-basis:auto}
- .mobile-page .motion-direction{grid-column:2/4;grid-row:1;width:100%;height:var(--unit)}
- .mobile-page .direction-buttons{width:100%;height:100%;gap:5px}
- .mobile-page .direction-button{width:var(--unit);height:var(--unit);flex:1 1 0;}
- .mobile-page .motion-field{width:100%;min-width:0;height:var(--unit);gap:9px;padding:0 12px;flex-basis:auto}
- .mobile-page .motion-field.turns-field{grid-column:1/-1;grid-row:2;width:100%;flex-basis:auto}
- .mobile-page .motion-field.duration-field{grid-column:1/-1;grid-row:3;width:100%;flex-basis:auto}
- .mobile-page .motion-field .range{width:30px;min-width:30px;flex:1 1 auto}
- .mobile-page .swatches{gap:6px}
- .mobile-page .color-row .name{white-space:nowrap}
- .mobile-page .color-row{justify-content:space-between}
- .mobile-page .range-wrap .name{min-width:75px}
-}
-@media(max-width:400px){
- .mobile-dock{padding-left:10px;padding-right:10px}
- .mobile-page .range-wrap,.mobile-page .color-row{padding:0 12px}
- .mobile-page .swatches{gap:6px}
- .mobile-page .swatch,.mobile-page .picker-shell{width:22px;height:22px}
- .mobile-page .bottom{gap:8px 10px}
- .mobile-page .range-wrap .name{min-width:70px}
-}
-</style>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#000000" />
+  <meta name="description" content="DAGOSTUDIO — fotografia contemporanea di matrimonio." />
+  <title>DAGOSTUDIO — Anteprima home 14 — margini logo mobile</title>
+  <style>
+    :root {
+      --carmine: #FF0000;
+      --logo: #e7e7e7;
+      --gap: 6px;
+      --pad: clamp(9px, 1.1vw, 17px);
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body { margin: 0; width: 100%; min-height: 100%; background: #000; }
+    html { overscroll-behavior: none; }
+    body { overflow: hidden; font-family: Arial, Helvetica, sans-serif; }
+    button { font: inherit; }
+    .scene { position: fixed; inset: 0; width: 100%; height: 100dvh; overflow: hidden; background: #000; isolation: isolate; touch-action: none; }
+    /* V08: prevent fast carousel clicks selecting the page. Reversible via
+       DISABLE_CAROUSEL_TEXT_SELECTION (below); future selectable content can
+       opt back in with .allow-text-selection. */
+    .scene.no-accidental-selection { -webkit-user-select: none; user-select: none; }
+    .scene.no-accidental-selection .allow-text-selection { -webkit-user-select: text; user-select: text; }
+
+    .photos { position: absolute; inset: 0; z-index: 0; overflow: hidden; }
+    .photo { position: absolute; inset: 0; display: none; overflow: hidden; }
+    .photo.active { display: block; }
+    .photo img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: center center; pointer-events: none; }
+    /* The original mark remains in view even when the introduction is finished. */
+    .mark {
+      position: absolute; z-index: 2;
+      top: 0; left: 1.15%;
+      width: 97.7%; height: 100%;
+      overflow: visible; color: var(--logo); pointer-events: none;
+    }
+    .glyph { will-change: transform; }
+    .interface {
+      position: fixed; z-index: 5; inset: 0;
+      display: grid; grid-template-columns: repeat(5,minmax(0,1fr)); grid-template-rows: auto 1fr;
+      column-gap: var(--gap); padding:
+        calc(var(--pad) + env(safe-area-inset-top, 0px))
+        calc(var(--pad) + env(safe-area-inset-right, 0px))
+        calc(var(--pad) + env(safe-area-inset-bottom, 0px))
+        calc(var(--pad) + env(safe-area-inset-left, 0px));
+      pointer-events: none;
+    }
+    .cross, .circle { width: clamp(36px,5.8vw,78px); height: clamp(36px,5.8vw,78px); position: relative; }
+    .cross { grid-column: 1; grid-row: 1; }
+    .cross::before,.cross::after { content:""; position:absolute; background:var(--carmine); }
+    .cross::before { width:1.5px; height:100%; left:50%; top:0; transform: translateX(-50%); }
+    .cross::after { height:1.5px; width:100%; left:0; top:50%; transform: translateY(-50%); }
+    .circle { grid-column:5; grid-row:1; justify-self:end; border:1.5px solid var(--carmine); border-radius:50%; }
+    /* One custom full-size arrow follows the mouse; no persistent bottom controls. */
+    .cursor-arrow {
+      position: fixed; left: 0; top: 0; z-index: 20;
+      width: clamp(36px, 5.8vw, 78px); height: clamp(36px, 5.8vw, 78px);
+      pointer-events: none; visibility: hidden; transform: translate(-50%, -50%);
+      color: var(--carmine);
+    }
+    .cursor-arrow svg { display: block; width: 100%; height: 100%; }
+    .cursor-arrow path {
+      fill: none; stroke: currentColor; stroke-width: 1.5;
+      vector-effect: non-scaling-stroke; stroke-linecap: square; stroke-linejoin: miter;
+    }
+    .cursor-arrow[data-direction="left"] svg { transform: scaleX(-1); }
+    /* V10: compact client-facing intro comparison. No other site controls changed. */
+    .version-switch {
+      position: fixed; z-index: 30;
+      right: calc(var(--pad) + env(safe-area-inset-right, 0px));
+      top: 50%; bottom: auto;
+      transform: translateY(-50%);
+      display: flex; flex-direction: column; align-items: center; gap: 6px;
+      pointer-events: auto;
+    }
+    .version-btn {
+      appearance: none; background: transparent; color: var(--carmine);
+      border: 1.5px solid var(--carmine); border-radius: 0;
+      display: grid; place-items: center;
+      width: clamp(42px, 4.5vw, 58px); height: clamp(42px, 4.5vw, 58px);
+      padding: 0; margin: 0;
+      font: 700 clamp(13px, 1.3vw, 17px)/1 Arial, Helvetica, sans-serif;
+      letter-spacing: -.04em; cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      -webkit-user-select: none; user-select: none;
+    }
+    .version-btn[aria-pressed="true"] { background: var(--carmine); color: #000; }
+    .version-btn:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
+
+    /* V11 — Instagram-style time rail: one thin segment per photograph, hard-cut carousel. */
+    .slide-progress {
+      position: fixed; z-index: 16;
+      top: auto; bottom: calc(7px + env(safe-area-inset-bottom, 0px));
+      left: calc(var(--pad) + env(safe-area-inset-left, 0px));
+      right: calc(var(--pad) + env(safe-area-inset-right, 0px));
+      display: grid; grid-template-columns: repeat(11, minmax(0, 1fr)); gap: 5px;
+      height: 20px; align-items: center; pointer-events: auto;
+    }
+    .slide-progress button {
+      display: block; appearance: none; border: 0; background: transparent;
+      margin: 0; padding: 0; height: 20px; width: 100%;
+      cursor: pointer; touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .slide-progress .progress-track {
+      display: block; position: relative; overflow: hidden;
+      width: 100%; height: 1.5px; background: rgba(255, 0, 0, .36);
+    }
+    .slide-progress .progress-fill {
+      position: absolute; inset: 0; background: var(--carmine);
+      transform-origin: left center; transform: scaleX(0); will-change: transform;
+    }
+    .slide-progress button:focus-visible { outline: 1px solid white; outline-offset: 3px; }
+    @media (max-width: 680px) {
+      /* Mobile-only: logo against upper edge, the two pictograms anchored below. */
+      .mark { top: 0; left: 0; width: 100%; }
+      .interface { grid-template-rows: 1fr auto; }
+      .cross, .circle { grid-row: 2; }
+      .cross { justify-self: start; }
+      .circle { justify-self: end; }
+      /* Client comparison controls run down the right-hand edge, halfway up. */
+      .version-switch {
+        top: 50%; bottom: auto; right: calc(var(--pad) + env(safe-area-inset-right, 0px));
+        transform: translateY(-50%); flex-direction: column;
+      }
+      /* V12: mobile retains the V11 story rail ABOVE. Desktop alone moves it below. */
+      .slide-progress {
+        top: calc(7px + env(safe-area-inset-top, 0px));
+        bottom: auto; gap: 3px;
+      }
+    }
+    @media (hover: hover) and (pointer: fine) { .scene { cursor: none; } }
+    .visually-hidden { position:absolute!important;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap; }
+    @media (max-width: 680px) {
+      :root { --pad: 10px; --gap: 0px; }
+      .interface { grid-template-columns: 1fr; }
+      .cross,.circle { width: 41px; height: 41px; grid-column: 1; }
+    }
+    /* Last mobile overrides, after the original V10 mobile grid. */
+    @media (max-width: 680px) {
+      .interface { grid-template-rows: 1fr auto; }
+      .cross,.circle { grid-row: 2; }
+      .circle { justify-self: end; }
+      /* V14 — MOBILE ONLY: align the logo's horizontal margins to the red
+         controls (the same --pad + safe-area inset on either side), and put
+         the composed lettering below the story-progress rail. Desktop untouched.
+         Adjust MOBILE_LOGO_OFFSET in this CSS block if needed later. */
+      .mark {
+        --mobile-logo-offset: 24px;
+        top: calc(var(--mobile-logo-offset) + env(safe-area-inset-top, 0px));
+        left: calc(var(--pad) + env(safe-area-inset-left, 0px));
+        width: calc(100% - (2 * var(--pad)) - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px));
+      }
+    }
+    @media (prefers-reduced-motion: reduce) { .glyph { will-change: auto; } }
+  </style>
 </head>
 <body>
-<div class="workspace">
-<aside class="sidebar">
-  <div class="brand" aria-label="STUDIO DAGO"><img class="brand-logo" id="brandLogo" alt="STUDIO DAGO" /></div>
-  <div class="menu">
-    <section class="section">
-      <div class="head"><span>Composizione</span></div>
-      <div class="range-wrap"><label for="elements" class="name">Elementi</label><input class="range" id="elements" type="range" min="1" max="10" step="1" value="1" aria-label="Elementi"><span class="tiny" id="elementsVal">1</span></div>
-      <div class="range-wrap"><label for="spread" class="name">Distanza</label><input class="range" id="spread" type="range" min="0" max="360" step="1" value="120" aria-label="Distanza"><span class="tiny" id="spreadVal">120°</span></div>
-    </section>
-    <div class="divider"></div>
-    <section class="section">
-      <div class="head"><span>Colori</span></div>
-      <div class="color-row">
-        <span class="name">Sfondo</span>
-        <div class="swatches" id="bgSwatches" role="group" aria-label="Colore dello sfondo">
-          <button type="button" class="swatch" data-bg="#000000" style="--swatch:#000000" aria-label="Sfondo nero" aria-pressed="false" title="Nero"></button>
-          <button type="button" class="swatch" data-bg="#808080" style="--swatch:#808080" aria-label="Sfondo grigio" aria-pressed="false" title="Grigio"></button>
-          <button type="button" class="swatch active" data-bg="#ffffff" style="--swatch:#ffffff" aria-label="Sfondo bianco" aria-pressed="true" title="Bianco"></button>
-          <label class="picker-shell" id="bgPickerShell" title="Altro colore per lo sfondo" aria-label="Altro colore per lo sfondo"><input type="color" id="bgPicker" value="#ffffff" aria-label="Scegli un colore personalizzato per lo sfondo"></label>
-        </div>
-      </div>
-      <div class="color-row">
-        <span class="name">Logo</span>
-        <div class="swatches" id="logoSwatches" role="group" aria-label="Colore del logo">
-          <button type="button" class="swatch active" data-logo="#000000" style="--swatch:#000000" aria-label="Logo nero" aria-pressed="true" title="Nero"></button>
-          <button type="button" class="swatch" data-logo="#808080" style="--swatch:#808080" aria-label="Logo grigio" aria-pressed="false" title="Grigio"></button>
-          <button type="button" class="swatch" data-logo="#ffffff" style="--swatch:#ffffff" aria-label="Logo bianco" aria-pressed="false" title="Bianco"></button>
-          <label class="picker-shell" id="logoPickerShell" title="Altro colore per il logo" aria-label="Altro colore per il logo"><input type="color" id="logoPicker" value="#000000" aria-label="Scegli un colore personalizzato per il logo"></label>
-        </div>
-      </div>
-    </section>
-  </div>
-  <div class="bottom">
-    <button type="button" class="text-action" id="reset">Reimposta vista</button>
-    <button type="button" class="text-action" id="export">Save SVG</button>
-    <button type="button" class="text-action" id="exportVideo"><span id="exportVideoLabel">Esporta MP4</span></button>
-  </div>
-</aside>
-<main class="stage" id="stage" tabindex="0" aria-label="Canvas interattivo: clicca ovunque per un flip di 180 gradi, trascina per cambiare prospettiva">
-  <div class="canvas-actions" id="canvasActions" role="group" aria-label="Controlli Spin">
-    <button type="button" class="canvas-motion" id="motion" aria-label="Avvia Spin">Spin</button>
-    <div class="motion-field turns-field">
-      <label for="turns" class="name">Giri</label>
-      <input class="range" id="turns" type="range" min="1" max="5" step="1" value="5" aria-label="Numero di giri dello Spin">
-      <span class="tiny" id="turnsVal" aria-live="off">5</span>
+  <main class="scene" id="scene" aria-label="DAGOSTUDIO — portfolio fotografico">
+    <div class="photos" id="photos" aria-label="Carosello fotografico a schermo intero">
+      <div class="photo active" data-index="0" aria-hidden="false"><img src="images/foto-01.webp" alt="Fotografia DAGOSTUDIO 1" loading="eager" decoding="async" fetchpriority="high"></div>
+      <div class="photo" data-index="1" aria-hidden="true"><img src="images/foto-02.webp" alt="Fotografia DAGOSTUDIO 2" loading="eager" decoding="async" ></div>
+      <div class="photo" data-index="2" aria-hidden="true"><img src="images/foto-03.webp" alt="Fotografia DAGOSTUDIO 3" loading="lazy" decoding="async" ></div>
+      <div class="photo" data-index="3" aria-hidden="true"><img src="images/foto-04.webp" alt="Fotografia DAGOSTUDIO 4" loading="lazy" decoding="async" ></div>
+      <div class="photo" data-index="4" aria-hidden="true"><img src="images/foto-05.webp" alt="Fotografia DAGOSTUDIO 5" loading="lazy" decoding="async" ></div>
+      <div class="photo" data-index="5" aria-hidden="true"><img src="images/foto-06.webp" alt="Fotografia DAGOSTUDIO 6" loading="lazy" decoding="async" ></div>
+      <div class="photo" data-index="6" aria-hidden="true"><img src="images/foto-07.webp" alt="Fotografia DAGOSTUDIO 7" loading="lazy" decoding="async" ></div>
+      <div class="photo" data-index="7" aria-hidden="true"><img src="images/foto-08.webp" alt="Fotografia DAGOSTUDIO 8" loading="lazy" decoding="async" ></div>
+      <div class="photo" data-index="8" aria-hidden="true"><img src="images/foto-09.webp" alt="Fotografia DAGOSTUDIO 9" loading="lazy" decoding="async" ></div>
+      <div class="photo" data-index="9" aria-hidden="true"><img src="images/foto-10.webp" alt="Fotografia DAGOSTUDIO 10" loading="lazy" decoding="async" ></div>
+      <div class="photo" data-index="10" aria-hidden="true"><img src="images/foto-11.webp" alt="Fotografia DAGOSTUDIO 11" loading="lazy" decoding="async" ></div>
     </div>
-    <div class="motion-field duration-field">
-      <label for="duration" class="name">Durata</label>
-      <input class="range" id="duration" type="range" min="4" max="16" step="1" value="8" aria-label="Durata dello Spin">
-      <span class="tiny" id="durationVal" aria-live="off">8 s</span>
+    <!-- EXACT original DAGOSTUDIO SVG paths; each character keeps its final original x position. -->
+    <svg id="mark" class="mark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 55.37 40" preserveAspectRatio="xMinYMin meet" role="img" aria-label="DAGOSTUDIO">
+      <g class="glyph" id="glyph-0" data-char="d" aria-hidden="true"><path fill="currentColor" d="M4.37.1v1.96h-1.34c-1.67,0-3.03,1.35-3.03,3.03s1.36,3.03,3.03,3.03h3.13V.1h-1.79ZM1.45,5.09c0-.88.71-1.59,1.58-1.59.57,0,1.07.3,1.34.75.15.24.24.53.24.84s-.09.59-.24.83c-.27.45-.77.75-1.34.75-.87,0-1.58-.71-1.58-1.58Z"/>
+    </g>
+<g class="glyph" id="glyph-1" data-char="a" aria-hidden="true"><path fill="currentColor" d="M9.05,2.06c-1.36,0-2.51.89-2.89,2.13-.06.19-.1.38-.12.59h0c-.02.11-.02.21-.02.31s0,.2.02.3h0c.02.21.06.41.12.6.38,1.23,1.53,2.13,2.89,2.13h3.12V2.06h-3.12ZM7.47,5.09c0-.88.71-1.59,1.58-1.59s1.58.71,1.58,1.59-.71,1.58-1.58,1.58-1.58-.71-1.58-1.58Z"/>
+    </g>
+<g class="glyph" id="glyph-2" data-char="g" aria-hidden="true"><path fill="currentColor" d="M16.85,8.12h-.37s0,0,.01,0c1.09-.41,1.9-1.38,2.06-2.57h0c.03-.15.04-.3.04-.45,0-.14,0-.28-.03-.41h0c-.2-1.59-1.55-2.81-3.19-2.81s-3.04,1.27-3.2,2.89c-.01.11-.02.22-.02.33s.01.22.02.33c.12,1.24.95,2.27,2.08,2.69,0,0,0,0,.01,0h-2.08v1.46h4.67c.19,0,.35.16.35.35,0,.13-.06.21-.1.25-.04.04-.12.1-.25.1h-4.68v1.46h4.68c.48,0,.94-.19,1.28-.53.34-.34.53-.8.53-1.28,0-.99-.81-1.8-1.8-1.8ZM13.79,5.09c0-.88.7-1.58,1.58-1.58s1.58.7,1.58,1.58-.71,1.58-1.58,1.58-1.58-.71-1.58-1.58Z"/>
+    </g>
+<g class="glyph" id="glyph-3" data-char="o" aria-hidden="true"><path fill="currentColor" d="M24.98,4.65c-.04-.32-.13-.63-.26-.91-.52-1.11-1.64-1.88-2.95-1.88-1.64,0-3,1.23-3.21,2.81h0c-.03.15-.04.29-.04.44,0,.14,0,.28.03.42h0c.22,1.6,1.57,2.83,3.22,2.83,1.8,0,3.25-1.46,3.25-3.25,0-.16-.01-.31-.04-.46ZM21.77,6.69c-.87,0-1.58-.71-1.58-1.58s.71-1.58,1.58-1.58,1.58.71,1.58,1.58-.7,1.58-1.58,1.58Z"/>
+    </g>
+<g class="glyph" id="glyph-4" data-char="s" aria-hidden="true"><path fill="currentColor" d="M30.39,6.32c0,1.04-.83,1.79-1.98,1.79h-3.47v-1.47h3.46c.24,0,.41-.14.41-.34s-.11-.33-.31-.38l-2.34-.5c-.87-.2-1.45-.85-1.45-1.61,0-1.02.81-1.76,1.94-1.76h.98c.84,0,2.46.01,2.46.01v1.46h-3.39c-.24,0-.41.14-.41.33,0,.17.13.31.3.36l2.32.47c.91.19,1.48.82,1.48,1.64Z"/>
+    </g>
+<g class="glyph" id="glyph-5" data-char="t" aria-hidden="true"><polygon fill="currentColor" points="34.17 2.05 34.17 2.08 34.16 3.51 32.98 3.51 32.99 8.11 31.28 8.11 31.28 8.1 31.27 3.52 30.13 3.52 32.99 .2 32.99 2.05 34.17 2.05"/>
+    </g>
+<g class="glyph" id="glyph-6" data-char="u" aria-hidden="true"><path fill="currentColor" d="M38.49,2.06v2.93h-.01s.01.07.01.1c0,.73-.59,1.32-1.31,1.32h-.01c-.73-.01-1.31-.59-1.31-1.32v-3.03h-1.71v3.03c0,1.67,1.34,3.02,3.02,3.03h3.04V2.06h-1.72Z"/>
+    </g>
+<g class="glyph" id="glyph-7" data-char="d" aria-hidden="true"><path fill="currentColor" d="M44.58.1v1.96h-1.39c-1.49,0-2.73,1.07-2.98,2.5-.01.05-.02.11-.02.17h0c-.02.09-.03.17-.02.26-.01.03-.01.07-.01.1,0,.12.01.23.03.35h0c0,.07.01.13.02.19.25,1.41,1.49,2.49,2.98,2.49h3.13V.1h-1.74ZM41.61,5.09c0-.87.71-1.58,1.58-1.58.61,0,1.13.34,1.39.84.12.22.19.47.19.74s-.07.52-.19.74c-.26.5-.78.83-1.39.83-.87,0-1.58-.7-1.58-1.57Z"/>
+    </g>
+<g class="glyph" id="glyph-8" data-char="i" aria-hidden="true"><g>
+      <path fill="currentColor" d="M47.7,2.08c.56,0,1.03-.48,1.03-1.05s-.47-1.03-1.03-1.03-1.03.47-1.03,1.03.47,1.05,1.03,1.05Z"/>
+      <rect fill="currentColor" x="46.84" y="2.44" width="1.69" height="5.68"/>
+    </g>
+    </g>
+<g class="glyph" id="glyph-9" data-char="o" aria-hidden="true"><path fill="currentColor" d="M52.15,1.87c-1.78,0-3.22,1.44-3.22,3.22s1.44,3.22,3.22,3.22,3.22-1.44,3.22-3.22-1.44-3.22-3.22-3.22ZM52.15,6.67c-.88,0-1.58-.71-1.58-1.58s.7-1.58,1.58-1.58,1.58.7,1.58,1.58-.71,1.58-1.58,1.58Z"/>
+  </g>
+    </svg>
+
+    <!-- Symbols stay overlaid on every photograph, including after logo completion. -->
+    <div class="interface" aria-hidden="true"><div class="cross"></div><div class="circle"></div></div>
+    <div id="cursorArrow" class="cursor-arrow" data-direction="right" aria-hidden="true">
+      <svg viewBox="0 0 78 78"><path d="M20 3 L56 39 L20 75" /></svg>
     </div>
-    <div class="motion-direction" aria-label="Direzione Spin">
-      <span class="name" id="directionLabel">Direzione</span>
-      <div class="direction-buttons" role="group" aria-labelledby="directionLabel" id="directionButtons">
-        <button type="button" class="direction-button active" data-direction="right" aria-label="Da sinistra a destra" aria-pressed="true" title="Sinistra → destra">→</button>
-        <button type="button" class="direction-button" data-direction="left" aria-label="Da destra a sinistra" aria-pressed="false" title="Destra → sinistra">←</button>
-      </div>
+    <!-- V12: story timer below on desktop and above on mobile; V11 behavior unchanged. for all 11 photographs; click a segment to jump. -->
+    <nav id="slideProgress" class="slide-progress" aria-label="Navigazione fotografie">
+      <button type="button" data-slide-jump="0" aria-label="Mostra fotografia 1 di 11"><span class="progress-track"><span class="progress-fill"></span></span></button>
+      <button type="button" data-slide-jump="1" aria-label="Mostra fotografia 2 di 11"><span class="progress-track"><span class="progress-fill"></span></span></button>
+      <button type="button" data-slide-jump="2" aria-label="Mostra fotografia 3 di 11"><span class="progress-track"><span class="progress-fill"></span></span></button>
+      <button type="button" data-slide-jump="3" aria-label="Mostra fotografia 4 di 11"><span class="progress-track"><span class="progress-fill"></span></span></button>
+      <button type="button" data-slide-jump="4" aria-label="Mostra fotografia 5 di 11"><span class="progress-track"><span class="progress-fill"></span></span></button>
+      <button type="button" data-slide-jump="5" aria-label="Mostra fotografia 6 di 11"><span class="progress-track"><span class="progress-fill"></span></span></button>
+      <button type="button" data-slide-jump="6" aria-label="Mostra fotografia 7 di 11"><span class="progress-track"><span class="progress-fill"></span></span></button>
+      <button type="button" data-slide-jump="7" aria-label="Mostra fotografia 8 di 11"><span class="progress-track"><span class="progress-fill"></span></span></button>
+      <button type="button" data-slide-jump="8" aria-label="Mostra fotografia 9 di 11"><span class="progress-track"><span class="progress-fill"></span></span></button>
+      <button type="button" data-slide-jump="9" aria-label="Mostra fotografia 10 di 11"><span class="progress-track"><span class="progress-fill"></span></span></button>
+      <button type="button" data-slide-jump="10" aria-label="Mostra fotografia 11 di 11"><span class="progress-track"><span class="progress-fill"></span></span></button>
+    </nav>
+    <!-- Temporary CLIENT DEMO: choose V1, V2, or V2+; all three generators remain in one HTML. -->
+    <div class="version-switch" role="group" aria-label="Confronta le animazioni del logo">
+      <button type="button" class="version-btn" data-intro-mode="scattered" aria-pressed="false" aria-label="V1: lettere indipendenti" title="V1 — animazione originale">V1</button>
+      <button type="button" class="version-btn" data-intro-mode="grouped" aria-pressed="false" aria-label="V2: parole separate e dinamiche" title="V2 — animazione per gruppi">V2</button>
+      <button type="button" class="version-btn" data-intro-mode="grouped-plus" aria-pressed="true" aria-label="V2 plus: gruppi con maggiore dispersione verticale" title="V2+ — gruppi più dinamici">V2+</button>
     </div>
-  </div>
-</main>
-<nav class="mobile-dock" id="mobileDock" aria-label="Pannelli di controllo">
-  <div class="mobile-dots" role="tablist" aria-label="Pannelli">
-    <button type="button" class="mobile-dot active" data-page="0" role="tab" aria-label="Spin" aria-selected="true" aria-controls="mobilePageMotion"></button>
-    <button type="button" class="mobile-dot" data-page="1" role="tab" aria-label="Composizione" aria-selected="false" aria-controls="mobilePageComposition"></button>
-    <button type="button" class="mobile-dot" data-page="2" role="tab" aria-label="Colori ed esportazione" aria-selected="false" aria-controls="mobilePageColors"></button>
-  </div>
-  <div class="mobile-pages" id="mobilePages">
-    <div class="mobile-page" id="mobilePageMotion" role="tabpanel" aria-label="Spin"></div>
-    <div class="mobile-page" id="mobilePageComposition" role="tabpanel" aria-label="Composizione"></div>
-    <div class="mobile-page" id="mobilePageColors" role="tabpanel" aria-label="Colori ed esportazione"></div>
-  </div>
-</nav>
-</div>
-<script>
-(()=>{
-'use strict';
-const $=id=>document.getElementById(id);
-const stage=$('stage');
-// Keep exactly one set of live controls. Move it to the mobile slide deck
-// at 700px and return it to its original desktop positions above that size.
-const mobileMQ=window.matchMedia('(max-width:700px)');
-const desktopMenu=document.querySelector('.sidebar .menu');
-const desktopBottom=document.querySelector('.sidebar .bottom');
-const composeSection=desktopMenu.querySelectorAll('.section')[0];
-const colorsSection=desktopMenu.querySelectorAll('.section')[1];
-const desktopActions=$('canvasActions');
-const mobilePages=$('mobilePages');
-const mobileDots=Array.from(document.querySelectorAll('.mobile-dot'));
-let currentMobilePage=0;
-function activateMobilePage(index){
- currentMobilePage=Math.max(0,Math.min(2,index));
- mobileDots.forEach((dot,i)=>{
-  const active=i===currentMobilePage;
-  dot.classList.toggle('active',active);
-  dot.setAttribute('aria-selected',String(active));
-  dot.tabIndex=active?0:-1;
- });
-}
-function goMobilePage(index){
- activateMobilePage(index);
- mobilePages.scrollTo({left:mobilePages.clientWidth*currentMobilePage,behavior:'smooth'});
-}
-mobileDots.forEach(dot=>dot.addEventListener('click',()=>goMobilePage(Number(dot.dataset.page))));
-let pageScrollTick=false;
-mobilePages.addEventListener('scroll',()=>{
- if(pageScrollTick)return;
- pageScrollTick=true;
- requestAnimationFrame(()=>{
-  pageScrollTick=false;
-  if(mobilePages.clientWidth)activateMobilePage(Math.round(mobilePages.scrollLeft/mobilePages.clientWidth));
- });
-},{passive:true});
-function arrangeControls(){
- if(mobileMQ.matches){
-  $('mobilePageMotion').appendChild(desktopActions);
-  $('mobilePageComposition').appendChild(composeSection);
-  $('mobilePageColors').appendChild(colorsSection);
-  $('mobilePageColors').appendChild(desktopBottom);
-  // Returning to a mobile viewport should always open with the Spin controls.
-  goMobilePage(0);
- }else{
-  stage.appendChild(desktopActions);
-  desktopMenu.appendChild(composeSection);
-  desktopMenu.appendChild(colorsSection);
-  document.querySelector('.sidebar').appendChild(desktopBottom);
-  mobilePages.scrollLeft=0;
-  activateMobilePage(0);
- }
-}
-mobileMQ.addEventListener('change',arrangeControls);
-arrangeControls();
-const LOGO_SRC='data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHN2ZyBpZD0iTGl2ZWxsb18yIiBkYXRhLW5hbWU9IkxpdmVsbG8gMiIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB2aWV3Qm94PSIwIDAgNTYuNTIgMTEuNDQiPgogIDxnIGlkPSJMaXZlbGxvXzEtMiIgZGF0YS1uYW1lPSJMaXZlbGxvIDEiPgogICAgPGc+CiAgICAgIDxwYXRoIGQ9Ik0wLDUuODNjMC0xLjk0LDEuMS0zLjIzLDIuODQtMy4yMy41MywwLC45Ni4xMiwxLjI3LjMxVi4wNWgyLjU1djguODhoLTIuNTV2LS4xOWMtLjMxLjE5LS43NC4zMS0xLjI3LjMxLTEuNzQsMC0yLjg0LTEuMjctMi44NC0zLjIxWk00LjExLDUuODFjMC0uNjgtLjI5LTEuMDctLjc1LTEuMDdzLS43NC4zOC0uNzQsMS4wNy4yNiwxLjA3Ljc0LDEuMDcuNzUtLjM4Ljc1LTEuMDdaIi8+CiAgICAgIDxwYXRoIGQ9Ik03LjE1LDUuODNjMC0xLjk0LDEuMS0zLjIzLDIuODQtMy4yMy41MywwLC45Ni4xMiwxLjI3LjMxdi0uMTloMi41NXY2LjJoLTIuNTV2LS4xOGMtLjMyLjE5LS43NC4zLTEuMjcuMy0xLjc0LDAtMi44NC0xLjI3LTIuODQtMy4yMVpNMTEuMjcsNS44MWMwLS42OC0uMjktMS4wNy0uNzUtMS4wN3MtLjc0LjM4LS43NCwxLjA3LjI2LDEuMDcuNzQsMS4wNy43NS0uMzguNzUtMS4wN1oiLz4KICAgICAgPHBhdGggZD0iTTE0LjIxLDEwLjM1bDEuMDYtMS44NmMuNjEuNDcsMS40Ni44LDIuMTUuOHMxLjA5LS4yNSwxLjA5LS44di0uMTljLS4zMy4yMy0uODIuNC0xLjQ2LjQtMS42NiwwLTIuNy0xLjE2LTIuNy0zLjA1czEuMDQtMy4wNSwyLjctMy4wNWMuNjUsMCwxLjEzLjE3LDEuNDYuNHYtLjI4aDIuNTV2NS44NWMwLDEuOC0xLjM0LDIuODctMy40NSwyLjg3LTEuMzUsMC0yLjU3LS40Mi0zLjM5LTEuMDlaTTE4LjUsNS42NWMwLS41OS0uMzEtLjk2LS43OC0uOTZzLS43Ny4zNS0uNzcuOTYuMjkuOTYuNzcuOTYuNzgtLjM4Ljc4LS45NloiLz4KICAgICAgPHBhdGggZD0iTTUzLjMzLDkuMDljLTEuNzEsMC0yLjc3LS44LTIuNzYtMi4yMiwwLS45NS41OS0xLjYyLDEuNzYtMS44OWwxLjMyLS4zMWMuMTYtLjA0LjIyLS4wNS4yMi0uMTEsMC0uMDctLjEyLS4xMy0uMzYtLjEzLS42MSwwLTEuMTkuMjItMS43Ny42OGwtMS4wMS0xLjUzYy42Ny0uNiwxLjYyLS45NCwyLjctLjk0LDEuNzgsMCwyLjcuOTgsMi42OSwyLjE2LDAsLjk2LS41OSwxLjYzLTEuNjYsMS44OWwtMS40Mi4zNGMtLjE0LjA0LS4xOC4wNi0uMTguMTIsMCwuMDguMTEuMTQuNDEuMTUuNywwLDEuNi0uMzMsMi4xOS0uODlsMS4wNywxLjUzYy0uODIuNzUtMS45MiwxLjE2LTMuMTksMS4xNVoiLz4KICAgICAgPHBhdGggZD0iTTQ2LjY2LDljLS40NywwLS45NC0uMDQtMS4xLS4wNnYtMi4zMmMuMDkuMDEuMzguMDQuNjkuMDQsMS4wMiwwLDEuMzctLjIxLDEuMzctLjk3di0uNjJzLTIuMSwwLTIuMSwwdi0yLjMzczIuMTQsMCwyLjE0LDB2LTEuNjJzMi41MiwwLDIuNTIsMGwtLjAyLDUuMTJjMCwyLjA2LTEuNTEsMi43NS0zLjUxLDIuNzVaIi8+CiAgICAgIDxwYXRoIGQ9Ik00Mi44NSw5LjA1Yy0uNDIsMC0uOC0uMTEtMS4wOC0uMjl2LjE3cy0yLjU2LDAtMi41NiwwbC4wMi02LjJoMi41NXMtLjAxLDMuMzMtLjAxLDMuMzNjMCwuMzcuMTUuNTguNDMuNTguMjUsMCwuNDEtLjE3LjQxLS40OHYtMy40MnMyLjU3LDAsMi41NywwdjMuNzdjLS4wMiwxLjQ2LS44NSwyLjU1LTIuMzQsMi41NVoiLz4KICAgICAgPHBhdGggZD0iTTM1Ljg5LDkuMDJjLS41MywwLS45Ni0uMTItMS4yNy0uMzJ2LjE5cy0yLjU2LDAtMi41NiwwbC4wMy04Ljg3aDIuNTVzLS4wMSwyLjg4LS4wMSwyLjg4Yy4zMS0uMTkuNzQtLjMxLDEuMjctLjMxLDEuNzQsMCwyLjg0LDEuMjksMi44MywzLjI0cy0xLjEyLDMuMjEtMi44NSwzLjJaTTM1LjM4LDYuODZjLjQ4LDAsLjc1LS4zOC43NS0xLjA2cy0uMjYtMS4wNy0uNzQtMS4wNy0uNzYuMzgtLjc2LDEuMDYuMjgsMS4wNy43NSwxLjA3WiIvPgogICAgICA8cGF0aCBkPSJNMzEuMzksMy4wNmgtMi42cy4wMS0zLjA2LjAxLTMuMDZoMi42cy0uMDEsMy4wNi0uMDEsMy4wNlpNMzEuMzQsOC44OGgtMi41NXMuMDItNS4zMS4wMi01LjMxaDIuNTVzLS4wMiw1LjMxLS4wMiw1LjMxWiIvPgogICAgICA8cGF0aCBkPSJNMjQuOTEsOC45OWMtMi4wNCwwLTMuNC0xLjI4LTMuMzktMy4yNHMxLjM4LTMuMjIsMy40Mi0zLjIxLDMuNDEsMS4yOCwzLjQxLDMuMjQtMS4zOSwzLjIyLTMuNDMsMy4yMVpNMjQuOTIsNi44NWMuNDksMCwuNzYtLjQuNzYtMS4wOHMtLjI2LTEuMDktLjc1LTEuMDktLjc0LjQtLjc1LDEuMDkuMjYsMS4wOC43NCwxLjA4WiIvPgogICAgPC9nPgogIDwvZz4KPC9zdmc+';
-const LOGO_SVG=atob(LOGO_SRC.split(',')[1]);
-const LOGO_ASPECT=56.52/11.44;
-$('brandLogo').src=LOGO_SRC;
-function svgTint(hex){return 'data:image/svg+xml;charset=utf-8,'+encodeURIComponent(LOGO_SVG.replace('<svg ','<svg fill="'+hex+'" '));}
+    <div id="slideAnnouncer" role="status" class="visually-hidden" aria-live="off"></div>
+  </main>
+  <script>
+    (() => {
+      'use strict';
+      const scene = document.getElementById('scene');
+      // V08: set to false to restore native double/triple-click text selection.
+      const DISABLE_CAROUSEL_TEXT_SELECTION = true;
+      if (DISABLE_CAROUSEL_TEXT_SELECTION) scene.classList.add('no-accidental-selection');
+      scene.addEventListener('selectstart', (event) => {
+        if (DISABLE_CAROUSEL_TEXT_SELECTION &&
+            !event.target.closest('input, textarea, [contenteditable], .allow-text-selection')) {
+          event.preventDefault();
+        }
+      });
+      scene.addEventListener('dblclick', (event) => {
+        if (DISABLE_CAROUSEL_TEXT_SELECTION &&
+            !event.target.closest('input, textarea, [contenteditable], .allow-text-selection')) {
+          event.preventDefault();
+        }
+      });
 
-// Vertical tilt is strictly limited; flipping remains around the vertical Y axis.
-const MAX_PITCH=.19; // about 11 degrees in either direction
-const INITIAL_PITCH=.08;
-const state={yaw:-.36,pitch:INITIAL_PITCH,spin:0,spinPitch:0,spinAnimation:null,motionMode:'spin',lastMotionMode:'spin',duration:8,turns:5,direction:'right',flipDuration:1.4,flipSign:1,copies:1,spread:120,zoom:1,bgColor:'#ffffff',logoColor:'#000000',aspect:LOGO_ASPECT,src:svgTint('#000000'),image:null};
-const visual=document.createElement('div');visual.className='scene3d';stage.appendChild(visual);
-const pivot=document.createElement('div');pivot.className='pivot';visual.appendChild(pivot);
-const logoImage=new Image(); logoImage.decoding='async'; logoImage.onload=()=>{state.image=logoImage;rebuild();}; logoImage.src=state.src;
-function planeDimensions(){const r=stage.getBoundingClientRect();let w=Math.min(r.width*.66,900),h=w/state.aspect;const maxH=r.height*.58;if(h>maxH){w*=maxH/h;h=maxH;}return {w,h};}
-function spreadAngle(i){if(state.copies===1)return 0;const denom=state.spread>=359?state.copies:state.copies-1;return (i-(state.copies-1)/2)*state.spread/denom;}
-function rebuild(){pivot.replaceChildren();const {w,h}=planeDimensions();visual.style.perspective=Math.round(Math.max(600,Math.min(stage.clientWidth,stage.clientHeight)*1.7))+'px';for(let i=0;i<state.copies;i++){const blade=document.createElement('div');blade.className='blade';blade.style.width=w+'px';blade.style.height=h+'px';blade.style.transform='translate(-50%, -50%) rotateY('+spreadAngle(i)+'deg)';const image=document.createElement('img');image.src=state.src;image.alt='';image.draggable=false;blade.appendChild(image);pivot.appendChild(blade);}}
+      const svg = document.getElementById('mark');
+      const glyphs = Array.from(svg.querySelectorAll('.glyph'));
+      const slides = Array.from(document.querySelectorAll('.photo'));
+      const announcer = document.getElementById('slideAnnouncer');
+      const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const clamp = (n, a, b) => Math.min(b, Math.max(a, n));
+      const easing = t => 1 - Math.pow(1 - t, 2.3);
+      let slideIndex = 0;
+      // A single animation clock provides continuous story progress, but photographs
+      // STILL change by a hard cut with no opacity/slide effects.
+      let carouselFrame = 0;
+      let slideStartedAt = 0;
+      const interval = 5000;
+      const progressSegments = Array.from(document.querySelectorAll('[data-slide-jump]'));
+      const progressFills = progressSegments.map(button => button.querySelector('.progress-fill'));
+      function updateSlideRail(fraction = 0) {
+        progressFills.forEach((fill, i) => {
+          const amount = i < slideIndex ? 1 : i === slideIndex ? clamp(fraction, 0, 1) : 0;
+          fill.style.transform = `scaleX(${amount})`;
+        });
+        progressSegments.forEach((button, i) => {
+          if (i === slideIndex) button.setAttribute('aria-current', 'true');
+          else button.removeAttribute('aria-current');
+        });
+      }
 
-// One 180° click flip: slow at the ends and very quick through the middle.
-// Normalised logistic position makes the ANGULAR SPEED have a narrow central peak.
-// It is not a ping-pong loop: the artwork stays on the opposite face afterward.
-function flipEase(t){
- t=Math.max(0,Math.min(1,t));
- const steepness=16;
- const low=1/(1+Math.exp(steepness*.5));
- const sigmoid=1/(1+Math.exp(-steepness*(t-.5)));
- return (sigmoid-low)/(1-2*low);
-}
-// Spin keeps its old fast start + gradually slowing finish.
-function easeOutCubic(t){t=Math.max(0,Math.min(1,t));return 1-Math.pow(1-t,3);}
-function motionRadians(view,progress){
- return view.motionMode==='flip'
-  ? view.flipSign*Math.PI*flipEase(progress)
-  : (view.direction==='left'?-1:1)*view.turns*2*Math.PI*easeOutCubic(progress);
-}
-function applyMotionAt(view,progress){return {...view,spin:view.spin+motionRadians(view,progress)};}
-function cancelMotion(){
- if(!state.spinAnimation)return;
- state.yaw+=state.spin;
- state.pitch=clamp(state.pitch+state.spinPitch,-MAX_PITCH,MAX_PITCH);
- state.spin=0;
- state.spinPitch=0;
- state.spinAnimation=null;
- $('motion').classList.remove('on');
-}
-function prepareMotion(){
- // Freeze the currently visible view, without fighting the cursor parallax.
- cancelMotion();
- state.yaw+=input.hoverYaw;
- state.pitch=clamp(state.pitch+input.hoverPitch,-MAX_PITCH,MAX_PITCH);
- input.hoverYaw=0;input.hoverPitch=0;input.targetYaw=0;input.targetPitch=0;
- input.coastYaw=0;input.coastPitch=0;
- state.spin=0;state.spinPitch=0;
-}
-function startFlip(){
- prepareMotion();
- state.motionMode=state.lastMotionMode='flip';
- state.spinAnimation={start:performance.now(),duration:state.flipDuration*1000,motionMode:'flip',flipSign:state.flipSign};
- state.flipSign*=-1; // Next click returns to the previous readable face.
-}
-function startSpin(){
- prepareMotion();
- state.motionMode=state.lastMotionMode='spin';
- state.spinAnimation={start:performance.now(),duration:state.duration*1000,motionMode:'spin',direction:state.direction,turns:state.turns};
- $('motion').classList.add('on');
-}
-$('motion').onclick=e=>{e.stopPropagation();startSpin();};
-$('duration').oninput=e=>{state.duration=+e.target.value;$('durationVal').textContent=state.duration+' s';};
-$('turns').oninput=e=>{state.turns=+e.target.value;$('turnsVal').textContent=String(state.turns);};
-// The first (and only) Illustrator logo reverses on the horizontal axis.
-for(const button of $('directionButtons').querySelectorAll('button')){
- button.onclick=()=>{
-  state.direction=button.dataset.direction;
-  for(const option of $('directionButtons').querySelectorAll('button')){
-   const selected=option.dataset.direction===state.direction;
-   option.classList.toggle('active',selected);
-   option.setAttribute('aria-pressed',String(selected));
-  }
- };
-}
-function updateElements(n){state.copies=Math.min(10,Math.max(1,Number(n)));$('elementsVal').textContent=state.copies;rebuild();}
-$('elements').oninput=e=>updateElements(e.target.value);
-$('spread').oninput=e=>{state.spread=+e.target.value;$('spreadVal').textContent=state.spread+'°';rebuild();};
-function activateSwatch(id,attr,color){
- for(const b of $(id).querySelectorAll('button')){
-  const selected=b.getAttribute(attr)===color;
-  b.classList.toggle('active',selected);b.setAttribute('aria-pressed',String(selected));
- }
-}
-function setBgColor(color){
- state.bgColor=color.toLowerCase();stage.style.background=state.bgColor;
- activateSwatch('bgSwatches','data-bg',state.bgColor);
- $('bgPicker').value=state.bgColor;
- $('bgPickerShell').style.setProperty('--picked',state.bgColor);
- $('bgPickerShell').classList.toggle('active',!['#000000','#808080','#ffffff'].includes(state.bgColor));
-}
-let imageRequest=0;
-function updateLogoTexture(){
- const src=svgTint(state.logoColor),ticket=++imageRequest,im=new Image();
- im.decoding='async';
- im.onload=()=>{if(ticket!==imageRequest)return;state.image=im;state.src=src;rebuild();};
- im.onerror=()=>console.error('Impossibile visualizzare il logo SVG');
- im.src=src;
-}
-function setLogoColor(color){
- state.logoColor=color.toLowerCase();
- activateSwatch('logoSwatches','data-logo',state.logoColor);
- $('logoPicker').value=state.logoColor;
- $('logoPickerShell').style.setProperty('--picked',state.logoColor);
- $('logoPickerShell').classList.toggle('active',!['#000000','#808080','#ffffff'].includes(state.logoColor));
- updateLogoTexture();
-}
-for(const button of $('bgSwatches').querySelectorAll('button'))button.onclick=()=>setBgColor(button.dataset.bg);
-for(const button of $('logoSwatches').querySelectorAll('button'))button.onclick=()=>setLogoColor(button.dataset.logo);
-$('bgPicker').addEventListener('input',e=>setBgColor(e.target.value));
-$('logoPicker').addEventListener('input',e=>setLogoColor(e.target.value));
-$('reset').onclick=()=>{
- cancelMotion();state.yaw=-.36;state.pitch=INITIAL_PITCH;state.spin=0;state.spinPitch=0;state.zoom=1;state.flipSign=1;
- input.coastYaw=0;input.coastPitch=0;input.hoverYaw=0;input.hoverPitch=0;input.targetYaw=0;input.targetPitch=0;
- $('elements').value='1';updateElements(1);
-};
-function project(u,v,angle,w,h,W,H,focal,view){
- const x=(u-.5)*w,y=(.5-v)*h,theta=view.yaw+view.spin+angle;
- const sx=Math.sin(theta),cx=Math.cos(theta),sp=Math.sin(view.pitch+view.spinPitch),cp=Math.cos(view.pitch+view.spinPitch);
- const ax=x*cx,az=-x*sx,wy=y*cp-az*sp,wz=y*sp+az*cp;
- const k=focal/(focal-wz);
- return [W/2+ax*k*view.zoom,H/2-wy*k*view.zoom,wz];
-}
-function triangle(ctx,img,srcPts,dstPts){
- const [s0,s1,s2]=srcPts,[p0,p1,p2]=dstPts;
- const det=(s0[0]-s2[0])*(s1[1]-s2[1])-(s1[0]-s2[0])*(s0[1]-s2[1]);if(Math.abs(det)<1e-8)return;
- const a=((p0[0]-p2[0])*(s1[1]-s2[1])-(p1[0]-p2[0])*(s0[1]-s2[1]))/det;
- const b=((p0[1]-p2[1])*(s1[1]-s2[1])-(p1[1]-p2[1])*(s0[1]-s2[1]))/det;
- const c=((p1[0]-p2[0])*(s0[0]-s2[0])-(p0[0]-p2[0])*(s1[0]-s2[0]))/det;
- const d=((p1[1]-p2[1])*(s0[0]-s2[0])-(p0[1]-p2[1])*(s1[0]-s2[0]))/det;
- const e=p0[0]-a*s0[0]-c*s0[1],f=p0[1]-b*s0[0]-d*s0[1];
- ctx.save();ctx.beginPath();
- const cx=(p0[0]+p1[0]+p2[0])/3,cy=(p0[1]+p1[1]+p2[1])/3;
- function extend(p){const dx=p[0]-cx,dy=p[1]-cy,length=Math.max(.001,Math.hypot(dx,dy));return [p[0]+dx/length*.8,p[1]+dy/length*.8];}
- const q0=extend(p0),q1=extend(p1),q2=extend(p2);
- ctx.moveTo(q0[0],q0[1]);ctx.lineTo(q1[0],q1[1]);ctx.lineTo(q2[0],q2[1]);ctx.closePath();ctx.clip();ctx.setTransform(a,b,c,d,e,f);ctx.drawImage(img,0,0);ctx.restore();
-}
-// The canvas output is rendered from the same SVG, angles and camera as the live preview.
-// Render each zero-thickness SVG plane with a single coherent affine map.
-// This is robust through the mirrored 180° viewpoint and keeps the lettering
-// fully intact in H.264 frames. Depth ordering remains back-to-front.
-function renderToCanvas(ctx,W,H,quality,view){
- const img=state.image;if(!img||!img.complete)return;
- ctx.setTransform(1,0,0,1,0,0);ctx.fillStyle=state.bgColor;ctx.fillRect(0,0,W,H);
- const dims=planeDimensions(),rect=stage.getBoundingClientRect(),sx=W/rect.width,sy=H/rect.height;
- const w=dims.w*sx,h=dims.h*sy,focal=Math.max(600,Math.min(rect.width,rect.height)*1.7)*sx;
- const iw=img.naturalWidth,ih=img.naturalHeight,planes=[];
- for(let j=0;j<state.copies;j++){
-  const angle=spreadAngle(j)*Math.PI/180,theta=view.yaw+view.spin+angle;
-  planes.push({angle,depth:-Math.sin(theta)});
- }
- planes.sort((a,b)=>a.depth-b.depth);
- for(const {angle} of planes){
-  const p0=project(0,0,angle,w,h,W,H,focal,view);
-  const p1=project(1,0,angle,w,h,W,H,focal,view);
-  const p3=project(0,1,angle,w,h,W,H,focal,view);
-  ctx.save();
-  ctx.setTransform((p1[0]-p0[0])/iw,(p1[1]-p0[1])/iw,
-                   (p3[0]-p0[0])/ih,(p3[1]-p0[1])/ih,p0[0],p0[1]);
-  ctx.drawImage(img,0,0,iw,ih);
-  ctx.restore();
- }
-}
-function download(blob,name){const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),30000);}
-// Save the CURRENT 3D perspective as a standalone, editable vector SVG.
-// Every curved outline remains a native SVG path (no bitmap/data:image embedded).
-// Perspective is approximated by a fine mesh of affine-mapped clipped vector paths.
-function projectiveAffine(source,dest){
- const [s0,s1,s2]=source,[p0,p1,p2]=dest;
- const det=(s0[0]-s2[0])*(s1[1]-s2[1])-(s1[0]-s2[0])*(s0[1]-s2[1]);
- if(Math.abs(det)<1e-11)return null;
- const a=((p0[0]-p2[0])*(s1[1]-s2[1])-(p1[0]-p2[0])*(s0[1]-s2[1]))/det;
- const b=((p0[1]-p2[1])*(s1[1]-s2[1])-(p1[1]-p2[1])*(s0[1]-s2[1]))/det;
- const c=((p1[0]-p2[0])*(s0[0]-s2[0])-(p0[0]-p2[0])*(s1[0]-s2[0]))/det;
- const d=((p1[1]-p2[1])*(s0[0]-s2[0])-(p0[1]-p2[1])*(s1[0]-s2[0]))/det;
- const e=p0[0]-a*s0[0]-c*s0[1],f=p0[1]-b*s0[0]-d*s0[1];
- return [a,b,c,d,e,f];
-}
-function createVectorSVG(){
- const rect=stage.getBoundingClientRect(),W=Math.max(1,Math.round(rect.width)),H=Math.max(1,Math.round(rect.height));
- const view=currentView(),{w,h}=planeDimensions(),focal=Math.max(600,Math.min(rect.width,rect.height)*1.7);
- const original=new DOMParser().parseFromString(LOGO_SVG,'image/svg+xml').documentElement;
- const vb=original.getAttribute('viewBox').split(/[ ,]+/).map(Number);
- const [vx,vy,vw,vh]=vb;
- // Source geometry stays in its original Illustrator coordinate space.
- const sourceMarkup=Array.from(original.children).map(node=>new XMLSerializer().serializeToString(node)).join('');
- const defs=['<g id="studio-dago-source" fill="'+state.logoColor+'">'+sourceMarkup+'</g>'];
- const groups=[];
- const planes=[];
- for(let j=0;j<state.copies;j++){
-  const angle=spreadAngle(j)*Math.PI/180;
-  const theta=view.yaw+view.spin+angle;
-  planes.push({angle,depth:-Math.sin(theta)});
- }
- // Back-to-front stacking, consistent with the motion renderer.
- planes.sort((a,b)=>a.depth-b.depth);
- const nx=24,ny=6;
- let id=0;
- const num=x=>Number(x.toFixed(7)).toString();
- for(const {angle} of planes){
-  const layers=[];
-  for(let row=0;row<ny;row++)for(let col=0;col<nx;col++){
-   const u0=col/nx,u1=(col+1)/nx,v0=row/ny,v1=(row+1)/ny;
-   const s0=[vx+u0*vw,vy+v0*vh],s1=[vx+u1*vw,vy+v0*vh],s2=[vx+u1*vw,vy+v1*vh],s3=[vx+u0*vw,vy+v1*vh];
-   const p0=project(u0,v0,angle,w,h,W,H,focal,view),p1=project(u1,v0,angle,w,h,W,H,focal,view),p2=project(u1,v1,angle,w,h,W,H,focal,view),p3=project(u0,v1,angle,w,h,W,H,focal,view);
-   for(const [ss,dd] of [[[s0,s1,s2],[p0,p1,p2]],[[s0,s2,s3],[p0,p2,p3]]]){
-    const matrix=projectiveAffine(ss,dd);if(!matrix)continue;
-    const clipId='mesh-'+(++id);
-    // Overlap neighbouring vector clip triangles by about a pixel to prevent
-    // hairline anti-alias seams. The actual path geometry remains vector.
-    const cx=(ss[0][0]+ss[1][0]+ss[2][0])/3,cy=(ss[0][1]+ss[1][1]+ss[2][1])/3;
-    const coords=ss.map(([x,y])=>{const dx=x-cx,dy=y-cy,len=Math.max(.001,Math.hypot(dx,dy));return num(x+dx/len*.115)+','+num(y+dy/len*.115);}).join(' ');
-    defs.push('<clipPath id="'+clipId+'" clipPathUnits="userSpaceOnUse"><polygon points="'+coords+'"/></clipPath>');
-    layers.push('<g transform="matrix('+matrix.map(num).join(' ')+')"><g clip-path="url(#'+clipId+')"><use href="#studio-dago-source"/></g></g>');
-   }
-  }
-  groups.push('<g>'+layers.join('')+'</g>');
- }
- return '<?xml version="1.0" encoding="UTF-8"?>\n'+
- '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="'+W+'" height="'+H+'" viewBox="0 0 '+W+' '+H+'">\n'+
- '<title>STUDIO DAGO</title><defs>'+defs.join('')+'</defs>\n'+
- '<rect width="100%" height="100%" fill="'+state.bgColor+'"/>\n'+groups.join('')+'\n</svg>';
-}
-function exportSVG(){
- try{
-  const svg=createVectorSVG();
-  download(new Blob([svg],{type:'image/svg+xml;charset=utf-8'}),'studio-dago.svg');
- }catch(error){console.error(error);alert('Salvataggio SVG non riuscito.');}
-}
-$('export').onclick=exportSVG;
+      function setSlide(index, userInitiated = false) {
+        const next = (index + slides.length) % slides.length;
+        if (next === slideIndex) return;
+        slides[slideIndex].classList.remove('active');
+        slides[slideIndex].setAttribute('aria-hidden', 'true');
+        slideIndex = next;
+        slides[slideIndex].classList.add('active');
+        slides[slideIndex].setAttribute('aria-hidden', 'false');
+        if (userInitiated) {
+          announcer.setAttribute('aria-live', 'polite');
+          announcer.textContent = `Fotografia ${slideIndex + 1} di ${slides.length}`;
+        } else {
+          announcer.setAttribute('aria-live', 'off');
+        }
+        const nextImg = slides[(slideIndex + 1) % slides.length].querySelector('img');
+        if (nextImg) nextImg.loading = 'eager';
+      }
+      function stopCarousel() { cancelAnimationFrame(carouselFrame); carouselFrame = 0; }
+      function carouselTick(now) {
+        if (document.hidden) { carouselFrame = 0; return; }
+        const elapsed = now - slideStartedAt;
+        if (elapsed >= interval) {
+          setSlide(slideIndex + 1);
+          slideStartedAt = now;
+          updateSlideRail(0);
+        } else {
+          updateSlideRail(elapsed / interval);
+        }
+        carouselFrame = requestAnimationFrame(carouselTick);
+      }
+      function startCarousel() {
+        if (carouselFrame || document.hidden) return;
+        slideStartedAt = performance.now();
+        updateSlideRail(0);
+        carouselFrame = requestAnimationFrame(carouselTick);
+      }
+      function restartCarousel() { stopCarousel(); startCarousel(); }
+      function changeSlide(dir) { setSlide(slideIndex + dir, true); restartCarousel(); }
+      progressSegments.forEach(button => button.addEventListener('click', event => {
+        event.stopPropagation();
+        const index = Number(button.dataset.slideJump);
+        setSlide(index, true);
+        restartCarousel();
+      }));
+      const cursorArrow = document.getElementById('cursorArrow');
+      const hasMouseCursor = window.matchMedia('(hover: hover) and (pointer: fine)');
+      let lastSwipeAt = -1000;
+      function updateCursor(e) {
+        if (e.target.closest('.version-switch, .slide-progress') || !hasMouseCursor.matches || e.pointerType !== 'mouse') {
+          cursorArrow.style.visibility = 'hidden';
+          return;
+        }
+        cursorArrow.style.left = e.clientX + 'px';
+        cursorArrow.style.top = e.clientY + 'px';
+        cursorArrow.dataset.direction = e.clientX < window.innerWidth / 2 ? 'left' : 'right';
+        cursorArrow.style.visibility = 'visible';
+      }
+      scene.addEventListener('pointermove', updateCursor);
+      scene.addEventListener('pointerleave', () => { cursorArrow.style.visibility = 'hidden'; });
+      scene.addEventListener('pointercancel', () => { cursorArrow.style.visibility = 'hidden'; });
+      // Whole left or right half of the viewport is clickable, including on touch screens.
+      scene.addEventListener('click', e => {
+        if (e.detail === 0 || performance.now() - lastSwipeAt < 450) return;
+        if (e.target.closest('button, a, .slide-progress')) return;
+        changeSlide(e.clientX < window.innerWidth / 2 ? -1 : 1);
+      });
+      document.addEventListener('visibilitychange', () => document.hidden ? stopCarousel() : startCarousel());
+      startCarousel();
 
-// Minimal, self-contained H.264/AVC-to-MP4 muxer. No external packages or web access.
-function bytes(...values){return Uint8Array.from(values);}
-function ascii(s){return Uint8Array.from([...s].map(c=>c.charCodeAt(0)));}
-function be16(n){return bytes((n>>>8)&255,n&255);}
-function be32(n){return bytes((n>>>24)&255,(n>>>16)&255,(n>>>8)&255,n&255);}
-function concat(...parts){const total=parts.reduce((a,p)=>a+p.length,0),result=new Uint8Array(total);let pos=0;for(const part of parts){result.set(part,pos);pos+=part.length;}return result;}
-function box(type,...items){const payload=concat(...items);return concat(be32(payload.length+8),ascii(type),payload);}
-function full(type,flags,...items){return box(type,be32(flags),...items);}
-const unity=concat(be32(65536),be32(0),be32(0),be32(0),be32(65536),be32(0),be32(0),be32(0),be32(1073741824));
-function muxMP4(chunks,avcC,width,height,fps){
- const timescale=30000,sampleDuration=timescale/fps,mediaDuration=chunks.length*sampleDuration;
- const movieDuration=Math.round(chunks.length*1000/fps);
- const ftyp=box('ftyp',ascii('isom'),be32(512),ascii('isomiso2avc1mp41'));
- const payload=concat(...chunks.map(c=>c.data));
- const mdat=box('mdat',payload);
- const avc1=box('avc1',bytes(0,0,0,0,0,0),be16(1),new Uint8Array(16),be16(width),be16(height),be32(0x00480000),be32(0x00480000),be32(0),be16(1),new Uint8Array(32),be16(24),be16(65535),box('avcC',avcC));
- const stsd=full('stsd',0,be32(1),avc1);
- const stts=full('stts',0,be32(1),be32(chunks.length),be32(sampleDuration));
- const stsc=full('stsc',0,be32(1),be32(1),be32(chunks.length),be32(1));
- const stsz=full('stsz',0,be32(0),be32(chunks.length),...chunks.map(c=>be32(c.data.length)));
- const stco=full('stco',0,be32(1),be32(ftyp.length+8));
- const keyframes=chunks.map((c,i)=>c.key?i+1:0).filter(Boolean);
- const stss=full('stss',0,be32(keyframes.length),...keyframes.map(be32));
- const stbl=box('stbl',stsd,stts,stsc,stsz,stco,stss);
- const dinf=box('dinf',full('dref',0,be32(1),full('url ',1)));
- const minf=box('minf',full('vmhd',1,be16(0),new Uint8Array(6)),dinf,stbl);
- const mdhd=full('mdhd',0,be32(0),be32(0),be32(timescale),be32(mediaDuration),be16(0x55c4),be16(0));
- const hdlr=full('hdlr',0,be32(0),ascii('vide'),new Uint8Array(12),ascii('VideoHandler\0'));
- const mdia=box('mdia',mdhd,hdlr,minf);
- const tkhd=full('tkhd',7,be32(0),be32(0),be32(1),be32(0),be32(movieDuration),new Uint8Array(8),be16(0),be16(0),be16(0),be16(0),unity,be32(width*65536),be32(height*65536));
- const trak=box('trak',tkhd,mdia);
- const mvhd=full('mvhd',0,be32(0),be32(0),be32(1000),be32(movieDuration),be32(65536),be16(256),new Uint8Array(10),unity,new Uint8Array(24),be32(2));
- return new Blob([ftyp,mdat,box('moov',mvhd,trak)],{type:'video/mp4'});
-}
-function encodeSettings(width,height){return {codec:'avc1.42001f',width,height,bitrate:2600000,framerate:30,latencyMode:'realtime',avc:{format:'avc'}};}
-function sizeForVideo(){const r=stage.getBoundingClientRect(),ratio=Math.min(1.5,1280/r.width,1280/r.height);
- const width=Math.max(2,Math.round(r.width*ratio/2)*2),height=Math.max(2,Math.round(r.height*ratio/2)*2);return {width,height};}
-const videoBtn=$('exportVideo'),videoLabel=$('exportVideoLabel');
-function yieldUI(){return new Promise(resolve=>setTimeout(resolve,0));}
-async function exportWithWebCodecs(canvas,ctx,view,frameCount,fps){
- const {width,height}=canvas,config=encodeSettings(width,height);
- if(!(await VideoEncoder.isConfigSupported(config)).supported)throw Error('Codifica H.264 non disponibile');
- const chunks=[];let avcC=null,encodingError=null;
- const encoder=new VideoEncoder({output:(chunk,meta)=>{
-  if(meta?.decoderConfig?.description)avcC=new Uint8Array(meta.decoderConfig.description);
-  const data=new Uint8Array(chunk.byteLength);chunk.copyTo(data);
-  chunks.push({timestamp:chunk.timestamp,data,key:chunk.type==='key'});
- },error:e=>{encodingError=e;}});
- try{
-  encoder.configure(config);
-  for(let i=0;i<frameCount;i++){
-   if(encodingError)throw encodingError;
-   renderToCanvas(ctx,width,height,'video',applyMotionAt(view,(i/fps)/view.duration));
-   const frame=new VideoFrame(canvas,{timestamp:Math.round(i*1000000/fps),duration:Math.round(1000000/fps)});
-   encoder.encode(frame,{keyFrame:i%60===0});frame.close();
-   if(i%5===0){videoLabel.textContent='Esportazione '+Math.round(i/frameCount*100)+'%';await yieldUI();}
-   if(encoder.encodeQueueSize>15)await encoder.flush();
-  }
-  await encoder.flush();if(encodingError)throw encodingError;
- }finally{encoder.close();}
- chunks.sort((a,b)=>a.timestamp-b.timestamp);
- if(!avcC||!chunks.length)throw Error('Dati H.264 mancanti');
- return muxMP4(chunks,avcC,width,height,fps);
-}
-async function exportWithMediaRecorder(canvas,ctx,view,frameCount,fps){
- const mime=['video/mp4;codecs=avc1.42E01E','video/mp4;codecs=avc1','video/mp4'].find(t=>MediaRecorder.isTypeSupported(t));
- if(!mime)throw Error('MP4 non supportato');
- const stream=canvas.captureStream(30),chunks=[];
- const recorder=new MediaRecorder(stream,{mimeType:mime,videoBitsPerSecond:2600000});
- const completed=new Promise((resolve,reject)=>{
-  recorder.ondataavailable=e=>{if(e.data?.size)chunks.push(e.data);};
-  recorder.onerror=e=>reject(e.error||Error('Registrazione non riuscita'));
-  recorder.onstop=()=>resolve(new Blob(chunks,{type:'video/mp4'}));
- });
- recorder.start();let start=performance.now(),stopped=false;
- try{
-  await new Promise(resolve=>{
-   function tick(now){
-    const elapsed=Math.min(frameCount/fps,(now-start)/1000);
-    renderToCanvas(ctx,canvas.width,canvas.height,'video',applyMotionAt(view,elapsed/view.duration));
-    const percent=Math.round(100*elapsed/(frameCount/fps));videoLabel.textContent='Esportazione '+percent+'%';
-    if(elapsed<frameCount/fps)requestAnimationFrame(tick);else resolve();
-   }requestAnimationFrame(tick);
-  });
- }finally{if(recorder.state!=='inactive'){recorder.stop();stopped=true;}stream.getTracks().forEach(t=>t.stop());}
- const output=await completed;if(!output.size)throw Error('Video vuoto');return output;
-}
-async function exportMP4(){
- if(videoBtn.disabled||!state.image?.complete)return;
- videoBtn.disabled=true;videoBtn.style.opacity='.55';videoLabel.textContent='Esportazione 0%';
- try{
-  const {width,height}=sizeForVideo(),canvas=document.createElement('canvas');canvas.width=width;canvas.height=height;
-  const ctx=canvas.getContext('2d',{alpha:false});const view=currentView();
-  // Export whichever motion the user used last (Spin button or logo click).
-  view.spin=0;view.spinPitch=0;
-  view.motionMode=state.lastMotionMode;
-  view.duration=view.motionMode==='flip'?state.flipDuration:state.duration;
-  const fps=30,frameCount=Math.ceil((view.duration+.45)*fps);
-  let output;
-  if(typeof VideoEncoder!=='undefined'&&typeof VideoFrame!=='undefined'){
-   try{output=await exportWithWebCodecs(canvas,ctx,view,frameCount,fps);}catch(e){
-    if(typeof MediaRecorder==='undefined'||!canvas.captureStream)throw e;
-    output=await exportWithMediaRecorder(canvas,ctx,view,frameCount,fps);
-   }
-  }else if(typeof MediaRecorder!=='undefined'&&canvas.captureStream){output=await exportWithMediaRecorder(canvas,ctx,view,frameCount,fps);}
-  else throw Error('Questo browser non può esportare MP4. Usa una versione recente di Chrome, Edge o Safari.');
-  download(output,'studio-dago-'+view.motionMode+'.mp4');
- }catch(error){console.error(error);alert('Esportazione MP4 non disponibile: '+(error?.message||'errore sconosciuto'));}
- finally{videoBtn.disabled=false;videoBtn.style.opacity='';videoLabel.textContent='Esporta MP4';}
-}
-videoBtn.onclick=exportMP4;
-// The entire stage is an interaction surface, not just the visible logo.
-// Mouse parallax and click-to-flip are canvas-wide; drag still orbits.
-const input={
- down:false,dragging:false,id:null,x:0,y:0,startX:0,startY:0,
- lastTime:0,lastMotion:0,velYaw:0,velPitch:0,coastYaw:0,coastPitch:0,
- targetYaw:0,targetPitch:0,hoverYaw:0,hoverPitch:0
-};
-const clamp=(value,min,max)=>Math.max(min,Math.min(max,value));
-function currentView(){return {...state,yaw:state.yaw+input.hoverYaw,pitch:clamp(state.pitch+input.hoverPitch,-MAX_PITCH,MAX_PITCH)};}
-function hoverAt(e){
- if(state.spinAnimation)return;
- if(e.pointerType!=='mouse'&&e.pointerType!=='pen')return;
- const r=stage.getBoundingClientRect();
- const x=clamp((e.clientX-r.left)/r.width*2-1,-1,1);
- const y=clamp((e.clientY-r.top)/r.height*2-1,-1,1);
- input.targetYaw=x*.62; // Deliberately visible, up to ~35 degrees on either side.
- input.targetPitch=-y*.095; // About 5 degrees: just enough to suggest three dimensions.
-}
-stage.addEventListener('pointerenter',e=>{if(!input.down)hoverAt(e);});
-stage.addEventListener('pointerleave',()=>{
- if(!input.down){input.targetYaw=0;input.targetPitch=0;}
-});
-stage.addEventListener('pointerdown',e=>{
- if(e.target.closest('#canvasActions'))return;
- if(e.button!==0&&e.pointerType==='mouse')return;
- input.down=true;input.dragging=false;input.id=e.pointerId;
- input.x=input.startX=e.clientX;input.y=input.startY=e.clientY;
- input.lastTime=performance.now();input.lastMotion=0;
- input.velYaw=0;input.velPitch=0;
- cancelMotion();
- input.coastYaw=0;input.coastPitch=0;
- input.targetYaw=0;input.targetPitch=0;
- stage.setPointerCapture(e.pointerId);
-});
-stage.addEventListener('pointermove',e=>{
- if(!input.down||e.pointerId!==input.id){hoverAt(e);return;}
- const now=performance.now(),dx=e.clientX-input.x,dy=e.clientY-input.y;
- const elapsed=Math.max(.008,Math.min(.12,(now-input.lastTime)/1000));
- input.x=e.clientX;input.y=e.clientY;input.lastTime=now;
- if(!input.dragging&&Math.hypot(input.x-input.startX,input.y-input.startY)<3)return;
- if(!input.dragging){
-  input.dragging=true;stage.classList.add('dragging');
-  // A throw adds temporary inertia and friction to the manual orientation.
- }
- const deltaYaw=dx*.009,deltaPitch=dy*.0028;
- state.yaw+=deltaYaw;
- const oldPitch=state.pitch;
- state.pitch=clamp(state.pitch+deltaPitch,-MAX_PITCH,MAX_PITCH);
- const actualPitch=state.pitch-oldPitch;
- if(dx||dy){
-  const blend=.48;
-  input.velYaw=clamp(input.velYaw*(1-blend)+clamp(deltaYaw/elapsed,-22,22)*blend,-22,22);
-  input.velPitch=actualPitch===0?0:clamp(input.velPitch*(1-blend)+clamp(actualPitch/elapsed,-1.5,1.5)*blend,-1.5,1.5);
-  input.lastMotion=now;
- }
-});
-function endDrag(e){
- if(!input.down||e.pointerId!==input.id)return;
- const wasDragging=input.dragging;
- const clickedCanvas=!wasDragging&&e.type==='pointerup';
- input.down=false;input.dragging=false;input.id=null;
- stage.classList.remove('dragging');
- if(wasDragging&&e.type==='pointerup'){
-  const age=(performance.now()-input.lastMotion)/1000;
-  const weight=Math.exp(-Math.max(0,age)*5);
-  input.coastYaw=input.velYaw*weight;
-  input.coastPitch=input.velPitch*weight;
- }else{input.coastYaw=0;input.coastPitch=0;}
- input.velYaw=0;input.velPitch=0;
- // If the pointer is still inside the canvas, normal parallax resumes.
- const r=stage.getBoundingClientRect();
- if(e.clientX>=r.left&&e.clientX<=r.right&&e.clientY>=r.top&&e.clientY<=r.bottom)hoverAt(e);
- else{input.targetYaw=0;input.targetPitch=0;}
- if(stage.hasPointerCapture(e.pointerId))stage.releasePointerCapture(e.pointerId);
- if(clickedCanvas)startFlip();
-}
-stage.addEventListener('pointerup',endDrag);
-stage.addEventListener('pointercancel',endDrag);
-stage.addEventListener('wheel',e=>{
- e.preventDefault();state.zoom=clamp(state.zoom*Math.exp(-e.deltaY*.001),.35,2.5);
-},{passive:false});
-window.addEventListener('keydown',e=>{
- if((e.key==='Enter'||e.code==='Space')&&document.activeElement===stage){e.preventDefault();startFlip();}
- if(e.key.toLowerCase()==='r'&&!['INPUT','BUTTON'].includes(e.target.tagName))$('reset').click();
-});
-window.addEventListener('blur',()=>{input.targetYaw=0;input.targetPitch=0;});
-window.addEventListener('resize',rebuild);
-rebuild();
-let last=performance.now();
-function loop(now){
- const dt=Math.min(.07,Math.max(0,(now-last)/1000));last=now;
- if(!input.down){
-  // Time-based exponential drag gives the momentum a fidget-spinner-like tail.
-  if(Math.abs(input.coastYaw)+Math.abs(input.coastPitch)>.002){
-   const friction=1.65;
-   const decay=Math.exp(-friction*dt);
-   // Integral of the decaying angular velocity: stable at any refresh rate.
-   const step=(1-decay)/friction;
-   state.yaw+=input.coastYaw*step;
-   const oldPitch=state.pitch;
-   state.pitch=clamp(state.pitch+input.coastPitch*step,-MAX_PITCH,MAX_PITCH);
-   if(state.pitch===oldPitch)input.coastPitch=0;
-   input.coastYaw*=decay;input.coastPitch*=decay;
-  }else{input.coastYaw=0;input.coastPitch=0;}
+      // Progressively compose letters vertically. Once composed, freeze permanently until reload.
+      // Client-review V10: both intro styles survive in the same project.
+      // 'scattered' = approved V08/V1 original, kept entirely unchanged.
+      // 'grouped' = V10/V2: readable DAGO and STUDIO clusters, with broader
+      // Y variation INSIDE each word and random placement of BOTH groups.
+      // To remove the temporary client switch, hide .version-switch via CSS
+      // and set DEFAULT_INTRO_VARIANT to the selected option.
+      // V13 client preview defaults to V2+. V1 and V2 generators are retained intact.
+      const DEFAULT_INTRO_VARIANT = 'grouped-plus';
+      let introVariant = DEFAULT_INTRO_VARIANT;
+      const GROUPED_LETTER_JITTER = 0.36; // V2 unchanged since V10.
+      const GROUPED_PLUS_LETTER_JITTER = 0.82; // V2+ only: expressive vertical offsets, still within word clusters.
+      let progress = reduceMotion ? 1 : 0;
+      let completed = reduceMotion;
+      let offsets = [];
+      let baseY = 0;
+      let viewportHeight = window.innerHeight;
+      let raf = 0;
+      let lastTouchX = null;
+      let lastTouchY = null;
+      let swipeX = 0;
+      let swipeY = 0;
+      // V11 touch physics: slow drags remain precise; a firm upward flick
+      // finishes the logo with ease-out (slow settling, never a fade-out).
+      let introMomentumFrame = 0;
+      let touchSamples = [];
+      const FLICK_VELOCITY = 0.62; // px / millisecond — tune mobile sensitivity here
+      const FLICK_DISTANCE = 45; // px — ignore tiny incidental swipes
+      function cancelIntroMomentum() {
+        cancelAnimationFrame(introMomentumFrame);
+        introMomentumFrame = 0;
+      }
+      function animateIntroTo(target, duration) {
+        cancelIntroMomentum();
+        if (completed) return;
+        const from = progress;
+        const start = performance.now();
+        const to = clamp(target, 0, 1);
+        function step(now) {
+          const fraction = clamp((now - start) / duration, 0, 1);
+          // Strong deceleration toward the end, like an inertial scroll settling.
+          const eased = 1 - Math.pow(1 - fraction, 4);
+          progress = from + (to - from) * eased;
+          if (fraction >= 1) {
+            progress = to;
+            if (progress >= 1) { progress = 1; completed = true; }
+          }
+          renderMark();
+          if (fraction < 1) introMomentumFrame = requestAnimationFrame(step);
+          else introMomentumFrame = 0;
+        }
+        introMomentumFrame = requestAnimationFrame(step);
+      }
+      const delays = [0, .045, .015, .065, .025, .055, .01, .07, .035, .005];
 
- }
- if(state.spinAnimation){
-  const t=(now-state.spinAnimation.start)/state.spinAnimation.duration;
-  state.spin=motionRadians(state.spinAnimation,t);
-  state.spinPitch=0;
-  if(t>=1){
-   // Preserve exactly the finishing viewpoint for Spin or a 180° click flip.
-   state.yaw+=state.spin;state.pitch=clamp(state.pitch+state.spinPitch,-MAX_PITCH,MAX_PITCH);
-   state.yaw=(state.yaw+Math.PI)%(Math.PI*2);
-   if(state.yaw<0)state.yaw+=Math.PI*2;
-   state.yaw-=Math.PI;
-   // Pitch is deliberately bounded: there is no full X-axis rotation.
-   state.spin=0;state.spinPitch=0;state.spinAnimation=null;
-   $('motion').classList.remove('on');
-  }
- }
- const ease=1-Math.exp(-dt*10.5);
- input.hoverYaw+=(input.targetYaw-input.hoverYaw)*ease;
- input.hoverPitch+=(input.targetPitch-input.hoverPitch)*ease;
- const yaw=state.yaw+state.spin+input.hoverYaw;
- const pitch=clamp(state.pitch+state.spinPitch+input.hoverPitch,-MAX_PITCH,MAX_PITCH);
- pivot.style.transform='rotateX('+pitch+'rad) rotateY('+yaw+'rad)';
-  visual.style.transform='scale('+state.zoom+')';
- requestAnimationFrame(loop);
-}
-requestAnimationFrame(loop);
-})();
-</script>
+      function renderMark() {
+        cancelAnimationFrame(raf);
+        raf = requestAnimationFrame(() => {
+          glyphs.forEach((glyph, i) => {
+            const t = easing(clamp((progress - delays[i]) / (1 - delays[i]), 0, 1));
+            glyph.setAttribute('transform', `translate(0 ${(baseY + offsets[i] * (1 - t)).toFixed(4)})`);
+          });
+        });
+      }
+      // V08 ORIGINAL INTRO - preserved, not changed. It can be reactivated in
+      // one line by setting INTRO_VARIANT to 'scattered' above.
+      function createScatteredOffsets(scale) {
+        const top = Math.min(110, viewportHeight * .13);
+        const bottom = Math.max(top + 40, viewportHeight - 12 * scale - 18);
+        return glyphs.map(() => (top + Math.random() * (bottom - top)) / scale - baseY);
+      }
+
+      // V10 / V2: readable word clusters, more expressive than V09.
+      // Both words may appear high, middle or low: STUDIO can be above DAGO.
+      // Gentle word-wide tilt plus independent vertical drift breaks the rigid
+      // stacks, without changing original glyph paths or horizontal kerning.
+      function createGroupedOffsets(scale) {
+        const letterHeight = 8.25 * scale;
+        const jitter = letterHeight * GROUPED_LETTER_JITTER;
+        const margin = Math.max(12, Math.min(32, viewportHeight * .035));
+        const minTop = margin;
+        const maxTop = Math.max(minTop, viewportHeight - letterHeight - margin);
+        const anchorMin = Math.min(maxTop, minTop + jitter * .75);
+        const anchorMax = Math.max(anchorMin, maxTop - jitter * .75);
+        const span = anchorMax - anchorMin;
+        // One random gap, one random ordering; neither word is pinned to a band.
+        const minGap = Math.min(span * .70, Math.max(letterHeight * .8, viewportHeight * .16));
+        const lower = anchorMin + Math.random() * Math.max(0, span - minGap);
+        const upper = lower + minGap + Math.random() * Math.max(0, anchorMax - lower - minGap);
+        const swap = Math.random() < .5;
+        const wordAnchors = swap ? [upper, lower] : [lower, upper];
+        const tilt = [(Math.random()*2-1)*jitter*1.2, (Math.random()*2-1)*jitter*1.2];
+        return glyphs.map((glyph, i) => {
+          const word = i < 4 ? 0 : 1;
+          const indexInWord = word === 0 ? i : i - 4;
+          const count = word === 0 ? 4 : 6;
+          const fraction = indexInWord / (count - 1) - .5;
+          const letterTop = clamp(
+            wordAnchors[word] + fraction * tilt[word] + (Math.random()*2-1)*jitter*.62,
+            minTop, maxTop
+          );
+          return letterTop / scale - baseY;
+        });
+      }
+
+      // V13 / V2+ — separate EXTRA expressive generator; V1 and V2 stay untouched.
+      // Always preserves the logo's original 10 paths, x positions and final kerning.
+      // Each word uses a random shared Y anchor and an intentional distribution
+      // of vertical displacements: at least one glyph goes clearly above and
+      // another below its word anchor (so V2+ does not look static by chance).
+      // All displacements are clamped to the visible viewport, on any screen.
+      function createGroupedPlusOffsets(scale) {
+        const letterHeight = 8.25 * scale;
+        const maxJitter = letterHeight * GROUPED_PLUS_LETTER_JITTER;
+        const margin = Math.max(12, Math.min(32, viewportHeight * .035));
+        const minTop = margin;
+        const maxTop = Math.max(minTop, viewportHeight - letterHeight - margin);
+        const available = Math.max(0, maxTop - minTop);
+        // Each word stays inside a shared vertical envelope (one distinct nucleus).
+        const amplitude = Math.min(maxJitter * .82, available * .30);
+        const anchorMin = minTop + amplitude;
+        const anchorMax = Math.max(anchorMin, maxTop - amplitude);
+        const anchorSpan = Math.max(0, anchorMax - anchorMin);
+        // Place the two words at substantially different, random Y positions.
+        // Their order can flip on every refresh. They are also separated by X.
+        const minGap = Math.min(anchorSpan * .92, Math.max(letterHeight * .87, amplitude * 1.35));
+        const first = anchorMin + Math.random() * Math.max(0, anchorSpan - minGap);
+        const second = first + minGap + Math.random() * Math.max(0, anchorMax - first - minGap);
+        const anchors = Math.random() < .5 ? [first, second] : [second, first];
+        const output = Array(glyphs.length).fill(0);
+        [[0,4],[4,6]].forEach(([start,count],word) => {
+          // Spread levels and shuffle them: visible dynamism even on unlucky reloads.
+          const levels = Array.from({length: count}, (_,j) => -1 + 2*j/(count-1));
+          for (let j=count-1; j>0; j--) {
+            const k = Math.floor(Math.random()*(j+1));
+            [levels[j],levels[k]]=[levels[k],levels[j]];
+          }
+          // Secondary slope gives the word a visual direction, rather than rows.
+          const slope = (Math.random()*2-1)*amplitude*.30;
+          for (let j=0; j<count; j++) {
+            const fraction = j/(count-1)-.5;
+            const top = Math.max(minTop, Math.min(maxTop,
+              anchors[word] + levels[j]*amplitude*.75
+              + fraction*slope
+              + (Math.random()*2-1)*amplitude*.08));
+            output[start+j] = top / scale - baseY;
+          }
+        });
+        return output;
+      }
+
+      function layout(regenerate) {
+        const rect = svg.getBoundingClientRect();
+        const scale = Math.max(1, rect.width) / 55.37;
+        viewportHeight = Math.max(1, scene.getBoundingClientRect().height);
+        svg.setAttribute('viewBox', `0 0 55.37 ${(viewportHeight / scale).toFixed(4)}`);
+        // Restore the exact final height used in the earlier approved prototype.
+        baseY = Math.min(4, Math.max(15, viewportHeight * .025) / scale);
+        if (regenerate || offsets.length !== glyphs.length) {
+          offsets = introVariant === 'grouped-plus'
+            ? createGroupedPlusOffsets(scale)
+            : introVariant === 'grouped'
+              ? createGroupedOffsets(scale)
+              : createScatteredOffsets(scale);
+        }
+        if (window.matchMedia('(max-width: 680px)').matches) {
+          const svgTop = svg.getBoundingClientRect().top - scene.getBoundingClientRect().top;
+          const bottomLimit = (viewportHeight - svgTop - 5) / scale - baseY;
+          offsets = offsets.map((dy, i) => {
+            const bounds = glyphs[i].getBBox();
+            return Math.min(dy, bottomLimit - (bounds.y + bounds.height));
+          });
+        }
+        renderMark();
+      }
+      // Choosing V1 / V2 / V2+ always restarts just the introduction; photographs,
+      // cursor controls and all final logo geometry remain untouched.
+      const versionButtons = Array.from(document.querySelectorAll('.version-btn'));
+      function chooseIntroVariant(mode) {
+        if (!['scattered', 'grouped', 'grouped-plus'].includes(mode)) return;
+        introVariant = mode;
+        cancelIntroMomentum();
+        progress = reduceMotion ? 1 : 0;
+        completed = reduceMotion;
+        versionButtons.forEach(button =>
+          button.setAttribute('aria-pressed', String(button.dataset.introMode === mode))
+        );
+        layout(true);
+      }
+      versionButtons.forEach(button => button.addEventListener('click', (event) => {
+        event.stopPropagation();
+        chooseIntroVariant(button.dataset.introMode);
+      }));
+      function changeProgress(delta) {
+        if (completed) return;
+        progress = clamp(progress + delta, 0, 1);
+        if (progress >= 1) {
+          progress = 1;
+          completed = true;  // NO way back to the scattered intro by scrolling upwards.
+        }
+        renderMark();
+      }
+      function wheel(e) {
+        if (!completed) {
+          cancelIntroMomentum();
+          e.preventDefault();
+          const amount = e.deltaY * (e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? viewportHeight : 1);
+          changeProgress(amount / 310);
+        }
+      }
+      scene.addEventListener('wheel', wheel, {passive: false});
+
+      scene.addEventListener('touchstart', e => {
+        if (e.touches.length !== 1 || e.target.closest('button, a, .slide-progress')) return;
+        cancelIntroMomentum();
+        lastTouchX = e.touches[0].clientX;
+        lastTouchY = e.touches[0].clientY;
+        swipeX = 0; swipeY = 0;
+        touchSamples = [{y:lastTouchY, t:performance.now()}];
+      }, {passive:true});
+      scene.addEventListener('touchmove', e => {
+        if (lastTouchY === null || e.touches.length !== 1) return;
+        const x = e.touches[0].clientX;
+        const y = e.touches[0].clientY;
+        const dx = x - lastTouchX;
+        const dy = y - lastTouchY;
+        swipeX += dx;
+        swipeY += dy;
+        touchSamples.push({y, t:performance.now()});
+        const cutoff = performance.now() - 125;
+        while (touchSamples.length > 2 && touchSamples[0].t < cutoff) touchSamples.shift();
+        // Direct finger tracking preserved for deliberate, slow gestures.
+        if (!completed && Math.abs(swipeY) > Math.abs(swipeX)) {
+          if (e.cancelable) e.preventDefault();
+          changeProgress(-dy / (viewportHeight * .7));
+        }
+        lastTouchX = x; lastTouchY = y;
+      }, {passive:false});
+      scene.addEventListener('touchend', e => {
+        const horizontal = Math.abs(swipeX) > 55 && Math.abs(swipeX) > Math.abs(swipeY) * 1.25;
+        if (horizontal) {
+          lastSwipeAt = performance.now();
+          changeSlide(swipeX < 0 ? 1 : -1);
+        } else if (!completed && swipeY < -FLICK_DISTANCE && Math.abs(swipeY) > Math.abs(swipeX) * 1.25) {
+          const first = touchSamples[0];
+          const last = touchSamples[touchSamples.length - 1];
+          const upwardVelocity = first && last ? (first.y - last.y) / Math.max(1, last.t - first.t) : 0;
+          if (upwardVelocity >= FLICK_VELOCITY) {
+            // Strong upward throw: travel all the way, decelerating to final logo.
+            animateIntroTo(1, 650 + (1-progress)*250);
+          } else if (upwardVelocity > 0.12) {
+            // Gentler release: slight momentum without auto-finishing the logo.
+            animateIntroTo(Math.min(.97, progress + upwardVelocity * .15), 260);
+          }
+        }
+        touchSamples = [];
+        lastTouchX = lastTouchY = null;
+      }, {passive:true});
+      scene.addEventListener('touchcancel', () => {
+        touchSamples = [];
+        lastTouchX = lastTouchY = null;
+      }, {passive:true});
+      window.addEventListener('keydown', e => {
+        if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+          e.preventDefault(); changeSlide(e.key === 'ArrowRight' ? 1 : -1); return;
+        }
+        if (!completed && ['ArrowDown', 'PageDown', ' ', 'ArrowUp', 'PageUp', 'End'].includes(e.key)) {
+          e.preventDefault();
+          changeProgress(e.key === 'End' ? 1 : (e.key === 'ArrowUp' || e.key === 'PageUp' ? -.5 : .5));
+        }
+      });
+      window.addEventListener('resize', () => layout(false));
+      // Exposed for simple automated verification, not for the visitor UI.
+      window.__dagoPreview = {
+        getActivePhoto: () => slideIndex,
+        getSlideCount: () => slides.length,
+        getSlideProgress: () => clamp((performance.now()-slideStartedAt)/interval,0,1),
+        getMobileIconLocations: () => [document.querySelector('.cross').getBoundingClientRect().top, document.querySelector('.circle').getBoundingClientRect().top],
+        getLogoComplete: () => completed,
+        getLogoProgress: () => progress,
+        getIntroVariant: () => introVariant,
+        chooseIntroVariant: mode => chooseIntroVariant(mode),
+        getLetterJitterRatio: () => introVariant === 'grouped-plus' ? GROUPED_PLUS_LETTER_JITTER : GROUPED_LETTER_JITTER,
+        getIntroModes: () => ['scattered', 'grouped', 'grouped-plus'],
+        getCursorDirection: () => cursorArrow.dataset.direction,
+        nextPhoto: () => changeSlide(1),
+        previousPhoto: () => changeSlide(-1)
+      };
+      layout(true);
+    })();
+  </script>
 </body>
 </html>
