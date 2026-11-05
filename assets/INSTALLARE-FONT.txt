@@ -1,8 +1,12 @@
-FONT RONZINO — ASSET NON PRESENTE NEL PACCHETTO FORNITO
+RONZINO MEDIUM — INSTALLAZIONE DEFINITIVA
 
-Per utilizzare il font originale, inserire qui:
-  Ronzino-Medium.woff2
+1. Prendi il file originale Ronzino-Medium.woff2 che hai già.
+2. Copialo in questa cartella assets/, accanto a logo-originale.svg.
+3. Carica tutto su GitHub (index.html, assets/, images/, ecc.).
+4. Apri verifica-font.html nel tuo sito per controllare Safari.
 
-Il file index.html richiama anche Ronzino-LightItalic.woff2 (ereditato da versioni precedenti), ma il copy attuale usa Medium per la biografia.
-Senza i file originali, il browser utilizza un font sostitutivo.
-Non includere font scaricati da terzi senza autorizzazione.
+Percorso richiesto: assets/Ronzino-Medium.woff2
+Nomi e maiuscole devono corrispondere esattamente.
+
+Solo Medium (peso 500, diritto) è utilizzato in questa versione.
+Le altre varianti non sono necessarie e non sono incluse.

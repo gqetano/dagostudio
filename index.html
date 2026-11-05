@@ -273,23 +273,24 @@
     }
     @media (prefers-reduced-motion: reduce) { .glyph { will-change: auto; } }
 
-    /* V27 | ABOUT EDITORIAL CONTENT — reference layout, no extra controls.
-       Ronzino Medium is used for editorial text; Light Italic for the name.
-       These licensed webfont files must be installed before typographic sign-off.
-       The owner's licensed
-       Ronzino-Medium.woff2 belongs at assets/Ronzino-Medium.woff2. */
+    /* V62 — Real Ronzino Medium. One self-hosted WOFF2 source works on Safari.
+       Copy the owner's licensed Ronzino-Medium.woff2 to assets/ before deploying.
+       No faux bold or oblique is synthesised. */
     @font-face {
       font-family: 'Ronzino';
-      src: url('assets/Ronzino-Medium.woff2') format('woff2');
-      font-style: normal; font-weight: 500; font-display: swap;
+      src: url('./assets/Ronzino-Medium.woff2') format('woff2');
+      font-style: normal;
+      font-weight: 500;
+      font-display: swap;
     }
+    /* Editorial About layout. */
     .about-panel { overflow: hidden; background: #dedede; }
     .about-content {
       height: 100%; overflow-y: auto; overscroll-behavior-y: contain;
       -webkit-overflow-scrolling: touch;
       touch-action: pan-y;
       padding: clamp(92px, 8.6vw, 115px) 12px 30px;
-      font-family: 'Ronzino', 'Arial Narrow', Arial, sans-serif;
+      font-family: 'Ronzino', Arial, Helvetica, sans-serif;
       -webkit-user-select: text; user-select: text;
     }
     .about-heading {
@@ -492,17 +493,7 @@
       .circle { width: clamp(43.2px, 6.96vw, 93.6px); height: clamp(43.2px, 6.96vw, 93.6px); }
     }
 
-    /* V34 — QUIETER PHOTOGRAPHIC MARK; SELECTIVE SIGNATURE.
-       The photo's animated SVG remains clickable and uses the exact same
-       neutral grey as the biography rather than bright white or navigation red.
-       Only the name in the biography is red, set in Ronzino Light Italic.
-       The separate face name ensures the italic fallback renders if the
-       licensed webfont is not yet installed. */
-    @font-face {
-      font-family: 'Ronzino Light Italic';
-      src: url('assets/Ronzino-LightItalic.woff2') format('woff2');
-      font-weight: 300; font-style: italic; font-display: swap;
-    }
+    /* V61 — One medium family; highlighted name changes colour only. */
     .about-portrait-logo { color: #929292; }
     .about-name {
       color: #838383;
@@ -518,19 +509,12 @@
     .site-shell .about-panel,
     body.about-open .site-shell .about-panel { background-color: #dedede; }
 
-    /* V39 — PORTRAIT'S INTERACTIVE LETTERING: RED OUTLINE, NO FILL.
-       Original SVG shapes and motion untouched. Stroke is kept at a stable
-       1.45 CSS px regardless of the viewport scaling. */
-    .about-portrait-logo { color: #ff0000; }
-    .about-portrait-logo .glyph path,
-    .about-portrait-logo .glyph polygon,
-    .about-portrait-logo .glyph rect,
-    .about-portrait-logo .glyph circle {
-      fill: none !important;
-      stroke: var(--carmine);
-      stroke-width: 1.45px;
-      stroke-linejoin: round;
-      vector-effect: non-scaling-stroke;
+    /* V61 — Single red, solid lettering treatment in the About photograph.
+       Original SVG outlines and autonomous movement are preserved. */
+    .about-portrait-logo { color: var(--carmine); }
+    .about-portrait-logo .glyph :is(path, polygon, rect, circle) {
+      fill: var(--carmine) !important;
+      stroke: none !important;
     }
 
     /* The references are plain editorial text until hovered; desktop only.
@@ -576,145 +560,23 @@
     @media (prefers-reduced-motion:reduce) { .ref-preview, .sound-lines i { transition:none; animation:none; } }
 
 
-    /* V48 — compact, centered colour row with tiny selection rule.
-       Four presets, a colour-picker, and a random colour wheel. There is
-       no large ring, and the controls belong to the photographic canvas. */
-    .about-portrait { isolation:isolate; }
+    /* V61 — Photograph itself remains interactive; no colour selector UI. */
+    .about-portrait { isolation: isolate; }
     .portrait-hit-area {
-      position:absolute; z-index:3; inset:0; display:block; width:100%; height:100%;
-      border:0; margin:0; padding:0; background:transparent; appearance:none;
-      cursor:pointer; -webkit-tap-highlight-color:transparent;
+      position: absolute; z-index: 3; inset: 0;
+      display: block; width: 100%; height: 100%;
+      border: 0; margin: 0; padding: 0; background: transparent;
+      appearance: none; cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
     }
-    .portrait-hit-area:focus-visible { outline:2px solid #ff0000; outline-offset:-3px; }
-    .portrait-treatment-nav {
-      position:absolute; z-index:7; left:50%; right:auto; bottom:11px;
-      transform:translateX(-50%);
-      display:flex; align-items:center; justify-content:center; gap:0;
-      -webkit-user-select:none; user-select:none;
+    .portrait-hit-area:focus-visible {
+      outline: 2px solid var(--carmine);
+      outline-offset: -3px;
     }
-    .portrait-treatment-nav > button {
-      position:relative; appearance:none; display:grid; place-items:center;
-      flex:0 0 22px; width:22px; height:27px;
-      border:0; border-radius:0; background:transparent; padding:0;
-      cursor:pointer; touch-action:manipulation;
-      -webkit-tap-highlight-color:transparent;
+    @media (hover: hover) and (pointer: fine) {
+      .portrait-hit-area { cursor: none; }
     }
-    .portrait-treatment-nav .treatment-swatch {
-      display:block; width:12.5px; height:12.5px; border-radius:50%;
-      pointer-events:none; border:0; box-sizing:border-box;
-      transition:transform .18s ease;
-    }
-    .treatment-swatch--white { background:#fff; }
-    .treatment-swatch--black { background:#000; box-shadow:0 0 0 1px rgba(255,255,255,.48); }
-    .treatment-swatch--red { background:var(--carmine); }
-    .treatment-swatch--outline { background:transparent; border:1.5px solid var(--carmine) !important; }
-    .treatment-swatch--frosted {
-      background:rgba(247,247,247,.24);
-      border:1px solid rgba(255,255,255,.80) !important;
-      -webkit-backdrop-filter:blur(4px) saturate(1.7);
-      backdrop-filter:blur(4px) saturate(1.7);
-    }
-    .treatment-swatch--palette {
-      background:conic-gradient(#dc2a22,#e89f23,#e1da36,#28a968,#347bbb,#824bb5,#dc2a22);
-      /* No outside stroke: visually the same 12.5px as the other colours. */
-    }
-    .treatment-swatch--random {
-      overflow:visible; color:#ffffff; stroke:currentColor; stroke-width:1.35;
-      fill:none; stroke-linecap:round; stroke-linejoin:round;
-    }
-    .treatment-swatch--random .random-core {
-      fill:var(--portrait-custom-colour,#ff0000); stroke:none;
-    }
-    @keyframes portrait-random-wheel-spin {to{transform:rotate(360deg);}}
-    .portrait-treatment-nav > button.random-spinning .treatment-swatch--random {
-      animation:portrait-random-wheel-spin 420ms cubic-bezier(.15,.65,.2,1) both;
-    }
-    @media(prefers-reduced-motion:reduce) {
-      .portrait-treatment-nav > button.random-spinning .treatment-swatch--random {animation:none;}
-    }
-    .portrait-treatment-nav > button[aria-pressed="true"]::after {
-      content:""; position:absolute; bottom:0; left:50%; transform:translateX(-50%);
-      width:8px; height:2px; background:var(--carmine); pointer-events:none;
-    }
-    .portrait-treatment-nav > button:focus-visible {
-      outline:1px solid var(--carmine); outline-offset:1px;
-    }
-    /* Small floating palette, hidden except when deliberately opened. */
-    .portrait-color-panel {
-      position:absolute; z-index:10; left:50%; bottom:calc(100% + 7px);
-      transform:translateX(-50%); width:186px;
-      padding:11px 12px 12px;
-      color:#e5e5e5; background:rgba(15,15,15,.96);
-      border:1px solid rgba(255,255,255,.38);
-      box-shadow:0 8px 25px rgba(0,0,0,.21);
-      -webkit-backdrop-filter:blur(14px); backdrop-filter:blur(14px);
-      box-sizing:border-box;
-    }
-    .portrait-color-panel[hidden] {display:none!important;}
-    .portrait-color-panel-heading {
-      font:500 10px/1.2 'Ronzino',Arial,sans-serif;
-      text-transform:uppercase; letter-spacing:.07em; margin:0 0 9px;
-    }
-    .portrait-color-grid {display:grid; grid-template-columns:repeat(6,1fr); gap:8px 5px;}
-    .portrait-color-grid button {
-      position:relative; width:20px; height:20px; padding:0;
-      background:transparent; border:0; appearance:none;
-      display:grid;place-items:center;cursor:pointer;
-      -webkit-tap-highlight-color:transparent;
-    }
-    .portrait-color-grid button span {display:block;width:13px;height:13px;border-radius:50%;background:var(--option-colour);}
-    .portrait-color-grid button:focus-visible {outline:1px solid #fff;}
-    .portrait-color-custom {
-      display:flex; align-items:center; justify-content:space-between;
-      margin-top:10px; padding-top:9px; border-top:1px solid rgba(255,255,255,.23);
-      font:500 10px/1.2 'Ronzino',Arial,sans-serif;
-    }
-    .portrait-color-custom input[type="color"] {
-      width:33px; height:22px; border:1px solid rgba(255,255,255,.6);
-      padding:1px; border-radius:0; background:transparent;cursor:pointer;
-    }
-    @media (max-width:680px) {.portrait-treatment-nav {bottom:10px;}}
-    @media (hover:hover) and (pointer:fine) {
-      .portrait-hit-area,.portrait-treatment-nav button,
-      .portrait-color-custom input {cursor:none;}
-      /* All swatches stay at the same physical diameter, including on hover. */
-    }
-    /* Each treatment only affects the About photo, never the Home mark. */
-    .about-portrait-logo .portrait-mask-letter :is(path,polygon,rect,circle),
-    .about-portrait-logo .portrait-mask-letter > g :is(path,polygon,rect,circle) {
-      fill:#fff !important; stroke:none !important;
-    }
-    .about-portrait-logo .portrait-focus-layer { display:none; pointer-events:none; }
-    .about-portrait[data-treatment="2"] .portrait-focus-layer { display:block; }
-    .about-portrait[data-treatment="2"] .portrait-focus-layer {
-      /* Applied to the picture *inside* the moving letters, not to their edges. */
-      filter:url(#portraitFrostRefractionV42);
-    }
-    .about-portrait[data-treatment="2"] .about-portrait-logo > .glyph :is(path,polygon,rect,circle),
-    .about-portrait[data-treatment="2"] .about-portrait-logo > .glyph > g :is(path,polygon,rect,circle) {
-      fill:rgba(240,240,240,.21) !important;
-      stroke:none !important;
-      stroke-width:0 !important;
-    }
-    .about-portrait > img {transition:filter 250ms ease,transform 250ms ease;}
-    /* V46: solid white, solid black and solid carmine (the outlines are treatment 1). */
-    .about-portrait[data-treatment="3"] .about-portrait-logo > .glyph :is(path,polygon,rect,circle),
-    .about-portrait[data-treatment="3"] .about-portrait-logo > .glyph > g :is(path,polygon,rect,circle) {
-      fill:#ffffff !important; stroke:none !important;
-    }
-    .about-portrait[data-treatment="4"] .about-portrait-logo > .glyph :is(path,polygon,rect,circle),
-    .about-portrait[data-treatment="4"] .about-portrait-logo > .glyph > g :is(path,polygon,rect,circle) {
-      fill:#000000 !important; stroke:none !important;
-    }
-    .about-portrait[data-treatment="5"] .about-portrait-logo > .glyph :is(path,polygon,rect,circle),
-    .about-portrait[data-treatment="5"] .about-portrait-logo > .glyph > g :is(path,polygon,rect,circle) {
-      fill:var(--carmine) !important; stroke:none !important;
-    }
-    /* V47 — customised solid colour, applied to the movable SVG glyphs only. */
-    .about-portrait:is([data-treatment="6"],[data-treatment="7"]) .about-portrait-logo > .glyph :is(path,polygon,rect,circle),
-    .about-portrait:is([data-treatment="6"],[data-treatment="7"]) .about-portrait-logo > .glyph > g :is(path,polygon,rect,circle) {
-      fill:var(--portrait-custom-colour, #6f73e8) !important; stroke:none !important;
-    }
+
     /* V40 · contextual previews live behind, rather than beside, the biographical text. */
     .site-shell .about-content {position:relative; isolation:isolate;}
     .site-shell .about-content > .about-portrait,
@@ -994,9 +856,6 @@
       position: relative;
       z-index: 1;
     }
-    .site-shell .about-bio-panel--colophon .about-colophon-credits .about-bio + .about-bio {
-      margin-top: .32em;
-    }
     @media (max-width:680px) {
       /* Mobile retains the existing bottom control clearance. */
       .site-shell .about-content {
@@ -1033,59 +892,24 @@
       }
     }
   </style>
+  <link rel="preload" href="./assets/Ronzino-Medium.woff2" as="font" type="font/woff2" crossorigin>
 </head>
 <body>
   <div class="site-shell" id="siteShell">
   <aside class="about-panel" id="aboutPanel" aria-label="Pannello About DAGOSTUDIO" aria-hidden="true" inert>
     <div class="about-content allow-text-selection">
-      <div class="about-portrait" id="aboutPortraitFrame" data-treatment="2">
+      <div class="about-portrait" id="aboutPortraitFrame">
         <img id="aboutPortraitPhoto" src="images/about-christian.webp" alt="Christian D’Agostino in un ritratto fotografico in bianco e nero" loading="eager" decoding="async">
         <svg class="about-portrait-logo" id="aboutPortraitLogo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 55.37 40" preserveAspectRatio="xMinYMin meet" aria-hidden="true"></svg>
         <button class="portrait-hit-area" id="aboutPortrait" type="button" aria-label="Cambia disposizione delle lettere DAGOSTUDIO sulla fotografia"></button>
-        <div class="portrait-treatment-nav" id="portraitTreatmentNav" role="group" aria-label="Scegli il colore o l'effetto delle lettere">
-          <button type="button" data-treatment-choice="3" aria-pressed="false" aria-label="Lettere bianche" title="Bianco"><span class="treatment-swatch treatment-swatch--white" aria-hidden="true"></span></button>
-          <button type="button" data-treatment-choice="5" aria-pressed="false" aria-label="Lettere rosse" title="Rosso"><span class="treatment-swatch treatment-swatch--red" aria-hidden="true"></span></button>
-          <button type="button" data-treatment-choice="1" aria-pressed="false" aria-label="Lettere con contorno rosso" title="Outline rosso"><span class="treatment-swatch treatment-swatch--outline" aria-hidden="true"></span></button>
-          <button type="button" data-treatment-choice="2" aria-pressed="true" aria-label="Lettere con rifrazione satinata" title="Satinato"><span class="treatment-swatch treatment-swatch--frosted" aria-hidden="true"></span></button>
-          <button type="button" id="portraitPaletteToggle" data-treatment-choice="6" aria-pressed="false" aria-expanded="false" aria-controls="portraitColorPanel" aria-label="Apri la tavolozza e scegli un colore" title="Altri colori"><span id="portraitPaletteSwatch" class="treatment-swatch treatment-swatch--palette" aria-hidden="true"></span></button>
-          <button type="button" id="portraitRandomColor" data-treatment-choice="7" aria-pressed="false" aria-label="Colore casuale: genera un nuovo colore" title="Random color">
-            <svg class="treatment-swatch treatment-swatch--random" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
-              <path d="M12.5 5.7A5.15 5.15 0 0 0 4.1 3.7M3.5 10.3a5.15 5.15 0 0 0 8.4 2"/>
-              <path d="M3.95 1.8v2.5h2.5M12.05 14.2v-2.5h-2.5"/>
-              <circle class="random-core" cx="8" cy="8" r="2.05"/>
-            </svg>
-          </button>
-          <div class="portrait-color-panel" id="portraitColorPanel" hidden aria-label="Tavolozza per il lettering">
-            <p class="portrait-color-panel-heading">Altri colori</p>
-            <div class="portrait-color-grid" role="group" aria-label="Colori suggeriti">
-              <button type="button" data-palette-colour="#e1c28e" aria-label="Sabbia" title="Sabbia" style="--option-colour:#e1c28e"><span aria-hidden="true"></span></button>
-              <button type="button" data-palette-colour="#9476bb" aria-label="Viola" title="Viola" style="--option-colour:#9476bb"><span aria-hidden="true"></span></button>
-              <button type="button" data-palette-colour="#4076db" aria-label="Blu" title="Blu" style="--option-colour:#4076db"><span aria-hidden="true"></span></button>
-              <button type="button" data-palette-colour="#5b9fbe" aria-label="Azzurro" title="Azzurro" style="--option-colour:#5b9fbe"><span aria-hidden="true"></span></button>
-              <button type="button" data-palette-colour="#39a691" aria-label="Verde acqua" title="Verde acqua" style="--option-colour:#39a691"><span aria-hidden="true"></span></button>
-              <button type="button" data-palette-colour="#9baf62" aria-label="Oliva" title="Oliva" style="--option-colour:#9baf62"><span aria-hidden="true"></span></button>
-              <button type="button" data-palette-colour="#ddaa2c" aria-label="Ocra" title="Ocra" style="--option-colour:#ddaa2c"><span aria-hidden="true"></span></button>
-              <button type="button" data-palette-colour="#ed7c3a" aria-label="Arancio" title="Arancio" style="--option-colour:#ed7c3a"><span aria-hidden="true"></span></button>
-              <button type="button" data-palette-colour="#ed6b8b" aria-label="Rosa" title="Rosa" style="--option-colour:#ed6b8b"><span aria-hidden="true"></span></button>
-              <button type="button" data-palette-colour="#bd372d" aria-label="Rosso scuro" title="Rosso scuro" style="--option-colour:#bd372d"><span aria-hidden="true"></span></button>
-              <button type="button" data-palette-colour="#786758" aria-label="Taupe" title="Taupe" style="--option-colour:#786758"><span aria-hidden="true"></span></button>
-              <button type="button" data-palette-colour="#b3a6d6" aria-label="Lilla" title="Lilla" style="--option-colour:#b3a6d6"><span aria-hidden="true"></span></button>
-            </div>
-            <label class="portrait-color-custom" for="portraitCustomPicker"><span>Scegli un colore</span>
-              <input type="color" id="portraitCustomPicker" value="#9476bb" aria-label="Scegli un colore personalizzato">
-            </label>
-          </div>
-        </div>
+      </div>
       </div>
       <div class="about-bio-panel about-bio-panel--intro"><p class="about-bio">Sono <span class="about-name">Christian D’Agostino</span>, mi occupo di fotografia: wedding, ritrattistica e visual storytelling.<span class="bio-internal-break" aria-hidden="true"></span>Il mio immaginario affonda le radici nel <span class="about-reference" data-ref="brutalismo" tabindex="0" role="button" aria-label="Anteprima visiva del brutalismo architettonico">brutalismo architettonico</span>, nell’estetica razionale del <span class="about-reference" data-ref="bauhaus" tabindex="0" role="button" aria-label="Anteprima visiva del Bauhaus">Bauhaus</span>, passando per il cinema visionario di <span class="about-reference" data-ref="lynch" tabindex="0" role="button" aria-label="Anteprima visiva di Lynch">Lynch</span> e <span class="about-reference" data-ref="fellini" tabindex="0" role="button" aria-label="Anteprima visiva di Fellini">Fellini</span>, fino alle sonorità dark e post-punk dei <a class="about-reference" data-ref="depeche" href="https://www.youtube.com/watch?v=aGSKrC7dGcY" target="_blank" rel="noopener noreferrer" aria-label="Depeche Mode: apri il video ufficiale di Enjoy the Silence. All’hover senti una prova sonora originale">Depeche Mode</a> e <a class="about-reference" data-ref="joy" href="https://www.youtube.com/watch?v=674KGKRQBPE" target="_blank" rel="noopener noreferrer" aria-label="Joy Division: apri il video ufficiale di Love Will Tear Us Apart. All’hover senti una prova sonora originale">Joy Division</a>.</p></div>
       <div class="about-bio-panel about-bio-panel--contacts"><p class="about-bio">Molfetta, Puglia · Italia.<br>Contatti: <span class="pending-detail">email e social da inserire</span>.</p></div>
       <div class="about-colophon-spacer" aria-hidden="true"></div>
       <div class="about-bio-panel about-bio-panel--colophon" aria-label="Colophon">
-        <p class="about-bio about-colophon-signature">DAGOSTUDIO © 2026</p>
-        <div class="about-colophon-credits">
-          <p class="about-bio">Fotografia: Christian D’Agostino</p>
-          <p class="about-bio">Disegnato e sviluppato da Gaetano Roselli</p>
-        </div>
+        <p class="about-bio about-colophon-signature">DAGOSTUDIO © 2026 · Tutti i diritti riservati</p>
+        <p class="about-bio about-colophon-credits">Fotografie: Christian D’Agostino<br>Design by Gaetano Roselli</p>
       </div>
       <div class="ref-preview" id="referencePreview" aria-hidden="true">
         <img id="referencePreviewImage" alt="" decoding="async" />
@@ -1235,124 +1059,8 @@
         aboutPortraitLogo.appendChild(cloned);
       });
       const aboutLetters = Array.from(aboutPortraitLogo.querySelectorAll('.glyph'));
-      // V40: one perfectly registered mask of the same moving letterforms,
-      // used for both the frosted-tile and selective-focus experiments.
+      // V61 — Red is the sole About photo treatment. No mask or palette.
       const aboutPortraitFrame = document.getElementById('aboutPortraitFrame');
-      const portraitPhoto = document.getElementById('aboutPortraitPhoto');
-      const svgNS = 'http://www.w3.org/2000/svg';
-      const svgDefs = document.createElementNS(svgNS, 'defs');
-      const letterMask = document.createElementNS(svgNS,'mask');
-      letterMask.setAttribute('id','portraitLetterMaskV40');
-      letterMask.setAttribute('maskUnits','userSpaceOnUse');
-      letterMask.setAttribute('maskContentUnits','userSpaceOnUse');
-      letterMask.setAttribute('mask-type','alpha');
-      letterMask.setAttribute('x','0'); letterMask.setAttribute('y','0');
-      letterMask.setAttribute('width','55.37');letterMask.setAttribute('height','300');
-      const maskLettersGroup=document.createElementNS(svgNS,'g');
-      maskLettersGroup.setAttribute('class','portrait-mask-group');
-      const maskLetters=aboutLetters.map(original=>{
-        const copy=original.cloneNode(true);
-        copy.removeAttribute('class');copy.classList.add('portrait-mask-letter');
-        maskLettersGroup.appendChild(copy);return copy;
-      });
-      letterMask.appendChild(maskLettersGroup);svgDefs.appendChild(letterMask);
-      // V42: photographic frosted-glass treatment: a modest blur plus gentle
-      // optical displacement. No artificial white outline is added.
-      const frostFilter=document.createElementNS(svgNS,'filter');
-      frostFilter.setAttribute('id','portraitFrostRefractionV42');
-      frostFilter.setAttribute('x','-12%');frostFilter.setAttribute('y','-12%');
-      frostFilter.setAttribute('width','124%');frostFilter.setAttribute('height','124%');
-      frostFilter.setAttribute('color-interpolation-filters','sRGB');
-      frostFilter.innerHTML = `<feGaussianBlur in="SourceGraphic" stdDeviation="0.7" result="softened"/>
-        <feTurbulence type="fractalNoise" baseFrequency="0.09" numOctaves="2" seed="12" result="surface"/>
-        <feDisplacementMap in="softened" in2="surface" scale="1.35" xChannelSelector="R" yChannelSelector="G"/>`;
-      svgDefs.appendChild(frostFilter);
-      aboutPortraitLogo.insertBefore(svgDefs,aboutPortraitLogo.firstChild);
-      const focusLayer=document.createElementNS(svgNS,'image');
-      focusLayer.setAttribute('class','portrait-focus-layer');
-      focusLayer.setAttribute('mask','url(#portraitLetterMaskV40)');
-      focusLayer.setAttribute('preserveAspectRatio','none');
-      focusLayer.setAttribute('href',portraitPhoto.getAttribute('src'));
-      aboutPortraitLogo.insertBefore(focusLayer,aboutLetters[0]);
-      const portraitColorPanel = document.getElementById('portraitColorPanel');
-      const portraitPaletteToggle = document.getElementById('portraitPaletteToggle');
-      const portraitPaletteSwatch = document.getElementById('portraitPaletteSwatch');
-      const portraitCustomPicker = document.getElementById('portraitCustomPicker');
-      const portraitTreatmentNav = document.getElementById('portraitTreatmentNav');
-      function togglePortraitPalette(show) {
-        portraitColorPanel.hidden = !show;
-        portraitPaletteToggle.setAttribute('aria-expanded',String(show));
-      }
-      function setPortraitTreatment(choice) {
-        if(!['1','2','3','4','5','6','7'].includes(String(choice)))return;
-        aboutPortraitFrame.dataset.treatment=String(choice);
-        document.querySelectorAll('[data-treatment-choice]').forEach(btn=>{
-          btn.setAttribute('aria-pressed',String(btn.dataset.treatmentChoice===String(choice)));
-        });
-      }
-      function setPortraitCustomColour(hex) {
-        if(!/^#[0-9a-fA-F]{6}$/.test(hex))return;
-        aboutPortraitFrame.style.setProperty('--portrait-custom-colour',hex);
-        portraitCustomPicker.value=hex;
-        portraitPaletteSwatch.style.background=hex;
-        setPortraitTreatment('6');
-        togglePortraitPalette(false);
-      }
-      document.querySelectorAll('[data-treatment-choice]:not([data-treatment-choice="6"])').forEach(btn=>{
-        btn.addEventListener('click',e=>{
-          e.stopPropagation();setPortraitTreatment(btn.dataset.treatmentChoice);
-          togglePortraitPalette(false);
-        });
-      });
-      portraitPaletteToggle.addEventListener('click',e=>{
-        e.stopPropagation();
-        togglePortraitPalette(portraitColorPanel.hidden);
-      });
-      const portraitRandomColor = document.getElementById('portraitRandomColor');
-      let lastRandomHue = null;
-      function hslToHex(hue,sat,light) {
-        const s=sat/100,l=light/100;
-        const a=s*Math.min(l,1-l);
-        function channel(n) {
-          const k=(n+hue/30)%12;
-          return Math.round(255*(l-a*Math.max(-1,Math.min(k-3,9-k,1))));
-        }
-        return '#'+[channel(0),channel(8),channel(4)].map(n=>n.toString(16).padStart(2,'0')).join('');
-      }
-      function chooseRandomPortraitColour() {
-        // A wide hue shift prevents repeated clicks looking almost identical.
-        const hue=lastRandomHue===null
-          ?Math.random()*360
-          :(lastRandomHue+54+Math.random()*252)%360;
-        lastRandomHue=hue;
-        const hex=hslToHex(hue,65+Math.random()*25,43+Math.random()*21);
-        aboutPortraitFrame.style.setProperty('--portrait-custom-colour',hex);
-        portraitCustomPicker.value=hex;
-        setPortraitTreatment('7');
-        togglePortraitPalette(false);
-        portraitRandomColor.classList.remove('random-spinning');
-        // Restart CSS spin on repeated clicks rather than only the first one.
-        void portraitRandomColor.offsetWidth;
-        portraitRandomColor.classList.add('random-spinning');
-      }
-      portraitRandomColor.addEventListener('click',e=>{
-        e.stopPropagation();
-        chooseRandomPortraitColour();
-      });
-      portraitRandomColor.addEventListener('animationend',()=>portraitRandomColor.classList.remove('random-spinning'));
-      portraitColorPanel.addEventListener('click',e=>e.stopPropagation());
-      document.querySelectorAll('[data-palette-colour]').forEach(btn=>{
-        btn.addEventListener('click',e=>{
-          e.stopPropagation();setPortraitCustomColour(btn.dataset.paletteColour);
-        });
-      });
-      portraitCustomPicker.addEventListener('input', e=>setPortraitCustomColour(e.target.value));
-      document.addEventListener('pointerdown',e=>{
-        if(!portraitTreatmentNav.contains(e.target))togglePortraitPalette(false);
-      });
-      document.addEventListener('keydown',e=>{
-        if(e.key==='Escape')togglePortraitPalette(false);
-      });
       const aboutBounds = aboutLetters.map(letter => letter.getBBox());
       let aboutTargets = null;   // position fractions in the photo; responsive
       let aboutCurrent = null;
@@ -1386,18 +1094,6 @@
         const scale = Math.max(1,logoBox.width)/55.37;
         const viewHeight=Math.max(1,logoBox.height)/scale;
         aboutPortraitLogo.setAttribute('viewBox', `0 0 55.37 ${viewHeight.toFixed(5)}`);
-        letterMask.setAttribute('height',String(viewHeight));
-        // Align the overlay image exactly to the portrait's object-fit:cover crop.
-        const nativeW=portraitPhoto.naturalWidth||box.width;
-        const nativeH=portraitPhoto.naturalHeight||box.height;
-        const factor=Math.max(box.width/nativeW,box.height/nativeH);
-        const renderW=nativeW*factor,renderH=nativeH*factor;
-        const x=(box.width-renderW)/2-(logoBox.left-box.left);
-        const y=(box.height-renderH)/2-(logoBox.top-box.top);
-        focusLayer.setAttribute('x',(x/scale).toFixed(5));
-        focusLayer.setAttribute('y',(y/scale).toFixed(5));
-        focusLayer.setAttribute('width',(renderW/scale).toFixed(5));
-        focusLayer.setAttribute('height',(renderH/scale).toFixed(5));
         aboutLetters.forEach((letter, i) => {
           const bbox = aboutBounds[i];
           // This clamp applies during animations and responsive resizes too:
@@ -1408,7 +1104,6 @@
           const shift = top/scale - bbox.y;
           const transform = `translate(0 ${shift.toFixed(4)})`;
           letter.setAttribute('transform',transform);
-          maskLetters[i].setAttribute('transform',transform);
         });
         aboutLastSize = {w:box.width,h:box.height};
       }
@@ -1444,7 +1139,6 @@
         else paintAboutLogo();
       });
       aboutPhotoObserver.observe(aboutPortrait);
-      portraitPhoto.addEventListener('load',paintAboutLogo);
 
 
       // V39 — HOVER ATLAS: the same biography, now with editorial visual
@@ -2009,7 +1703,7 @@
         nextPhoto: () => changeSlide(1),
         previousPhoto: () => changeSlide(-1),
         setPortraitTreatment: n => setPortraitTreatment(n),
-        getPortraitTreatment: () => aboutPortraitFrame.dataset.treatment,
+        getPortraitTreatment: () => 'solid-red',
         getAboutLetterFractions: () => [...(aboutCurrent||[])],
         getAboutWordClusterSpreads: () => {
           if(!aboutCurrent) return null;
