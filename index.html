@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#000000" />
   <meta name="description" content="DAGOSTUDIO — fotografia contemporanea di matrimonio." />
-  <title>DAGOSTUDIO — Portfolio fotografico · V30</title>
+  <title>DAGOSTUDIO — Portfolio fotografico</title>
   <style>
     :root {
       --carmine: #FF0000;
@@ -274,7 +274,9 @@
     @media (prefers-reduced-motion: reduce) { .glyph { will-change: auto; } }
 
     /* V27 | ABOUT EDITORIAL CONTENT — reference layout, no extra controls.
-       Only Ronzino Medium is used for editorial text. The owner's licensed
+       Ronzino Medium is used for editorial text; Light Italic for the name.
+       These licensed webfont files must be installed before typographic sign-off.
+       The owner's licensed
        Ronzino-Medium.woff2 belongs at assets/Ronzino-Medium.woff2. */
     @font-face {
       font-family: 'Ronzino';
@@ -384,7 +386,7 @@
     /* The interactive photo is a bounded canvas: retain a modest inner
        breathing room to keep every glyph off the frame edges. */
     .site-shell .about-portrait-logo {
-      --portrait-logo-inset: clamp(10px, 1.15vw, 16px);
+      --portrait-logo-inset: clamp(8px, .92vw, 12.8px);
       inset: var(--portrait-logo-inset);
       width: calc(100% - (2 * var(--portrait-logo-inset)));
       height: calc(100% - (2 * var(--portrait-logo-inset)));
@@ -393,7 +395,7 @@
       .site-shell .about-content {
         padding-top: calc(var(--pad) + env(safe-area-inset-top, 0px));
       }
-      .site-shell .about-portrait-logo { --portrait-logo-inset: 12px; }
+      .site-shell .about-portrait-logo { --portrait-logo-inset: 9.6px; }
     }
 
 
@@ -446,19 +448,714 @@
       .cursor-action { display: none; }
     }
 
+    /* V31 / PREVIEW — EDITORIAL CARD AND MOBILE OVERLAY.
+       The photo begins at the sheet's upper inset, without the old headline.
+       Keep Ronzino Medium 500 as the sole editorial typeface. */
+    .about-content { font-synthesis: none; }
+    /* Chromium rounds the old 1.5px CSS border down to 1px: use a real 2px border. */
+    .circle { border-width: 2px; }
+    .about-bio { font-size: clamp(28.5px, 3.075vw, 40.5px); }
+
+    /* Mobile behaves as TWO independent surfaces: the full-size Home remains
+       stationary underneath; About translates over it without shrinking the
+       scene, photographic frame or original SVG wordmark. */
+    @media (max-width: 680px) {
+      :root { --cross-size: 49.2px; }
+      .cross, .circle { width: 49.2px; height: 49.2px; }
+      .about-bio { font-size: clamp(28.5px, 7.875vw, 37.5px); }
+      .site-shell { display: block; }
+      .site-shell .scene,
+      body.about-open .site-shell .scene {
+        position: absolute; inset: 0; left: 0; right: 0;
+        width: 100%; height: 100%; min-width: 100%;
+        flex: none; transition: none;
+      }
+      .site-shell .about-panel,
+      body.about-open .site-shell .about-panel {
+        position: absolute; inset: 0 auto 0 0;
+        width: 100%; min-width: 100%; flex: none;
+        height: 100%; margin-left: 0;
+        transition: transform var(--panel-duration) var(--panel-ease);
+      }
+      .site-shell .about-panel { transform: translate3d(-100%, 0, 0); }
+      body.about-open .site-shell .about-panel { transform: translate3d(0, 0, 0); }
+    }
+
+    /* V32 — tighter About biography typography on all viewports:
+       -3% letter spacing and 98% line height. Retain V31 font sizes. */
+    .about-bio { letter-spacing: -0.03em; line-height: .98; }
+
+    /* V33 — desktop pictograms +20% in size (not stroke).
+       The mobile overrides below 680px remain 49.2px with unchanged strokes. */
+    @media (min-width: 681px) {
+      :root { --cross-size: clamp(43.2px, 6.96vw, 93.6px); }
+      .circle { width: clamp(43.2px, 6.96vw, 93.6px); height: clamp(43.2px, 6.96vw, 93.6px); }
+    }
+
+    /* V34 — QUIETER PHOTOGRAPHIC MARK; SELECTIVE SIGNATURE.
+       The photo's animated SVG remains clickable and uses the exact same
+       neutral grey as the biography rather than bright white or navigation red.
+       Only the name in the biography is red, set in Ronzino Light Italic.
+       The separate face name ensures the italic fallback renders if the
+       licensed webfont is not yet installed. */
+    @font-face {
+      font-family: 'Ronzino Light Italic';
+      src: url('assets/Ronzino-LightItalic.woff2') format('woff2');
+      font-weight: 300; font-style: italic; font-display: swap;
+    }
+    .about-portrait-logo { color: #929292; }
+    .about-name {
+      color: #838383;
+      font-family: inherit;
+      font-weight: inherit;
+      font-style: normal;
+      letter-spacing: inherit;
+    }
+
+
+
+    /* V38 — ABOUT THEME EXPERIMENT. The switch belongs only to About.
+       Default: the approved grey card. On: rich black #000, retaining
+       original grey biographical text and red italic name. */
+    .site-shell .about-panel,
+    body.about-open .site-shell .about-panel {
+      background-color: #dedede;
+      transition: margin-left var(--panel-duration) var(--panel-ease), background-color 380ms ease;
+    }
+    .site-shell .about-panel.about-dark,
+    body.about-open .site-shell .about-panel.about-dark { background-color: #000000; }
+    .about-theme-switch {
+      --switch-width: 66px;
+      --switch-height: 33px;
+      --switch-knob: 23px;
+      --switch-inset: 4px;
+      position: absolute; z-index: 8;
+      right: calc(var(--pad) + env(safe-area-inset-right, 0px));
+      bottom: calc(var(--pad) + env(safe-area-inset-bottom, 0px));
+      display: block; box-sizing: border-box; width: var(--switch-width); height: var(--switch-height);
+      padding: 0; border: 1.5px solid var(--carmine); border-radius: 999px;
+      background: transparent; appearance: none;
+      -webkit-tap-highlight-color: transparent; touch-action: manipulation;
+      cursor: pointer;
+    }
+    .about-theme-switch-knob {
+      position: absolute;
+      top: 50%; left: var(--switch-inset); transform: translate3d(0,-50%,0);
+      width: var(--switch-knob); height: var(--switch-knob);
+      border: 1.5px solid var(--carmine); border-radius: 50%;
+      background-color: var(--carmine);
+      transition: transform 320ms cubic-bezier(.76,0,.18,1);
+      pointer-events: none;
+    }
+    .about-theme-switch[aria-checked="true"] .about-theme-switch-knob {
+      transform: translate3d(calc(var(--switch-width) - 2 * var(--switch-inset) - var(--switch-knob) - 3px), -50%, 0);
+    }
+    .about-theme-switch:focus-visible { outline: 2px solid var(--carmine); outline-offset: 5px; }
+    @media (hover: hover) and (pointer: fine) { .about-theme-switch { cursor: none; } }
+    @media (max-width: 680px) {
+      .site-shell .about-panel,
+      body.about-open .site-shell .about-panel {
+        transition: transform var(--panel-duration) var(--panel-ease), background-color 380ms ease;
+      }
+      .about-theme-switch {
+        --switch-width: 62px;
+        --switch-height: 31px;
+        --switch-knob: 21px;
+        --switch-inset: 4px;
+        right: auto;
+        left: calc(var(--pad) + env(safe-area-inset-left, 0px));
+        top: auto;
+        bottom: calc(var(--pad) + env(safe-area-inset-bottom, 0px));
+      }
+    }
+    /* Mobile: allow the biography to scroll fully above the bottom-left switch. */
+    @media (max-width:680px) { .site-shell .about-content {padding-bottom:calc(115px + env(safe-area-inset-bottom,0px));} }
+    @media (prefers-reduced-motion: reduce) {
+      .about-theme-switch-knob { transition-duration: 1ms; }
+      .site-shell .about-panel, body.about-open .site-shell .about-panel {
+        transition-duration: 1ms, 1ms;
+      }
+    }
+
+    /* V39 — PORTRAIT'S INTERACTIVE LETTERING: RED OUTLINE, NO FILL.
+       Original SVG shapes and motion untouched. Stroke is kept at a stable
+       1.45 CSS px regardless of the viewport scaling. */
+    .about-portrait-logo { color: #ff0000; }
+    .about-portrait-logo .glyph path,
+    .about-portrait-logo .glyph polygon,
+    .about-portrait-logo .glyph rect,
+    .about-portrait-logo .glyph circle {
+      fill: none !important;
+      stroke: var(--carmine);
+      stroke-width: 1.45px;
+      stroke-linejoin: round;
+      vector-effect: non-scaling-stroke;
+    }
+
+    /* The references are plain editorial text until hovered; desktop only.
+       The single floating preview is outside the sliding panels and never
+       catches mouse events. */
+    .about-reference { color: inherit; }
+    .ref-preview {
+      position: fixed; z-index: 105;
+      top: 0; left: 0; pointer-events: none;
+      width: min(300px, 34vw); aspect-ratio: 4 / 3;
+      opacity: 0; visibility: hidden;
+      transform: translate3d(0,6px,0) scale(.97);
+      transition: opacity 140ms ease, transform 160ms ease, visibility 140ms ease;
+      background: #181818; color: #fff;
+      overflow: hidden;
+    }
+    .ref-preview.show { opacity: 1; visibility: visible; transform: translate3d(0,0,0) scale(1); }
+    .ref-preview img { display:block; position:absolute; inset:0; width:100%; height:100%; object-fit: cover; filter: grayscale(1) contrast(1.18); }
+    .ref-preview::after { content:""; position:absolute; z-index:1; inset:52% 0 0; background:linear-gradient(transparent,rgba(0,0,0,.7)); }
+    .ref-preview-caption { position:absolute; z-index:2; left:12px; right:12px; bottom:9px; color:#f2f2f2;
+      font:500 11px/1.22 'Ronzino', Arial, sans-serif; letter-spacing:.025em; text-transform:uppercase; }
+    .ref-preview[data-type="audio"] { aspect-ratio: 4/2.3; }
+    .ref-preview[data-type="audio"]::after { display:none; }
+    .ref-preview[data-type="audio"] .ref-preview-caption { color: #aaa; }
+    .ref-preview[data-type="audio"] .sound-lines {
+      position:absolute; inset:15px 12px 44px; display:flex; align-items:center; gap:4px;
+    }
+    .sound-lines i { flex:1; height:28%; background:#ff0000; opacity:.88; transform-origin:center;
+      animation:ref-pulse 530ms ease-in-out infinite alternate; }
+    .sound-lines i:nth-child(2n) { animation-duration:830ms; height:65%; }
+    .sound-lines i:nth-child(3n) { animation-duration:380ms; height:83%; }
+    .sound-lines i:nth-child(5n) { animation-duration:660ms; height:35%; }
+    @keyframes ref-pulse { from { transform:scaleY(.18); } to {transform:scaleY(1);} }
+    @media (hover:hover) and (pointer:fine) {
+      .about-reference { cursor:none; }
+      .about-reference:hover, .about-reference:focus-visible { color:var(--carmine); }
+      .about-reference:focus-visible { outline: 1px solid var(--carmine); outline-offset:3px; }
+    }
+    @media (max-width:680px), (hover:none), (pointer:coarse) {
+      .about-reference { pointer-events:none; }
+      .ref-preview { display:none !important; }
+    }
+    @media (prefers-reduced-motion:reduce) { .ref-preview, .sound-lines i { transition:none; animation:none; } }
+
+
+    /* V48 — compact, centered colour row with tiny selection rule.
+       Four presets, a colour-picker, and a random colour wheel. There is
+       no large ring, and the controls belong to the photographic canvas. */
+    .about-portrait { isolation:isolate; }
+    .portrait-hit-area {
+      position:absolute; z-index:3; inset:0; display:block; width:100%; height:100%;
+      border:0; margin:0; padding:0; background:transparent; appearance:none;
+      cursor:pointer; -webkit-tap-highlight-color:transparent;
+    }
+    .portrait-hit-area:focus-visible { outline:2px solid #ff0000; outline-offset:-3px; }
+    .portrait-treatment-nav {
+      position:absolute; z-index:7; left:50%; right:auto; bottom:11px;
+      transform:translateX(-50%);
+      display:flex; align-items:center; justify-content:center; gap:0;
+      -webkit-user-select:none; user-select:none;
+    }
+    .portrait-treatment-nav > button {
+      position:relative; appearance:none; display:grid; place-items:center;
+      flex:0 0 22px; width:22px; height:27px;
+      border:0; border-radius:0; background:transparent; padding:0;
+      cursor:pointer; touch-action:manipulation;
+      -webkit-tap-highlight-color:transparent;
+    }
+    .portrait-treatment-nav .treatment-swatch {
+      display:block; width:12.5px; height:12.5px; border-radius:50%;
+      pointer-events:none; border:0; box-sizing:border-box;
+      transition:transform .18s ease;
+    }
+    .treatment-swatch--white { background:#fff; }
+    .treatment-swatch--black { background:#000; box-shadow:0 0 0 1px rgba(255,255,255,.48); }
+    .treatment-swatch--red { background:var(--carmine); }
+    .treatment-swatch--outline { background:transparent; border:1.5px solid var(--carmine) !important; }
+    .treatment-swatch--frosted {
+      background:rgba(247,247,247,.24);
+      border:1px solid rgba(255,255,255,.80) !important;
+      -webkit-backdrop-filter:blur(4px) saturate(1.7);
+      backdrop-filter:blur(4px) saturate(1.7);
+    }
+    .treatment-swatch--palette {
+      background:conic-gradient(#dc2a22,#e89f23,#e1da36,#28a968,#347bbb,#824bb5,#dc2a22);
+      /* No outside stroke: visually the same 12.5px as the other colours. */
+    }
+    .treatment-swatch--random {
+      overflow:visible; color:#ffffff; stroke:currentColor; stroke-width:1.35;
+      fill:none; stroke-linecap:round; stroke-linejoin:round;
+    }
+    .treatment-swatch--random .random-core {
+      fill:var(--portrait-custom-colour,#ff0000); stroke:none;
+    }
+    @keyframes portrait-random-wheel-spin {to{transform:rotate(360deg);}}
+    .portrait-treatment-nav > button.random-spinning .treatment-swatch--random {
+      animation:portrait-random-wheel-spin 420ms cubic-bezier(.15,.65,.2,1) both;
+    }
+    @media(prefers-reduced-motion:reduce) {
+      .portrait-treatment-nav > button.random-spinning .treatment-swatch--random {animation:none;}
+    }
+    .portrait-treatment-nav > button[aria-pressed="true"]::after {
+      content:""; position:absolute; bottom:0; left:50%; transform:translateX(-50%);
+      width:8px; height:2px; background:var(--carmine); pointer-events:none;
+    }
+    .portrait-treatment-nav > button:focus-visible {
+      outline:1px solid var(--carmine); outline-offset:1px;
+    }
+    /* Small floating palette, hidden except when deliberately opened. */
+    .portrait-color-panel {
+      position:absolute; z-index:10; left:50%; bottom:calc(100% + 7px);
+      transform:translateX(-50%); width:186px;
+      padding:11px 12px 12px;
+      color:#e5e5e5; background:rgba(15,15,15,.96);
+      border:1px solid rgba(255,255,255,.38);
+      box-shadow:0 8px 25px rgba(0,0,0,.21);
+      -webkit-backdrop-filter:blur(14px); backdrop-filter:blur(14px);
+      box-sizing:border-box;
+    }
+    .portrait-color-panel[hidden] {display:none!important;}
+    .portrait-color-panel-heading {
+      font:500 10px/1.2 'Ronzino',Arial,sans-serif;
+      text-transform:uppercase; letter-spacing:.07em; margin:0 0 9px;
+    }
+    .portrait-color-grid {display:grid; grid-template-columns:repeat(6,1fr); gap:8px 5px;}
+    .portrait-color-grid button {
+      position:relative; width:20px; height:20px; padding:0;
+      background:transparent; border:0; appearance:none;
+      display:grid;place-items:center;cursor:pointer;
+      -webkit-tap-highlight-color:transparent;
+    }
+    .portrait-color-grid button span {display:block;width:13px;height:13px;border-radius:50%;background:var(--option-colour);}
+    .portrait-color-grid button:focus-visible {outline:1px solid #fff;}
+    .portrait-color-custom {
+      display:flex; align-items:center; justify-content:space-between;
+      margin-top:10px; padding-top:9px; border-top:1px solid rgba(255,255,255,.23);
+      font:500 10px/1.2 'Ronzino',Arial,sans-serif;
+    }
+    .portrait-color-custom input[type="color"] {
+      width:33px; height:22px; border:1px solid rgba(255,255,255,.6);
+      padding:1px; border-radius:0; background:transparent;cursor:pointer;
+    }
+    @media (max-width:680px) {.portrait-treatment-nav {bottom:10px;}}
+    @media (hover:hover) and (pointer:fine) {
+      .portrait-hit-area,.portrait-treatment-nav button,
+      .portrait-color-custom input {cursor:none;}
+      /* All swatches stay at the same physical diameter, including on hover. */
+    }
+    /* Each treatment only affects the About photo, never the Home mark. */
+    .about-portrait-logo .portrait-mask-letter :is(path,polygon,rect,circle),
+    .about-portrait-logo .portrait-mask-letter > g :is(path,polygon,rect,circle) {
+      fill:#fff !important; stroke:none !important;
+    }
+    .about-portrait-logo .portrait-focus-layer { display:none; pointer-events:none; }
+    .about-portrait[data-treatment="2"] .portrait-focus-layer { display:block; }
+    .about-portrait[data-treatment="2"] .portrait-focus-layer {
+      /* Applied to the picture *inside* the moving letters, not to their edges. */
+      filter:url(#portraitFrostRefractionV42);
+    }
+    .about-portrait[data-treatment="2"] .about-portrait-logo > .glyph :is(path,polygon,rect,circle),
+    .about-portrait[data-treatment="2"] .about-portrait-logo > .glyph > g :is(path,polygon,rect,circle) {
+      fill:rgba(240,240,240,.21) !important;
+      stroke:none !important;
+      stroke-width:0 !important;
+    }
+    .about-portrait > img {transition:filter 250ms ease,transform 250ms ease;}
+    /* V46: solid white, solid black and solid carmine (the outlines are treatment 1). */
+    .about-portrait[data-treatment="3"] .about-portrait-logo > .glyph :is(path,polygon,rect,circle),
+    .about-portrait[data-treatment="3"] .about-portrait-logo > .glyph > g :is(path,polygon,rect,circle) {
+      fill:#ffffff !important; stroke:none !important;
+    }
+    .about-portrait[data-treatment="4"] .about-portrait-logo > .glyph :is(path,polygon,rect,circle),
+    .about-portrait[data-treatment="4"] .about-portrait-logo > .glyph > g :is(path,polygon,rect,circle) {
+      fill:#000000 !important; stroke:none !important;
+    }
+    .about-portrait[data-treatment="5"] .about-portrait-logo > .glyph :is(path,polygon,rect,circle),
+    .about-portrait[data-treatment="5"] .about-portrait-logo > .glyph > g :is(path,polygon,rect,circle) {
+      fill:var(--carmine) !important; stroke:none !important;
+    }
+    /* V47 — customised solid colour, applied to the movable SVG glyphs only. */
+    .about-portrait:is([data-treatment="6"],[data-treatment="7"]) .about-portrait-logo > .glyph :is(path,polygon,rect,circle),
+    .about-portrait:is([data-treatment="6"],[data-treatment="7"]) .about-portrait-logo > .glyph > g :is(path,polygon,rect,circle) {
+      fill:var(--portrait-custom-colour, #6f73e8) !important; stroke:none !important;
+    }
+    /* V40 · contextual previews live behind, rather than beside, the biographical text. */
+    .site-shell .about-content {position:relative; isolation:isolate;}
+    .site-shell .about-content > .about-portrait,
+    .site-shell .about-content > .about-bio {position:relative;z-index:1;}
+    .about-reference {
+      color:inherit !important;
+      text-decoration:underline;
+      text-decoration-color:currentColor;
+      text-decoration-thickness:1px;
+      text-underline-offset:.075em;
+      text-decoration-skip-ink:auto;
+      transition:text-decoration-thickness 100ms ease;
+    }
+    .about-reference:hover,.about-reference:focus-visible {
+      color:inherit !important;
+      text-decoration-thickness:2px;
+    }
+    .about-reference:focus-visible {outline:1px dotted currentColor;outline-offset:2px;}
+    .site-shell .about-content .ref-preview {
+      position:absolute; z-index:0; width:min(250px,75%);
+      aspect-ratio:4/3; background:transparent; overflow:hidden;
+      pointer-events:none; opacity:0;visibility:hidden;
+      transform:translate3d(0,0,0) scale(.95);
+      -webkit-mask-image:none;
+      mask-image:none;
+      mix-blend-mode:normal;
+      filter:none;
+      transition:opacity 180ms ease, transform 220ms ease, visibility 180ms;
+    }
+    .site-shell .about-content .ref-preview.show {
+      opacity:1;visibility:visible;transform:translate3d(0,0,0) scale(1);
+    }
+    .ref-preview img {
+      filter:none !important;
+      mix-blend-mode:normal;
+      opacity:1;
+      image-rendering:auto;
+    }
+    .ref-preview::before {display:none!important;content:none!important;}
+    .about-panel.about-dark .ref-preview::before {display:none!important;}
+    .ref-preview::after,.ref-preview-caption {display:none!important;}
+    .site-shell .about-content .ref-preview[data-type="audio"] {width:min(230px,65%);aspect-ratio:4/2;}
+    .ref-preview[data-type="audio"] .sound-lines {inset:10px 12px 10px;}
+    .ref-preview[data-type="audio"] .sound-lines i {background:#969696;opacity:.8;}
+    @media (max-width:680px),(hover:none),(pointer:coarse) {
+      .about-reference {text-decoration:none;}
+    }
+
+
+    /* V44 — MOBILE NAVIGATION PAIR
+       Both symbols share the same bottom baseline and form one visually
+       centered pair: circle on the left, opening + on the right.
+       Only the closed start position changes: when About opens the + keeps
+       its V43 journey to the bottom-right corner and rotates into X.
+       The circle stays with the full-size Home underneath the About overlay. */
+    @media (max-width: 680px) {
+      :root { --mobile-nav-half-gap: 9px; }
+      .interface .circle {
+        position: absolute;
+        grid-column: auto; grid-row: auto;
+        left: calc(50% - var(--cross-size) - var(--mobile-nav-half-gap));
+        right: auto;
+        top: auto;
+        bottom: calc(var(--pad) + env(safe-area-inset-bottom, 0px));
+        justify-self: auto;
+        width: var(--cross-size); height: var(--cross-size);
+      }
+      body:not(.about-open) .about-toggle {
+        left: calc(50% + var(--mobile-nav-half-gap));
+      }
+      /* The opened X remains attached to the About sheet's right edge. */
+      body.about-open .about-toggle {
+        left: calc(100vw - var(--cross-size) - var(--pad) - env(safe-area-inset-right, 0px));
+      }
+    }
+  
+    /* V51 — tight ink-aligned typographic panels.
+       The blocks are full rectangular paragraph fields, as in the reference.
+       Unlike ordinary padded cards, their edges meet the first capital's cap
+       height and the last line's baseline.  No added internal padding. The
+       background is painted in its own layer so the reference imagery can
+       still float above it, but beneath the letterforms. */
+    .site-shell .about-content > .about-bio-panel {
+      position: relative;
+      display: block;
+      width: 100%;
+      margin: 13px 0 0;
+      padding: 0;
+      background: transparent;
+    }
+    .site-shell .about-content > .about-bio-panel--references {
+      margin-top: 13px;
+    }
+    .site-shell .about-content > .about-bio-panel::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      /* Fallback for browsers without font-metric text trimming. */
+      top: 3px;
+      bottom: 0;
+      background: #a9a9a9;
+      z-index: 1;
+      pointer-events: none;
+      transition: background-color 300ms ease;
+    }
+    .site-shell .about-content > .about-bio-panel--references::before {
+      background: #bdbdbd;
+    }
+    .site-shell .about-bio-panel .about-bio {
+      position: relative;
+      z-index: 3;
+      margin: 0;
+      padding: 0;
+      color: #090909;
+    }
+    .site-shell .about-bio-panel .about-name {
+      color: #838383;
+      font-family: inherit;
+      font-weight: inherit;
+      font-style: normal;
+    }
+    .site-shell .about-content .ref-preview { z-index: 2; }
+    .site-shell .about-content .about-reference { color: inherit !important; }
+    .about-panel.about-dark .about-bio-panel--intro::before { background: #939393; }
+    .about-panel.about-dark .about-bio-panel--references::before { background: #b2b2b2; }
+    @supports (text-box-trim: trim-both) and (text-box-edge: cap text) {
+      .site-shell .about-bio-panel .about-bio {
+        text-box-trim: trim-both;
+        text-box-edge: cap text;
+      }
+      .site-shell .about-content > .about-bio-panel::before {
+        top: 0;
+        bottom: 0;
+      }
+    }
+    @media (max-width: 680px) {
+      .site-shell .about-content > .about-bio-panel { margin-top: 12px; }
+      .site-shell .about-content > .about-bio-panel--references { margin-top: 12px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .site-shell .about-content > .about-bio-panel::before { transition: none; }
+    }
+
+  
+    /* V52 – editorial system: one unified bio, separate contact and colophon
+       fields. The paint always stops at the TYPOGRAPHIC BASELINE, never at
+       glyph descenders (y/g/p), across desktop and mobile browsers. */
+    .site-shell .about-content > .about-bio-panel {
+      --cap-inset: 4px;
+      --baseline-inset: 5px;
+      margin-top: 18px;
+    }
+    .site-shell .about-content > .about-bio-panel::before {
+      top: var(--cap-inset);
+      bottom: var(--baseline-inset);
+    }
+    /* The biography has one continuous field, even across its intentional
+       internal line break; the two other fields are separate paragraphs. */
+    .site-shell .about-content > .about-bio-panel--intro::before {
+      background: #a9a9a9;
+    }
+    .site-shell .about-content > .about-bio-panel--contacts::before {
+      background: #bdbdbd;
+    }
+    .site-shell .about-content > .about-bio-panel--colophon::before {
+      background: #c9c9c9;
+    }
+    .about-panel.about-dark .about-bio-panel--intro::before { background: #939393; }
+    .about-panel.about-dark .about-bio-panel--contacts::before { background: #b2b2b2; }
+    .about-panel.about-dark .about-bio-panel--colophon::before { background: #c4c4c4; }
+    /* Override V51's cap/text trimming: text-edge: text includes descenders.
+       A small font-metric helper below positions the paint to the cap and
+       baseline; paragraph line boxes stay stable while the webfont loads. */
+    @supports (text-box-trim: trim-both) and (text-box-edge: cap text) {
+      .site-shell .about-bio-panel .about-bio {
+        text-box-trim: none;
+        text-box-edge: auto;
+      }
+      .site-shell .about-content > .about-bio-panel::before {
+        top: var(--cap-inset);
+        bottom: var(--baseline-inset);
+      }
+    }
+    .site-shell .about-bio-panel .about-bio {font-weight: 500; font-style: normal; font-synthesis: none;}
+    .site-shell .about-bio-panel .pending-detail {color:#656565;}
+    @media (max-width: 680px) {
+      .site-shell .about-content > .about-bio-panel { margin-top: 18px; }
+    }
+
+  
+    /* V53 — same *actual* 2px stroke on circle and + / X.
+       Keep both controls' proportions, size, position and animation untouched. */
+    .circle { border-width: 2px; }
+    .about-toggle-glyph path { stroke-width: 2px; }
+    .cross::before { width: 2px; }
+    .cross::after { height: 2px; }
+
+  
+    /* V54 — Unified editorial grey system, with one continuous biography field.
+       The internal separation is vertical white-space within the *same* grey
+       rectangle, rather than two cards or a new block. */
+    .about-panel {
+      --bio-field-grey: #a9a9a9;
+      --bio-highlight-grey: #838383;
+    }
+    .site-shell .about-content > .about-bio-panel::before,
+    .about-panel.about-dark .about-bio-panel--intro::before,
+    .about-panel.about-dark .about-bio-panel--contacts::before,
+    .about-panel.about-dark .about-bio-panel--colophon::before {
+      background-color: var(--bio-field-grey);
+    }
+    .site-shell .about-bio-panel .about-name,
+    .site-shell .about-bio-panel .pending-detail {
+      color: var(--bio-highlight-grey);
+    }
+    /* Exact same font / weight / size for highlighted and regular text. */
+    .site-shell .about-bio-panel .about-name {
+      font-family: inherit; font-size: inherit;
+      font-weight: inherit; font-style: normal;
+      letter-spacing: inherit; line-height: inherit;
+    }
+    /* Explicit pause after storytelling — no second rectangle. */
+    .site-shell .about-bio-panel .bio-internal-break {
+      display: block;
+      height: .46em;
+      user-select: none;
+      pointer-events: none;
+    }
+
+  
+    /* V55 — Colophon 80% of the editorial body. Keep the same font,
+       weight, baseline alignment, leading and tracking; size is the ONLY
+       typographic difference. All three background fields are the same grey. */
+    .about-panel { --about-editorial-size: clamp(28.5px, 3.075vw, 40.5px); }
+    @media (max-width: 680px) {
+      .about-panel { --about-editorial-size: clamp(28.5px, 7.875vw, 37.5px); }
+    }
+    .site-shell .about-bio-panel .about-bio {
+      font-size: var(--about-editorial-size);
+    }
+    /* V56 — colophon is small-print, independent of biography scale.
+       The rem bounds respond to the visitor's root font preference;
+       the viewport term introduces only a subtle responsive change. */
+    .site-shell .about-bio-panel--colophon .about-bio {
+      font-size: clamp(0.875rem, 0.8rem + 0.23vw, 1rem);
+    }
+
+
+    /* V57 — Editorial two-column colophon at the end of the About sheet.
+       The flexible blank interval separates contact information from credits;
+       its guaranteed minimum produces intentional scrolling on short screens. */
+    .site-shell .about-content {
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      /* Keep the small print above desktop's bottom-right switch. */
+      padding-bottom: calc(104px + env(safe-area-inset-bottom, 0px));
+    }
+    .site-shell .about-content > .about-portrait,
+    .site-shell .about-content > .about-bio-panel { flex-shrink: 0; }
+    .site-shell .about-content > .about-colophon-spacer {
+      display: block;
+      flex: 1 0 clamp(170px, 23vh, 310px);
+      min-height: 170px;
+      pointer-events: none;
+    }
+    .site-shell .about-content > .about-bio-panel--colophon {
+      display: grid;
+      grid-template-columns: minmax(0, 38%) minmax(0, 1fr);
+      column-gap: clamp(12px, 2.2vw, 28px);
+      align-items: start;
+      margin-top: 0;
+      width: 100%;
+    }
+    .site-shell .about-bio-panel--colophon .about-bio {
+      margin: 0;
+      font-size: clamp(0.875rem, 0.8rem + 0.23vw, 1rem);
+    }
+    .site-shell .about-bio-panel--colophon .about-colophon-signature {
+      text-align: left;
+    }
+    .site-shell .about-bio-panel--colophon .about-colophon-credits {
+      min-width: 0;
+      text-align: right;
+      position: relative;
+      z-index: 1;
+    }
+    .site-shell .about-bio-panel--colophon .about-colophon-credits .about-bio + .about-bio {
+      margin-top: .32em;
+    }
+    @media (max-width:680px) {
+      /* Mobile retains the existing bottom control clearance. */
+      .site-shell .about-content {
+        padding-bottom: calc(115px + env(safe-area-inset-bottom, 0px));
+      }
+      .site-shell .about-content > .about-colophon-spacer {
+        flex-basis: clamp(170px, 25vh, 280px);
+      }
+      .site-shell .about-content > .about-bio-panel--colophon {
+        grid-template-columns: minmax(0, 39%) minmax(0, 1fr);
+        column-gap: 12px;
+      }
+    }
+
+    /* V58 — the colophon reaches the actual lower edge of the About sheet.
+       The artificial space belongs BETWEEN contacts and colophon only;
+       previously 104/115px of padding placed the credits far above the edge. */
+    .site-shell .about-content {
+      padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+    }
+    @media (max-width:680px) {
+      .site-shell .about-content {
+        padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+      }
+    }
+    /* V59 — keep the +/X and ON/OFF controls at their original fixed corners.
+       The colophon can pass underneath; scrolling never shifts these controls. */
   </style>
 </head>
 <body>
   <div class="site-shell" id="siteShell">
   <aside class="about-panel" id="aboutPanel" aria-label="Pannello About DAGOSTUDIO" aria-hidden="true" inert>
     <div class="about-content allow-text-selection">
-      <h1 class="about-heading">PHOTOGRAPHY<br>SPACE</h1>
-      <button class="about-portrait" id="aboutPortrait" type="button" aria-label="Cambia disposizione delle lettere DAGOSTUDIO sulla fotografia">
-        <img src="images/about-christian.webp" alt="Christian D’Agostino in un ritratto fotografico in bianco e nero" loading="eager" decoding="async">
+      <div class="about-portrait" id="aboutPortraitFrame" data-treatment="2">
+        <img id="aboutPortraitPhoto" src="images/about-christian.webp" alt="Christian D’Agostino in un ritratto fotografico in bianco e nero" loading="eager" decoding="async">
         <svg class="about-portrait-logo" id="aboutPortraitLogo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 55.37 40" preserveAspectRatio="xMinYMin meet" aria-hidden="true"></svg>
-      </button>
-      <p class="about-bio">Sono Christian D’Agostino, fotografo in Puglia. Mi occupo di wedding, ritrattistica e visual storytelling, con un immaginario che affonda le radici nell’architettura brutalista, nell’estetica Bauhaus, nel cinema di Lynch e Fellini, nella musica dei Depeche Mode e dei Joy Division.</p>
+        <button class="portrait-hit-area" id="aboutPortrait" type="button" aria-label="Cambia disposizione delle lettere DAGOSTUDIO sulla fotografia"></button>
+        <div class="portrait-treatment-nav" id="portraitTreatmentNav" role="group" aria-label="Scegli il colore o l'effetto delle lettere">
+          <button type="button" data-treatment-choice="3" aria-pressed="false" aria-label="Lettere bianche" title="Bianco"><span class="treatment-swatch treatment-swatch--white" aria-hidden="true"></span></button>
+          <button type="button" data-treatment-choice="5" aria-pressed="false" aria-label="Lettere rosse" title="Rosso"><span class="treatment-swatch treatment-swatch--red" aria-hidden="true"></span></button>
+          <button type="button" data-treatment-choice="1" aria-pressed="false" aria-label="Lettere con contorno rosso" title="Outline rosso"><span class="treatment-swatch treatment-swatch--outline" aria-hidden="true"></span></button>
+          <button type="button" data-treatment-choice="2" aria-pressed="true" aria-label="Lettere con rifrazione satinata" title="Satinato"><span class="treatment-swatch treatment-swatch--frosted" aria-hidden="true"></span></button>
+          <button type="button" id="portraitPaletteToggle" data-treatment-choice="6" aria-pressed="false" aria-expanded="false" aria-controls="portraitColorPanel" aria-label="Apri la tavolozza e scegli un colore" title="Altri colori"><span id="portraitPaletteSwatch" class="treatment-swatch treatment-swatch--palette" aria-hidden="true"></span></button>
+          <button type="button" id="portraitRandomColor" data-treatment-choice="7" aria-pressed="false" aria-label="Colore casuale: genera un nuovo colore" title="Random color">
+            <svg class="treatment-swatch treatment-swatch--random" viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+              <path d="M12.5 5.7A5.15 5.15 0 0 0 4.1 3.7M3.5 10.3a5.15 5.15 0 0 0 8.4 2"/>
+              <path d="M3.95 1.8v2.5h2.5M12.05 14.2v-2.5h-2.5"/>
+              <circle class="random-core" cx="8" cy="8" r="2.05"/>
+            </svg>
+          </button>
+          <div class="portrait-color-panel" id="portraitColorPanel" hidden aria-label="Tavolozza per il lettering">
+            <p class="portrait-color-panel-heading">Altri colori</p>
+            <div class="portrait-color-grid" role="group" aria-label="Colori suggeriti">
+              <button type="button" data-palette-colour="#e1c28e" aria-label="Sabbia" title="Sabbia" style="--option-colour:#e1c28e"><span aria-hidden="true"></span></button>
+              <button type="button" data-palette-colour="#9476bb" aria-label="Viola" title="Viola" style="--option-colour:#9476bb"><span aria-hidden="true"></span></button>
+              <button type="button" data-palette-colour="#4076db" aria-label="Blu" title="Blu" style="--option-colour:#4076db"><span aria-hidden="true"></span></button>
+              <button type="button" data-palette-colour="#5b9fbe" aria-label="Azzurro" title="Azzurro" style="--option-colour:#5b9fbe"><span aria-hidden="true"></span></button>
+              <button type="button" data-palette-colour="#39a691" aria-label="Verde acqua" title="Verde acqua" style="--option-colour:#39a691"><span aria-hidden="true"></span></button>
+              <button type="button" data-palette-colour="#9baf62" aria-label="Oliva" title="Oliva" style="--option-colour:#9baf62"><span aria-hidden="true"></span></button>
+              <button type="button" data-palette-colour="#ddaa2c" aria-label="Ocra" title="Ocra" style="--option-colour:#ddaa2c"><span aria-hidden="true"></span></button>
+              <button type="button" data-palette-colour="#ed7c3a" aria-label="Arancio" title="Arancio" style="--option-colour:#ed7c3a"><span aria-hidden="true"></span></button>
+              <button type="button" data-palette-colour="#ed6b8b" aria-label="Rosa" title="Rosa" style="--option-colour:#ed6b8b"><span aria-hidden="true"></span></button>
+              <button type="button" data-palette-colour="#bd372d" aria-label="Rosso scuro" title="Rosso scuro" style="--option-colour:#bd372d"><span aria-hidden="true"></span></button>
+              <button type="button" data-palette-colour="#786758" aria-label="Taupe" title="Taupe" style="--option-colour:#786758"><span aria-hidden="true"></span></button>
+              <button type="button" data-palette-colour="#b3a6d6" aria-label="Lilla" title="Lilla" style="--option-colour:#b3a6d6"><span aria-hidden="true"></span></button>
+            </div>
+            <label class="portrait-color-custom" for="portraitCustomPicker"><span>Scegli un colore</span>
+              <input type="color" id="portraitCustomPicker" value="#9476bb" aria-label="Scegli un colore personalizzato">
+            </label>
+          </div>
+        </div>
+      </div>
+      <div class="about-bio-panel about-bio-panel--intro"><p class="about-bio">Sono <span class="about-name">Christian D’Agostino</span>, mi occupo di fotografia: wedding, ritrattistica e visual storytelling.<span class="bio-internal-break" aria-hidden="true"></span>Il mio immaginario affonda le radici nel <span class="about-reference" data-ref="brutalismo" tabindex="0" role="button" aria-label="Anteprima visiva del brutalismo architettonico">brutalismo architettonico</span>, nell’estetica razionale del <span class="about-reference" data-ref="bauhaus" tabindex="0" role="button" aria-label="Anteprima visiva del Bauhaus">Bauhaus</span>, passando per il cinema visionario di <span class="about-reference" data-ref="lynch" tabindex="0" role="button" aria-label="Anteprima visiva di Lynch">Lynch</span> e <span class="about-reference" data-ref="fellini" tabindex="0" role="button" aria-label="Anteprima visiva di Fellini">Fellini</span>, fino alle sonorità dark e post-punk dei <a class="about-reference" data-ref="depeche" href="https://www.youtube.com/watch?v=aGSKrC7dGcY" target="_blank" rel="noopener noreferrer" aria-label="Depeche Mode: apri il video ufficiale di Enjoy the Silence. All’hover senti una prova sonora originale">Depeche Mode</a> e <a class="about-reference" data-ref="joy" href="https://www.youtube.com/watch?v=674KGKRQBPE" target="_blank" rel="noopener noreferrer" aria-label="Joy Division: apri il video ufficiale di Love Will Tear Us Apart. All’hover senti una prova sonora originale">Joy Division</a>.</p></div>
+      <div class="about-bio-panel about-bio-panel--contacts"><p class="about-bio">Molfetta, Puglia · Italia.<br>Contatti: <span class="pending-detail">email e social da inserire</span>.</p></div>
+      <div class="about-colophon-spacer" aria-hidden="true"></div>
+      <div class="about-bio-panel about-bio-panel--colophon" aria-label="Colophon">
+        <p class="about-bio about-colophon-signature">DAGOSTUDIO © 2026</p>
+        <div class="about-colophon-credits">
+          <p class="about-bio">Fotografia: Christian D’Agostino</p>
+          <p class="about-bio">Disegnato e sviluppato da Gaetano Roselli</p>
+        </div>
+      </div>
+      <div class="ref-preview" id="referencePreview" aria-hidden="true">
+        <img id="referencePreviewImage" alt="" decoding="async" />
+        <div class="sound-lines" id="referenceSoundLines" aria-hidden="true" hidden><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+        <div class="ref-preview-caption" id="referencePreviewCaption"></div>
+      </div>
     </div>
+    <button type="button" id="aboutThemeSwitch" class="about-theme-switch" role="switch" aria-checked="false" aria-label="Attiva lo sfondo nero nell’About">
+      <span class="about-theme-switch-knob" aria-hidden="true"></span>
+    </button>
   </aside>
   <main class="scene" id="scene" aria-label="DAGOSTUDIO — portfolio fotografico">
     <div class="photos" id="photos" aria-label="Carosello fotografico a schermo intero">
@@ -530,6 +1227,7 @@
   </button>
   <div id="cursorDot" class="cursor-dot" aria-hidden="true"></div>
   <div id="cursorAction" class="cursor-action" aria-hidden="true">CLICK</div>
+
   <script>
     (() => {
       'use strict';
@@ -538,6 +1236,19 @@
       // it travels along the panel and rotates into the closing X.
       const aboutPanel = document.getElementById('aboutPanel');
       const aboutToggle = document.getElementById('aboutToggle');
+      // V37 — The About colour switch is independent of panel visibility and
+      // does not touch Home, carousel timing, photo, name or the main navigation.
+      const aboutThemeSwitch = document.getElementById('aboutThemeSwitch');
+      aboutThemeSwitch.addEventListener('click', (event) => {
+        event.stopPropagation();
+        const dark = !aboutPanel.classList.contains('about-dark');
+        aboutPanel.classList.toggle('about-dark', dark);
+        aboutThemeSwitch.setAttribute('aria-checked', String(dark));
+        aboutThemeSwitch.setAttribute('aria-label', dark
+          ? 'Ripristina lo sfondo grigio nell’About'
+          : 'Attiva lo sfondo nero nell’About');
+      });
+
       let aboutIsOpen = false;
       function setAboutOpen(open) {
         aboutIsOpen = !!open;
@@ -556,7 +1267,7 @@
         // Keep keyboard focus on the same control in both states.
       }
       aboutPanel.addEventListener('transitionend', event => {
-        if (event.target === aboutPanel && event.propertyName === 'margin-left') {
+        if (event.target === aboutPanel && (event.propertyName === 'margin-left' || event.propertyName === 'transform')) {
           document.body.classList.remove('about-transitioning');
         }
       });
@@ -600,6 +1311,124 @@
         aboutPortraitLogo.appendChild(cloned);
       });
       const aboutLetters = Array.from(aboutPortraitLogo.querySelectorAll('.glyph'));
+      // V40: one perfectly registered mask of the same moving letterforms,
+      // used for both the frosted-tile and selective-focus experiments.
+      const aboutPortraitFrame = document.getElementById('aboutPortraitFrame');
+      const portraitPhoto = document.getElementById('aboutPortraitPhoto');
+      const svgNS = 'http://www.w3.org/2000/svg';
+      const svgDefs = document.createElementNS(svgNS, 'defs');
+      const letterMask = document.createElementNS(svgNS,'mask');
+      letterMask.setAttribute('id','portraitLetterMaskV40');
+      letterMask.setAttribute('maskUnits','userSpaceOnUse');
+      letterMask.setAttribute('maskContentUnits','userSpaceOnUse');
+      letterMask.setAttribute('mask-type','alpha');
+      letterMask.setAttribute('x','0'); letterMask.setAttribute('y','0');
+      letterMask.setAttribute('width','55.37');letterMask.setAttribute('height','300');
+      const maskLettersGroup=document.createElementNS(svgNS,'g');
+      maskLettersGroup.setAttribute('class','portrait-mask-group');
+      const maskLetters=aboutLetters.map(original=>{
+        const copy=original.cloneNode(true);
+        copy.removeAttribute('class');copy.classList.add('portrait-mask-letter');
+        maskLettersGroup.appendChild(copy);return copy;
+      });
+      letterMask.appendChild(maskLettersGroup);svgDefs.appendChild(letterMask);
+      // V42: photographic frosted-glass treatment: a modest blur plus gentle
+      // optical displacement. No artificial white outline is added.
+      const frostFilter=document.createElementNS(svgNS,'filter');
+      frostFilter.setAttribute('id','portraitFrostRefractionV42');
+      frostFilter.setAttribute('x','-12%');frostFilter.setAttribute('y','-12%');
+      frostFilter.setAttribute('width','124%');frostFilter.setAttribute('height','124%');
+      frostFilter.setAttribute('color-interpolation-filters','sRGB');
+      frostFilter.innerHTML = `<feGaussianBlur in="SourceGraphic" stdDeviation="0.7" result="softened"/>
+        <feTurbulence type="fractalNoise" baseFrequency="0.09" numOctaves="2" seed="12" result="surface"/>
+        <feDisplacementMap in="softened" in2="surface" scale="1.35" xChannelSelector="R" yChannelSelector="G"/>`;
+      svgDefs.appendChild(frostFilter);
+      aboutPortraitLogo.insertBefore(svgDefs,aboutPortraitLogo.firstChild);
+      const focusLayer=document.createElementNS(svgNS,'image');
+      focusLayer.setAttribute('class','portrait-focus-layer');
+      focusLayer.setAttribute('mask','url(#portraitLetterMaskV40)');
+      focusLayer.setAttribute('preserveAspectRatio','none');
+      focusLayer.setAttribute('href',portraitPhoto.getAttribute('src'));
+      aboutPortraitLogo.insertBefore(focusLayer,aboutLetters[0]);
+      const portraitColorPanel = document.getElementById('portraitColorPanel');
+      const portraitPaletteToggle = document.getElementById('portraitPaletteToggle');
+      const portraitPaletteSwatch = document.getElementById('portraitPaletteSwatch');
+      const portraitCustomPicker = document.getElementById('portraitCustomPicker');
+      const portraitTreatmentNav = document.getElementById('portraitTreatmentNav');
+      function togglePortraitPalette(show) {
+        portraitColorPanel.hidden = !show;
+        portraitPaletteToggle.setAttribute('aria-expanded',String(show));
+      }
+      function setPortraitTreatment(choice) {
+        if(!['1','2','3','4','5','6','7'].includes(String(choice)))return;
+        aboutPortraitFrame.dataset.treatment=String(choice);
+        document.querySelectorAll('[data-treatment-choice]').forEach(btn=>{
+          btn.setAttribute('aria-pressed',String(btn.dataset.treatmentChoice===String(choice)));
+        });
+      }
+      function setPortraitCustomColour(hex) {
+        if(!/^#[0-9a-fA-F]{6}$/.test(hex))return;
+        aboutPortraitFrame.style.setProperty('--portrait-custom-colour',hex);
+        portraitCustomPicker.value=hex;
+        portraitPaletteSwatch.style.background=hex;
+        setPortraitTreatment('6');
+        togglePortraitPalette(false);
+      }
+      document.querySelectorAll('[data-treatment-choice]:not([data-treatment-choice="6"])').forEach(btn=>{
+        btn.addEventListener('click',e=>{
+          e.stopPropagation();setPortraitTreatment(btn.dataset.treatmentChoice);
+          togglePortraitPalette(false);
+        });
+      });
+      portraitPaletteToggle.addEventListener('click',e=>{
+        e.stopPropagation();
+        togglePortraitPalette(portraitColorPanel.hidden);
+      });
+      const portraitRandomColor = document.getElementById('portraitRandomColor');
+      let lastRandomHue = null;
+      function hslToHex(hue,sat,light) {
+        const s=sat/100,l=light/100;
+        const a=s*Math.min(l,1-l);
+        function channel(n) {
+          const k=(n+hue/30)%12;
+          return Math.round(255*(l-a*Math.max(-1,Math.min(k-3,9-k,1))));
+        }
+        return '#'+[channel(0),channel(8),channel(4)].map(n=>n.toString(16).padStart(2,'0')).join('');
+      }
+      function chooseRandomPortraitColour() {
+        // A wide hue shift prevents repeated clicks looking almost identical.
+        const hue=lastRandomHue===null
+          ?Math.random()*360
+          :(lastRandomHue+54+Math.random()*252)%360;
+        lastRandomHue=hue;
+        const hex=hslToHex(hue,65+Math.random()*25,43+Math.random()*21);
+        aboutPortraitFrame.style.setProperty('--portrait-custom-colour',hex);
+        portraitCustomPicker.value=hex;
+        setPortraitTreatment('7');
+        togglePortraitPalette(false);
+        portraitRandomColor.classList.remove('random-spinning');
+        // Restart CSS spin on repeated clicks rather than only the first one.
+        void portraitRandomColor.offsetWidth;
+        portraitRandomColor.classList.add('random-spinning');
+      }
+      portraitRandomColor.addEventListener('click',e=>{
+        e.stopPropagation();
+        chooseRandomPortraitColour();
+      });
+      portraitRandomColor.addEventListener('animationend',()=>portraitRandomColor.classList.remove('random-spinning'));
+      portraitColorPanel.addEventListener('click',e=>e.stopPropagation());
+      document.querySelectorAll('[data-palette-colour]').forEach(btn=>{
+        btn.addEventListener('click',e=>{
+          e.stopPropagation();setPortraitCustomColour(btn.dataset.paletteColour);
+        });
+      });
+      portraitCustomPicker.addEventListener('input', e=>setPortraitCustomColour(e.target.value));
+      document.addEventListener('pointerdown',e=>{
+        if(!portraitTreatmentNav.contains(e.target))togglePortraitPalette(false);
+      });
+      document.addEventListener('keydown',e=>{
+        if(e.key==='Escape')togglePortraitPalette(false);
+      });
       const aboutBounds = aboutLetters.map(letter => letter.getBBox());
       let aboutTargets = null;   // position fractions in the photo; responsive
       let aboutCurrent = null;
@@ -607,56 +1436,55 @@
       let aboutLastSize = { w: 0, h: 0 };
       const boundTo = (value, low, high) => Math.min(Math.max(value, low), high);
 
-      // V28 | Mini-V3 inside the photograph: bigger, deliberately dispersed
-      // vertical motion, with two recognisable nuclei that can exchange order.
-      // All placements use this photo's CURRENT dimensions and an inner SVG
-      // canvas, never the viewport. The logo stays within the inset frame.
+      // V45 | SAME DAGO/STUDIO PHYSICS AS HOME, but a photographic safe zone.
+      // The upper third of the portrait is reserved for the face: all ten
+      // letters live in the lower two thirds, including their full glyph height.
+      // Only the physical bounds change; group separation, jitter and easing
+      // continue using createWordClusterTopPositions(), shared with Home.
+      const PORTRAIT_FACE_RESERVE = 1/3;
       function makeAboutTargets() {
         const rect = aboutPortraitLogo.getBoundingClientRect();
         const h = Math.max(1, rect.height);
-        const letterScale = Math.max(1, rect.width) / 55.37;
-        const tallest = Math.max(...aboutBounds.map(b => b.height)) * letterScale;
-        const innerMargin = Math.max(3, Math.min(10, h * .022));
-        const minTop = innerMargin / h;
-        const maxTop = Math.max(minTop, (h - tallest - innerMargin) / h);
-        const available = Math.max(0, maxTop-minTop);
-        // A wide excursion that still reads as two interrelated words.
-        const amplitude = Math.min(.19, available * .245);
-        const anchorsMin = minTop + amplitude;
-        const anchorsMax = Math.max(anchorsMin, maxTop - amplitude);
-        const span = anchorsMax - anchorsMin;
-        const minGap = Math.min(span * .90, Math.max(amplitude * 1.5, available * .33));
-        const first = anchorsMin + Math.random()*Math.max(0, span-minGap);
-        const second = first + minGap + Math.random()*Math.max(0, anchorsMax-first-minGap);
-        const wordAnchors = Math.random()<.5 ? [first,second] : [second,first];
-        const result = Array(aboutLetters.length).fill(0);
-        [[0,4],[4,6]].forEach(([start,count],word) => {
-          const levels = Array.from({length:count},(_,i) => -1+2*i/(count-1));
-          for(let i=count-1;i>0;i--){
-            const j=Math.floor(Math.random()*(i+1));
-            [levels[i],levels[j]]=[levels[j],levels[i]];
-          }
-          const slope = (Math.random()*2-1)*amplitude*.38;
-          for(let i=0;i<count;i++){
-            const spread = levels[i]*amplitude*.92;
-            const drift = (i/(count-1)-.5)*slope;
-            const noise = (Math.random()*2-1)*amplitude*.06;
-            result[start+i] = boundTo(wordAnchors[word]+spread+drift+noise,minTop,maxTop);
-          }
-        });
-        return result;
+        const scale = Math.max(1, rect.width)/55.37;
+        const glyphHeight = 8.25 * scale;
+        // Edges are approached 20% more closely than V44.
+        const margin = Math.max(9.6, Math.min(25.6, h*.028));
+        const safeStart = h * PORTRAIT_FACE_RESERVE;
+        const safeHeight = Math.max(1, h - safeStart);
+        return createWordClusterTopPositions(glyphHeight, safeHeight, margin)
+          .map(top => (safeStart + top) / h);
       }
 
       function paintAboutLogo() {
         const box = aboutPortrait.getBoundingClientRect();
         if (box.width < 35 || box.height < 35 || !aboutCurrent) return;
-        const scale = box.width/55.37;
-        aboutPortraitLogo.setAttribute('viewBox', `0 0 55.37 ${(box.height/scale).toFixed(5)}`);
+        const logoBox = aboutPortraitLogo.getBoundingClientRect();
+        const scale = Math.max(1,logoBox.width)/55.37;
+        const viewHeight=Math.max(1,logoBox.height)/scale;
+        aboutPortraitLogo.setAttribute('viewBox', `0 0 55.37 ${viewHeight.toFixed(5)}`);
+        letterMask.setAttribute('height',String(viewHeight));
+        // Align the overlay image exactly to the portrait's object-fit:cover crop.
+        const nativeW=portraitPhoto.naturalWidth||box.width;
+        const nativeH=portraitPhoto.naturalHeight||box.height;
+        const factor=Math.max(box.width/nativeW,box.height/nativeH);
+        const renderW=nativeW*factor,renderH=nativeH*factor;
+        const x=(box.width-renderW)/2-(logoBox.left-box.left);
+        const y=(box.height-renderH)/2-(logoBox.top-box.top);
+        focusLayer.setAttribute('x',(x/scale).toFixed(5));
+        focusLayer.setAttribute('y',(y/scale).toFixed(5));
+        focusLayer.setAttribute('width',(renderW/scale).toFixed(5));
+        focusLayer.setAttribute('height',(renderH/scale).toFixed(5));
         aboutLetters.forEach((letter, i) => {
           const bbox = aboutBounds[i];
-          const top = boundTo(aboutCurrent[i]*box.height, 4, Math.max(4, box.height - bbox.height*scale - 4));
+          // This clamp applies during animations and responsive resizes too:
+          // a letter can never pass into the protected facial area.
+          const safeStart = logoBox.height * PORTRAIT_FACE_RESERVE;
+          const lowerLimit = Math.max(safeStart, logoBox.height - bbox.height*scale - 3);
+          const top = boundTo(aboutCurrent[i]*logoBox.height, safeStart, lowerLimit);
           const shift = top/scale - bbox.y;
-          letter.setAttribute('transform', `translate(0 ${shift.toFixed(4)})`);
+          const transform = `translate(0 ${shift.toFixed(4)})`;
+          letter.setAttribute('transform',transform);
+          maskLetters[i].setAttribute('transform',transform);
         });
         aboutLastSize = {w:box.width,h:box.height};
       }
@@ -692,6 +1520,148 @@
         else paintAboutLogo();
       });
       aboutPhotoObserver.observe(aboutPortrait);
+      portraitPhoto.addEventListener('load',paintAboutLogo);
+
+
+      // V39 — HOVER ATLAS: the same biography, now with editorial visual
+      // references on desktop. Wikimedia images carry reuse terms in CREDITS.
+      // Local original concept visuals ensure the preview still works offline.
+      const refCard = document.getElementById('referencePreview');
+      const refImage = document.getElementById('referencePreviewImage');
+      const refCaption = document.getElementById('referencePreviewCaption');
+      const refSoundLines = document.getElementById('referenceSoundLines');
+      const fineDesktop = window.matchMedia('(min-width: 681px) and (hover: hover) and (pointer: fine)');
+      const refs = {
+        brutalismo: {
+          label: '01 / BRUTALISMO · THE BARBICAN',
+          local: 'images/hover-brutalismo.webp',
+          photo: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/0/0b/The_Barbican.jpg/960px-The_Barbican.jpg'
+        },
+        bauhaus: {
+          label: '02 / BAUHAUS · DESSAU',
+          local: 'images/hover-bauhaus.webp',
+          photo: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/9/93/Bauhausgeb%C3%A4ude%2C_Dessau.jpg/960px-Bauhausgeb%C3%A4ude%2C_Dessau.jpg'
+        },
+        lynch: {
+          label: '03 / DAVID LYNCH · 1990',
+          local: 'images/hover-lynch.webp',
+          photo: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a9/David_Lynch_%281990%29.jpg/500px-David_Lynch_%281990%29.jpg'
+        },
+        fellini: {
+          label: '04 / FEDERICO FELLINI · 1956',
+          local: 'images/hover-fellini.webp',
+          photo: 'https://thumb.wikimedia.org/wikipedia/commons/thumb/0/08/Federico_Fellini_56.jpg/960px-Federico_Fellini_56.jpg'
+        },
+        depeche: { label: '05 / ENJOY THE SILENCE · AUDIO DEMO', audio: true },
+        joy: { label: '06 / LOVE WILL TEAR US APART · AUDIO DEMO', audio: true },
+      };
+      // V43: online Commons photos with local offline fallback. Music links open official videos by a deliberate click.
+      const loadedReferencePhotos = {};
+      Object.keys(refs).forEach(key => {
+        if (!refs[key].photo) return;
+        const img = new Image();
+        img.onload = () => { loadedReferencePhotos[key] = img.src; };
+        img.onerror = () => { loadedReferencePhotos[key] = ''; };
+        img.src = refs[key].photo;
+      });
+      let activeRef = '';
+      let refAudioCtx = null;
+      let audioStopTasks = [];
+      let hoverSoundTimer = 0;
+      let refGain = null;
+      // Created entirely by Web Audio: no samples, songs, loops or melodies
+      // from the named bands are distributed with this experiment.
+      function soundContext() {
+        if (!fineDesktop.matches) return null;
+        const Ctx = window.AudioContext || window.webkitAudioContext;
+        if (!Ctx) return null;
+        try { if (!refAudioCtx) refAudioCtx = new Ctx(); return refAudioCtx; } catch(e) { return null; }
+      }
+      // Clicking About is a user gesture: unlock Web Audio for later hovers.
+      aboutToggle.addEventListener('click', () => {
+        const ctx = soundContext();
+        if (ctx && ctx.state === 'suspended') ctx.resume().catch(() => {});
+        hideRefCard();
+      });
+      function stopPreviewSound() {
+        clearTimeout(hoverSoundTimer);
+        const ctx = refAudioCtx;
+        if (ctx && refGain) {
+          try { const t = ctx.currentTime; refGain.gain.cancelScheduledValues(t); refGain.gain.setTargetAtTime(0,t,.035); } catch (e){}
+        }
+        audioStopTasks.forEach(task => { try {task.stop();} catch(e){} });
+        audioStopTasks = []; refGain = null;
+      }
+      function playOriginalAudioDemo(key) {
+        stopPreviewSound();
+        const ctx = soundContext();
+        if (!ctx) return;
+        if (ctx.state !== 'running') { ctx.resume().catch(() => {}); return; }
+        const now = ctx.currentTime;
+        const master = ctx.createGain(); master.gain.setValueAtTime(.0001,now);
+        master.gain.linearRampToValueAtTime(.10,now+.07);
+        master.gain.setValueAtTime(.10,now+2.2);
+        master.gain.exponentialRampToValueAtTime(.0001,now+2.9);
+        master.connect(ctx.destination); refGain = master;
+        const notes = key==='depeche' ? [55,82.4,73.4,61.7,55] : [73.4,55,82.4,61.7,73.4];
+        const wave = key==='depeche' ? 'sawtooth' : 'triangle';
+        const filter = ctx.createBiquadFilter(); filter.type='lowpass';
+        filter.frequency.value=key==='depeche'?560:360; filter.Q.value=2.4; filter.connect(master);
+        notes.forEach((freq,i)=>{
+          const osc=ctx.createOscillator(),env=ctx.createGain();
+          osc.type=wave; osc.frequency.value=freq*(key==='depeche'?2:1);
+          const begin=now+.07+i*.44, dur=key==='depeche'?.38:.29;
+          env.gain.setValueAtTime(.0001,begin);
+          env.gain.exponentialRampToValueAtTime(.17,begin+.015);
+          env.gain.exponentialRampToValueAtTime(.0001,begin+dur);
+          osc.connect(env); env.connect(filter); osc.start(begin); osc.stop(begin+dur+.01);
+          audioStopTasks.push(osc);
+        });
+      }
+      function moveRefCard(anchorEl) {
+        // Center *beneath* the hovered word; the reference is a background layer
+        // under the real copy, not a floating card obscuring the biography.
+        const host=document.querySelector('.about-content');
+        const container=host.getBoundingClientRect();
+        const anchor=anchorEl.getBoundingClientRect();
+        const w=refCard.offsetWidth||230;
+        const h=refCard.offsetHeight||172;
+        const innerWidth=host.clientWidth;
+        const x=anchor.left+anchor.width/2-container.left+host.scrollLeft-w/2;
+        const y=anchor.top+anchor.height/2-container.top+host.scrollTop-h/2;
+        refCard.style.left=Math.max(7,Math.min(innerWidth-w-7,x))+'px';
+        refCard.style.top=Math.max(0,Math.min(host.scrollHeight-h,y))+'px';
+      }
+      function showRefCard(key,anchorEl) {
+        if (!fineDesktop.matches || !aboutIsOpen || !refs[key]) return;
+        activeRef = key;
+        const def=refs[key];
+        refCard.dataset.type = def.audio ? 'audio' : 'image';
+        refCaption.textContent=def.label;
+        refSoundLines.hidden = !def.audio;
+        refImage.hidden = !!def.audio;
+        if (!def.audio) {
+          refImage.src=loadedReferencePhotos[key] || def.local;
+          stopPreviewSound();
+        } else {
+          refImage.removeAttribute('src');
+          playOriginalAudioDemo(key);
+        }
+        moveRefCard(anchorEl);
+        refCard.classList.add('show');
+      }
+      function hideRefCard() { activeRef=''; refCard.classList.remove('show'); stopPreviewSound(); }
+      document.querySelectorAll('.about-reference').forEach(el => {
+        const key=el.dataset.ref;
+        el.addEventListener('pointerenter',e=>{ if(e.pointerType==='mouse')showRefCard(key,el); });
+        el.addEventListener('pointerleave',hideRefCard);
+        el.addEventListener('focus',()=>{ if(fineDesktop.matches) showRefCard(key,el); });
+        el.addEventListener('blur',hideRefCard);
+      });
+      aboutPanel.addEventListener('scroll',hideRefCard,{passive:true});
+      window.addEventListener('blur',hideRefCard);
+      document.addEventListener('visibilitychange',()=>{if(document.hidden)hideRefCard();});
+      window.addEventListener('resize',hideRefCard);
 
       const slides = Array.from(document.querySelectorAll('.photo'));
       const announcer = document.getElementById('slideAnnouncer');
@@ -906,46 +1876,45 @@
           });
         });
       }
-      // V3 initial composition: DAGO and STUDIO are two movable nuclei.
-      // Retain all ten original SVG glyphs and their final x/kerning positions.
-      function createGroupedPlusOffsets(scale) {
-        const letterHeight = 8.25 * scale;
+      // V42: shared DAGO / STUDIO nuclei physics. Both home and photo call
+      // the very same implementation; no second, drifting version exists.
+      function createWordClusterTopPositions(letterHeight, frameHeight, margin) {
         const maxJitter = letterHeight * LETTER_JITTER;
-        const margin = Math.max(12, Math.min(32, viewportHeight * .035));
         const minTop = margin;
-        const maxTop = Math.max(minTop, viewportHeight - letterHeight - margin);
+        const maxTop = Math.max(minTop, frameHeight - letterHeight - margin);
         const available = Math.max(0, maxTop - minTop);
-        // Each word stays inside a shared vertical envelope (one distinct nucleus).
-        const amplitude = Math.min(maxJitter * .82, available * .30);
+        const amplitude = Math.min(maxJitter*.82, available*.30);
         const anchorMin = minTop + amplitude;
         const anchorMax = Math.max(anchorMin, maxTop - amplitude);
         const anchorSpan = Math.max(0, anchorMax - anchorMin);
-        // Place the two words at substantially different, random Y positions.
-        // Their order can flip on every refresh. They are also separated by X.
-        const minGap = Math.min(anchorSpan * .92, Math.max(letterHeight * .87, amplitude * 1.35));
-        const first = anchorMin + Math.random() * Math.max(0, anchorSpan - minGap);
-        const second = first + minGap + Math.random() * Math.max(0, anchorMax - first - minGap);
-        const anchors = Math.random() < .5 ? [first, second] : [second, first];
-        const output = Array(glyphs.length).fill(0);
-        [[0,4],[4,6]].forEach(([start,count],word) => {
-          // Spread levels and shuffle them: visible dynamism even on unlucky reloads.
-          const levels = Array.from({length: count}, (_,j) => -1 + 2*j/(count-1));
-          for (let j=count-1; j>0; j--) {
-            const k = Math.floor(Math.random()*(j+1));
+        const minGap = Math.min(anchorSpan*.92, Math.max(letterHeight*.87, amplitude*1.35));
+        const first = anchorMin + Math.random()*Math.max(0, anchorSpan-minGap);
+        const second = first + minGap + Math.random()*Math.max(0,anchorMax-first-minGap);
+        const anchors = Math.random()<.5 ? [first,second] : [second,first];
+        const output = Array(10).fill(0);
+        [[0,4],[4,6]].forEach(([start,count],word)=>{
+          const levels = Array.from({length:count},(_,j)=>-1+2*j/(count-1));
+          for(let j=count-1;j>0;j--){
+            const k=Math.floor(Math.random()*(j+1));
             [levels[j],levels[k]]=[levels[k],levels[j]];
           }
-          // Secondary slope gives the word a visual direction, rather than rows.
-          const slope = (Math.random()*2-1)*amplitude*.30;
-          for (let j=0; j<count; j++) {
-            const fraction = j/(count-1)-.5;
-            const top = Math.max(minTop, Math.min(maxTop,
-              anchors[word] + levels[j]*amplitude*.75
-              + fraction*slope
-              + (Math.random()*2-1)*amplitude*.08));
-            output[start+j] = top / scale - baseY;
+          const slope=(Math.random()*2-1)*amplitude*.30;
+          for(let j=0;j<count;j++){
+            const fraction=j/(count-1)-.5;
+            const top=Math.max(minTop,Math.min(maxTop,
+              anchors[word]+levels[j]*amplitude*.75
+              +fraction*slope
+              +(Math.random()*2-1)*amplitude*.08));
+            output[start+j]=top;
           }
         });
         return output;
+      }
+      function createGroupedPlusOffsets(scale) {
+        const letterHeight=8.25*scale;
+        const margin=Math.max(12,Math.min(32,viewportHeight*.035));
+        return createWordClusterTopPositions(letterHeight,viewportHeight,margin)
+          .map(top=>top/scale-baseY);
       }
 
       // V3 — manual photo change DURING the intro only.
@@ -1114,10 +2083,61 @@
         getRenderedLetterOffsets: () => glyphs.map(g => Number((g.getAttribute('transform') || '').match(/translate\(0 ([^)]+)\)/)?.[1] ?? NaN)),
         getCursorDirection: () => cursorArrow.dataset.direction,
         nextPhoto: () => changeSlide(1),
-        previousPhoto: () => changeSlide(-1)
+        previousPhoto: () => changeSlide(-1),
+        setPortraitTreatment: n => setPortraitTreatment(n),
+        getPortraitTreatment: () => aboutPortraitFrame.dataset.treatment,
+        getAboutLetterFractions: () => [...(aboutCurrent||[])],
+        getAboutWordClusterSpreads: () => {
+          if(!aboutCurrent) return null;
+          const h=aboutPortraitLogo.getBoundingClientRect().height;
+          const span=a=> (Math.max(...a)-Math.min(...a))*h;
+          return {dagoPx:span(aboutCurrent.slice(0,4)), studioPx:span(aboutCurrent.slice(4)), photoHeightPx:h};
+        },
+        showReference: key => {const el=document.querySelector(`[data-ref="${key}"]`); if(el)showRefCard(key,el);},
+        getReferencePlacement: () => ({card:refCard.getBoundingClientRect().toJSON(),visible:refCard.classList.contains('show')})
       };
       layout(true);
     })();
   </script>
+
+<script>
+/* V52: align grey panel bounds to cap-height and baseline of the rendered
+   typeface. Canvas TextMetrics is used only for layout, never to resize text.
+   It remeasures when viewport or loaded font changes (including Safari). */
+(() => {
+  const blocks = [...document.querySelectorAll('.about-bio-panel')];
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
+  function alignPanelInk() {
+    if (!ctx) return;
+    for (const block of blocks) {
+      const p = block.querySelector('.about-bio');
+      if (!p) continue;
+      const cs = getComputedStyle(p);
+      const size = parseFloat(cs.fontSize);
+      const leading = parseFloat(cs.lineHeight) || size;
+      ctx.font = `${cs.fontStyle} ${cs.fontWeight} ${size}px ${cs.fontFamily}`;
+      const metric = ctx.measureText('H');
+      const fontAscent = metric.fontBoundingBoxAscent || size * .9;
+      const fontDescent = metric.fontBoundingBoxDescent || size * .24;
+      const capHeight = metric.actualBoundingBoxAscent || size * .72;
+      const extra = (leading - fontAscent - fontDescent) / 2;
+      const topCut = Math.max(0, extra + fontAscent - capHeight);
+      const baselineCut = Math.max(0, extra + fontDescent);
+      block.style.setProperty('--cap-inset', `${topCut.toFixed(3)}px`);
+      block.style.setProperty('--baseline-inset', `${baselineCut.toFixed(3)}px`);
+    }
+  }
+  alignPanelInk();
+  addEventListener('resize', alignPanelInk, {passive:true});
+  if (document.fonts) {
+    document.fonts.ready.then(alignPanelInk);
+    document.fonts.addEventListener?.('loadingdone', alignPanelInk);
+  }
+})();
+</script>
+
+
+
 </body>
 </html>

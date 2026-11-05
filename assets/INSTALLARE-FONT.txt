@@ -1,1 +1,8 @@
-Copia qui il TUO file originale Ronzino-Medium.woff2, gia in tuo possesso. Non rinominarlo. Gli altri pesi non sono utilizzati. Verifica la licenza di web embedding.
+FONT RONZINO — ASSET NON PRESENTE NEL PACCHETTO FORNITO
+
+Per utilizzare il font originale, inserire qui:
+  Ronzino-Medium.woff2
+
+Il file index.html richiama anche Ronzino-LightItalic.woff2 (ereditato da versioni precedenti), ma il copy attuale usa Medium per la biografia.
+Senza i file originali, il browser utilizza un font sostitutivo.
+Non includere font scaricati da terzi senza autorizzazione.

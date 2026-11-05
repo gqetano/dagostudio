@@ -1,21 +1,22 @@
-# DAGOSTUDIO — V30 (versione definitiva dell’introduzione)
+# DAGOSTUDIO — sito per GitHub Pages | V59
 
-Questa versione mantiene **soltanto V3** del logo della homepage. Non esistono più pulsanti di confronto.
+Questa cartella contiene **la versione V59** approvata, con tutte le 11 fotografie della Home e il ritratto About inclusi come file locali. Le quattro immagini concept di riserva per gli hover sono incluse localmente. Le foto reali dei riferimenti culturali vengono richieste a Wikimedia Commons; se non disponibili viene mostrata l’immagine concept corrispondente.
 
-## Introduzione approvata
-- Il logo originale nasce con dieci lettere distribuite verticalmente e due nuclei DAGO / STUDIO (dispersione 0.82).
-- Clic o tap per cambiare fotografia **prima** della composizione: la foto cambia e le lettere assumono una nuova disposizione casuale.
-- Cambio fotografico automatico ogni 5 secondi: il logo non cambia disposizione.
-- Scroll desktop / swipe verticale mobile: le lettere si compongono; una volta composto, il logo resta fisso.
-- Le altre interazioni, comprese le 11 foto, il pannello About, il ritratto interattivo, il cursore e la barra di avanzamento rimangono come nella V29.
+## Pubblicazione su GitHub Pages
 
-## Aggiornamento di GitHub Pages
-Se il tuo repository contiene già la V29 e le relative risorse, basta sostituire il solo `index.html` con il file di questa V30, poi eseguire **Commit to main → Push origin** da GitHub Desktop.
+1. Crea un repository GitHub (oppure usa quello del sito).
+2. Carica **il contenuto di questa cartella** nella radice del repository, non la cartella contenitore. La radice deve avere `index.html`, `images/` e `assets/`.
+3. In Settings → Pages, seleziona Deploy from a branch, branch `main`, folder `/ (root)`; salva.
+4. Apri l’URL GitHub Pages mostrato nelle impostazioni.
 
-Per una nuova pubblicazione, copia nella root del repository `index.html`, `README.md`, `.nojekyll`, `assets/` e `images/`. In GitHub: **Settings → Pages → Deploy from a branch → main / (root)**.
+Puoi anche caricare lo ZIP tramite un programma che lo estragga prima: GitHub Pages non pubblica automaticamente un archivio ZIP caricato come singolo file.
 
-## Font
-Il sito fa riferimento a `assets/Ronzino-Medium.woff2`, da installare con il file originale in tuo possesso, nel rispetto della licenza. Il font non viene redistribuito in questo archivio.
+## Note di pubblicazione
 
-## Backup e reversibilità
-La V29 è salvata nel pacchetto backup separato. V30 rimuove le vecchie modalità soltanto dalla versione attiva, così non vengono caricate nell'interfaccia rivolta ai visitatori.
+- **Font:** il file `Ronzino-Medium.woff2` non era presente nei file forniti. Aggiungilo in `assets/` se ne disponi con licenza. Senza, il sito userà un fallback, con aspetto tipografico diverso. Vedi `assets/INSTALLARE-FONT.txt`.
+- **Contatti:** la dicitura “email e social da inserire” è ancora un segnaposto; sostituiscila prima di pubblicizzare il sito.
+- **Hover desktop:** immagini culturali via Wikimedia con fallback concept locale; collegamenti cliccabili ai video ufficiali Depeche Mode e Joy Division. Gli effetti sonori hover sono dimostrativi, non brani commerciali.
+- **Versione:** V59, con About scorrevole, colophon al bordo inferiore e controlli X e On/Off fissi anche durante lo scroll.
+- Il sito è statico: non richiede build, Node.js o dipendenze esterne.
+
+Crediti delle fotografie di riferimento in `CREDITI-IMMAGINI.md`.
