@@ -4,9 +4,8 @@ Pacchetto **completo e pronto alla pubblicazione**, con risorse locali separate.
 
 ## Contenuto
 
-- `index.html` — sito e animazioni
+- `index.html` — sito e animazioni (il font Ronzino Medium è incorporato direttamente nel file)
 - `images/` — 11 fotografie della Home, ritratto About e immagini di riserva degli hover
-- `assets/Ronzino-Medium.woff2` — carattere originale già incluso
 - `assets/logo-originale.svg` — logo vettoriale originale
 - `.nojekyll` — configurazione GitHub Pages
 
@@ -18,6 +17,10 @@ Pacchetto **completo e pronto alla pubblicazione**, con risorse locali separate.
 4. Attendi che GitHub abbia concluso la pubblicazione. Apri l'indirizzo mostrato in Pages e ricarica la pagina dopo l'aggiornamento.
 
 **Non rinominare** le cartelle `images` e `assets`. I percorsi nell'HTML sono relativi, adatti sia a un sito GitHub Pages alla radice sia a un sito sotto il nome del repository.
+
+## Font
+
+Ronzino Medium (peso 500) è incorporato in base64 dentro `index.html`: non dipende da nessun file esterno, quindi non può andare in 404 su GitHub Pages. Per aggiornarlo va sostituito il blocco `@font-face` nell'HTML.
 
 ## Verifiche
 
