@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#000000" />
   <meta name="description" content="DAGOSTUDIO — fotografia contemporanea di matrimonio." />
-  <title>DAGOSTUDIO — Anteprima home 14 — margini logo mobile</title>
+  <title>DAGOSTUDIO — Portfolio fotografico · V30</title>
   <style>
     :root {
       --carmine: #FF0000;
@@ -66,29 +66,6 @@
       vector-effect: non-scaling-stroke; stroke-linecap: square; stroke-linejoin: miter;
     }
     .cursor-arrow[data-direction="left"] svg { transform: scaleX(-1); }
-    /* V10: compact client-facing intro comparison. No other site controls changed. */
-    .version-switch {
-      position: fixed; z-index: 30;
-      right: calc(var(--pad) + env(safe-area-inset-right, 0px));
-      top: 50%; bottom: auto;
-      transform: translateY(-50%);
-      display: flex; flex-direction: column; align-items: center; gap: 6px;
-      pointer-events: auto;
-    }
-    .version-btn {
-      appearance: none; background: transparent; color: var(--carmine);
-      border: 1.5px solid var(--carmine); border-radius: 0;
-      display: grid; place-items: center;
-      width: clamp(42px, 4.5vw, 58px); height: clamp(42px, 4.5vw, 58px);
-      padding: 0; margin: 0;
-      font: 700 clamp(13px, 1.3vw, 17px)/1 Arial, Helvetica, sans-serif;
-      letter-spacing: -.04em; cursor: pointer;
-      -webkit-tap-highlight-color: transparent;
-      -webkit-user-select: none; user-select: none;
-    }
-    .version-btn[aria-pressed="true"] { background: var(--carmine); color: #000; }
-    .version-btn:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
-
     /* V11 — Instagram-style time rail: one thin segment per photograph, hard-cut carousel. */
     .slide-progress {
       position: fixed; z-index: 16;
@@ -120,11 +97,6 @@
       .cross, .circle { grid-row: 2; }
       .cross { justify-self: start; }
       .circle { justify-self: end; }
-      /* Client comparison controls run down the right-hand edge, halfway up. */
-      .version-switch {
-        top: 50%; bottom: auto; right: calc(var(--pad) + env(safe-area-inset-right, 0px));
-        transform: translateY(-50%); flex-direction: column;
-      }
       /* V12: mobile retains the V11 story rail ABOVE. Desktop alone moves it below. */
       .slide-progress {
         top: calc(7px + env(safe-area-inset-top, 0px));
@@ -148,16 +120,346 @@
          the composed lettering below the story-progress rail. Desktop untouched.
          Adjust MOBILE_LOGO_OFFSET in this CSS block if needed later. */
       .mark {
-        --mobile-logo-offset: 24px;
+        --mobile-logo-offset: 14px;
         top: calc(var(--mobile-logo-offset) + env(safe-area-inset-top, 0px));
         left: calc(var(--pad) + env(safe-area-inset-left, 0px));
         width: calc(100% - (2 * var(--pad)) - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px));
       }
     }
+
+    /* V21 | ABOUT PANEL
+       The panel and photographic stage are adjacent FLEX items in ONE container.
+       Only the panel's flex-basis animates: their edges can never separate.
+       All original logo/photography/intro rules above remain unchanged.
+       To adjust desktop width: --about-width. */
+    :root {
+      --about-width: clamp(350px, 40vw, 720px);
+      --panel-duration: 760ms;
+      --panel-ease: cubic-bezier(.76, 0, .18, 1);
+      --cross-size: clamp(36px, 5.8vw, 78px);
+    }
+    .site-shell {
+      position: fixed; inset: 0; z-index: 1;
+      display: flex; width: 100%; height: 100dvh;
+      overflow: hidden; background: #000;
+      isolation: isolate;
+    }
+    .scene {
+      position: relative; inset: auto; left: auto; right: auto;
+      flex: 1 1 0%; min-width: 0;
+      width: auto; height: 100%;
+      transition: none; overflow: hidden;
+    }
+    .about-panel {
+      position: relative; z-index: 1; inset: auto;
+      flex: 0 0 0px; min-width: 0;
+      width: auto; height: 100%; overflow: hidden;
+      visibility: visible; transform: none;
+      background: #e7e7e7; color: #101010;
+      border: 0;
+      transition: flex-basis var(--panel-duration) var(--panel-ease);
+    }
+    body.about-open .about-panel {
+      flex-basis: var(--about-width);
+      transform: none;
+      visibility: visible;
+      transition: flex-basis var(--panel-duration) var(--panel-ease);
+    }
+    /* V23 | ONE glyph, ONE stroke, ONE size. The + becomes X by a pure
+       45-degree rotation around its centre. Never scale the SVG or its parent.
+       Both arms retain their original length, stroke width and shape.
+       The opening panel and the button's horizontal travel remain unchanged. */
+    .about-toggle {
+      position: fixed; z-index: 50;
+      top: calc(var(--pad) + env(safe-area-inset-top, 0px));
+      left: calc(var(--pad) + env(safe-area-inset-left, 0px));
+      display: block; width: var(--cross-size); height: var(--cross-size);
+      padding: 0; margin: 0; border: 0; border-radius: 0;
+      background: transparent; color: var(--carmine);
+      cursor: pointer; pointer-events: auto;
+      transition: left var(--panel-duration) var(--panel-ease);
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+    .about-toggle:focus-visible { outline: 2px solid #ff0000; outline-offset: 4px; }
+    .about-toggle-icon {
+      position: absolute; inset: 0; display: block;
+      transform: rotate(0deg);
+      transform-origin: center center;
+      transition: transform var(--panel-duration) var(--panel-ease);
+    }
+    .about-toggle-glyph {
+      display: block; width: 100%; height: 100%; overflow: visible;
+      /* V24: the glyph never has a SECOND rotation. Only its parent rotates,
+         so the hover angle flows directly into the opening animation. */
+    }
+    /* V25 | Optical compensation, not a thicker symbol.
+       Both crossing strokes lengthen 15% from the centre while turning + into X.
+       vector-effect preserves the original 1.5px stroke during the CSS scaling.
+       The same easing and duration govern travel, rotation and arm extension. */
+    .about-toggle-glyph path {
+      fill: none; stroke: var(--carmine); stroke-width: 1.5px;
+      vector-effect: non-scaling-stroke;
+      stroke-linecap: butt;
+      transform-box: fill-box;
+      transform-origin: center center;
+      transform: scale(1);
+      transition: transform var(--panel-duration) var(--panel-ease);
+    }
+    body.about-open .about-toggle-glyph path { transform: scale(1.15); }
+    body.about-open .about-toggle {
+      left: calc(var(--about-width) - var(--pad) - var(--cross-size));
+    }
+    body.about-open .about-toggle-icon {
+      transform: rotate(45deg);
+    }
+    /* V26 | One continuous reversible rotation, for both layouts.
+       Desktop with a mouse:
+         closed + hover: 0deg -> 6deg, then click continues 6deg -> 45deg.
+         open X hover:   45deg -> 39deg (6deg counter-clockwise),
+                         then click continues 39deg -> 0deg.
+       During the panel transition hover overrides are disabled, ensuring
+       rotation + translation + arm-length morph remain synchronized.
+       Mobile/touch has no hover: a tap animates 0deg <-> 45deg directly;
+       the same responsive control moves from bottom-left to bottom-right.
+       Never scale the button/icon itself: stroke stays at 1.5px. */
+    @media (hover: hover) and (pointer: fine) {
+      body:not(.about-open):not(.about-transitioning) .about-toggle:hover .about-toggle-icon {
+        transform: rotate(6deg);
+        transition-duration: 220ms;
+        transition-timing-function: ease-out;
+      }
+      body.about-open:not(.about-transitioning) .about-toggle:hover .about-toggle-icon {
+        transform: rotate(39deg);
+        transition-duration: 220ms;
+        transition-timing-function: ease-out;
+      }
+    }
+    /* V25 | Custom dot for navigation, while photographic area keeps arrows. */
+    .cursor-dot {
+      position: fixed; z-index: 100; left: 0; top: 0;
+      width: 11px; height: 11px; border-radius: 50%;
+      background: var(--carmine); transform: translate(-50%, -50%);
+      pointer-events: none; visibility: hidden;
+    }
+    @media (hover: hover) and (pointer: fine) {
+      .about-panel, .about-toggle,
+      .slide-progress, .slide-progress button, .circle { cursor: none; }
+      .about-panel input:not([type=checkbox]):not([type=radio]),
+      .about-panel textarea, .about-panel [contenteditable=true] { cursor: text; }
+      .about-panel select { cursor: default; }
+    }
+    /* The photo controls remain attached to the picture area. */
+    .interface, .slide-progress, .cursor-arrow { position: absolute; }
+    @media (max-width: 680px) {
+      :root {
+        --about-width: 100vw;
+        --panel-duration: 700ms;
+        --cross-size: 41px;
+      }
+      .about-toggle {
+        top: auto;
+        bottom: calc(var(--pad) + env(safe-area-inset-bottom, 0px));
+      }
+      /* Mobile + starts exactly where the old + was (bottom left) and reaches
+         the bottom-right corner of the ABOUT panel, replacing the circle. */
+      body.about-open .about-toggle {
+        left: calc(100vw - var(--cross-size) - var(--pad) - env(safe-area-inset-right, 0px));
+      }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      :root { --panel-duration: 1ms; }
+      .about-toggle-icon, .about-toggle-glyph path { transition-duration: 1ms !important; }
+    }
     @media (prefers-reduced-motion: reduce) { .glyph { will-change: auto; } }
+
+    /* V27 | ABOUT EDITORIAL CONTENT — reference layout, no extra controls.
+       Only Ronzino Medium is used for editorial text. The owner's licensed
+       Ronzino-Medium.woff2 belongs at assets/Ronzino-Medium.woff2. */
+    @font-face {
+      font-family: 'Ronzino';
+      src: url('assets/Ronzino-Medium.woff2') format('woff2');
+      font-style: normal; font-weight: 500; font-display: swap;
+    }
+    .about-panel { overflow: hidden; background: #dedede; }
+    .about-content {
+      height: 100%; overflow-y: auto; overscroll-behavior-y: contain;
+      -webkit-overflow-scrolling: touch;
+      touch-action: pan-y;
+      padding: clamp(92px, 8.6vw, 115px) 12px 30px;
+      font-family: 'Ronzino', 'Arial Narrow', Arial, sans-serif;
+      -webkit-user-select: text; user-select: text;
+    }
+    .about-heading {
+      margin: 0 0 12px;
+      font-family: inherit; font-weight: 500;
+      font-size: clamp(39px, 4.75vw, 78px);
+      line-height: .88; letter-spacing: -.045em;
+      color: #050505;
+    }
+    .about-portrait {
+      display: block; position: relative; isolation: isolate;
+      width: 100%; aspect-ratio: 3 / 2; overflow: hidden;
+      margin: 0; padding: 0; border: 0; border-radius: 0;
+      background: #333; color: var(--logo);
+      appearance: none; cursor: pointer; touch-action: pan-y;
+      -webkit-tap-highlight-color: transparent;
+      -webkit-user-select: none; user-select: none;
+    }
+    .about-portrait img {
+      position: absolute; inset: 0; width: 100%; height: 100%;
+      object-fit: cover; object-position: center center; pointer-events: none;
+    }
+    .about-portrait-logo {
+      position: absolute; inset: 0; width: 100%; height: 100%;
+      overflow: hidden; pointer-events: none; color: #e7e7e7;
+    }
+    .about-portrait-logo .glyph { will-change: transform; }
+    .about-portrait:focus-visible { outline: 2px solid var(--carmine); outline-offset: -2px; }
+    .about-bio {
+      margin: 18px 10px 0;
+      font-family: inherit; font-size: clamp(19px, 2.05vw, 27px);
+      font-weight: 500; line-height: 1.15; letter-spacing: -.025em;
+      color: #929292; overflow-wrap: break-word;
+    }
+    @media (max-width: 680px) {
+      .about-content {
+        padding: calc(30px + env(safe-area-inset-top, 0px))
+          calc(var(--pad) + env(safe-area-inset-right, 0px))
+          calc(65px + env(safe-area-inset-bottom, 0px))
+          calc(var(--pad) + env(safe-area-inset-left, 0px));
+      }
+      .about-heading {
+        font-size: clamp(36px, 10.5vw, 60px);
+        letter-spacing: -.055em;
+        margin-bottom: 10px;
+      }
+      .about-portrait { aspect-ratio: 4 / 5; }
+      .about-bio {
+        margin: 16px 8px 0;
+        font-size: clamp(19px, 5.25vw, 25px);
+        line-height: 1.16;
+      }
+    }
+
+
+    /* V28 — ABOUT IS ONE PRECOMPOSED SHEET. No scaling/reflow of the title,
+       portrait or bio during opening. A fixed-width card slides in from the
+       left; the photographic stage moves/shrinks with matching easing so
+       their adjacent edges remain aligned throughout the transition. */
+    .site-shell { display: block; }
+    .site-shell .about-panel {
+      position: absolute; inset: 0 auto 0 0;
+      z-index: 2; flex: none;
+      width: var(--about-width); min-width: var(--about-width);
+      height: 100%; overflow: hidden;
+      transform: translate3d(-100%, 0, 0);
+      transition: transform var(--panel-duration) var(--panel-ease);
+    }
+    body.about-open .site-shell .about-panel {
+      flex-basis: auto;
+      transform: translate3d(0, 0, 0);
+      transition: transform var(--panel-duration) var(--panel-ease);
+    }
+    .site-shell .scene {
+      position: absolute; inset: 0 auto 0 0;
+      flex: none; width: 100%; height: 100%; min-width: 0;
+      transition: left var(--panel-duration) var(--panel-ease),
+                  width var(--panel-duration) var(--panel-ease);
+    }
+    body.about-open .site-shell .scene {
+      left: var(--about-width); width: calc(100% - var(--about-width));
+    }
+    /* The whole editorial layout is fixed at the FINAL card width from the
+       very first frame. Clipping of the sheet happens outside this content. */
+    .site-shell .about-content {
+      display: block; box-sizing: border-box;
+      width: var(--about-width); min-width: var(--about-width);
+      max-width: var(--about-width);
+      padding-top: calc(var(--pad) + env(safe-area-inset-top, 0px));
+    }
+    /* Photography Space begins on the same top edge as the red +/X.
+       Intentional potential overlap with the button is allowed. */
+    .site-shell .about-heading { margin-top: 0; }
+    /* The interactive photo is a bounded canvas: retain a modest inner
+       breathing room to keep every glyph off the frame edges. */
+    .site-shell .about-portrait-logo {
+      --portrait-logo-inset: clamp(10px, 1.15vw, 16px);
+      inset: var(--portrait-logo-inset);
+      width: calc(100% - (2 * var(--portrait-logo-inset)));
+      height: calc(100% - (2 * var(--portrait-logo-inset)));
+    }
+    @media (max-width: 680px) {
+      .site-shell .about-content {
+        padding-top: calc(var(--pad) + env(safe-area-inset-top, 0px));
+      }
+      .site-shell .about-portrait-logo { --portrait-logo-inset: 12px; }
+    }
+
+
+    /* V29 | SINGLE LAYOUT ANIMATION: the ready-made About sheet moves by
+       margin-left, and the photo area flexes into the remainder. Since the
+       layout contains both edges, no independent animations can drift apart
+       during OPEN or CLOSE (including sub-pixel/compositor differences). */
+    .site-shell { display: flex; }
+    .site-shell .about-panel {
+      position: relative; inset: auto; z-index: 2;
+      width: var(--about-width); min-width: var(--about-width);
+      flex: 0 0 var(--about-width); height: 100%;
+      margin-left: calc(0px - var(--about-width));
+      transform: none;
+      transition: margin-left var(--panel-duration) var(--panel-ease);
+    }
+    body.about-open .site-shell .about-panel {
+      width: var(--about-width); min-width: var(--about-width);
+      flex: 0 0 var(--about-width); margin-left: 0px;
+      transform: none;
+      transition: margin-left var(--panel-duration) var(--panel-ease);
+    }
+    .site-shell .scene,
+    body.about-open .site-shell .scene {
+      position: relative; inset: auto; left: auto; right: auto;
+      width: auto; flex: 1 1 0%; min-width: 0; height: 100%;
+      transition: none;
+    }
+    /* Align the biography's right AND left edge with photo and headline. */
+    .site-shell .about-bio { margin: 18px 0 0; }
+    @media (max-width: 680px) {
+      .site-shell .about-bio { margin: 16px 0 0; }
+    }
+    /* V29 | a slightly larger interaction dot (+13.6% from 11px). */
+    .cursor-dot { width: 12.5px; height: 12.5px; }
+    /* The portrait changes letter arrangements; use a typographic pointer,
+       not the platform hand cursor. Other navigation continues to use a dot. */
+    .cursor-action {
+      position: fixed; z-index: 101; left: 0; top: 0;
+      transform: translate(-50%, -50%); visibility: hidden;
+      font: 500 17px/1 'Ronzino', Arial, sans-serif;
+      letter-spacing: -.035em; color: var(--carmine);
+      pointer-events: none; white-space: nowrap;
+      -webkit-user-select: none; user-select: none;
+    }
+    @media (hover: hover) and (pointer: fine) {
+      .about-portrait { cursor: none; }
+    }
+    @media (hover: none), (pointer: coarse) {
+      .cursor-action { display: none; }
+    }
+
   </style>
 </head>
 <body>
+  <div class="site-shell" id="siteShell">
+  <aside class="about-panel" id="aboutPanel" aria-label="Pannello About DAGOSTUDIO" aria-hidden="true" inert>
+    <div class="about-content allow-text-selection">
+      <h1 class="about-heading">PHOTOGRAPHY<br>SPACE</h1>
+      <button class="about-portrait" id="aboutPortrait" type="button" aria-label="Cambia disposizione delle lettere DAGOSTUDIO sulla fotografia">
+        <img src="images/about-christian.webp" alt="Christian D’Agostino in un ritratto fotografico in bianco e nero" loading="eager" decoding="async">
+        <svg class="about-portrait-logo" id="aboutPortraitLogo" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 55.37 40" preserveAspectRatio="xMinYMin meet" aria-hidden="true"></svg>
+      </button>
+      <p class="about-bio">Sono Christian D’Agostino, fotografo in Puglia. Mi occupo di wedding, ritrattistica e visual storytelling, con un immaginario che affonda le radici nell’architettura brutalista, nell’estetica Bauhaus, nel cinema di Lynch e Fellini, nella musica dei Depeche Mode e dei Joy Division.</p>
+    </div>
+  </aside>
   <main class="scene" id="scene" aria-label="DAGOSTUDIO — portfolio fotografico">
     <div class="photos" id="photos" aria-label="Carosello fotografico a schermo intero">
       <div class="photo active" data-index="0" aria-hidden="false"><img src="images/foto-01.webp" alt="Fotografia DAGOSTUDIO 1" loading="eager" decoding="async" fetchpriority="high"></div>
@@ -200,7 +502,7 @@
     </svg>
 
     <!-- Symbols stay overlaid on every photograph, including after logo completion. -->
-    <div class="interface" aria-hidden="true"><div class="cross"></div><div class="circle"></div></div>
+    <div class="interface"><div class="circle" aria-hidden="true"></div></div>
     <div id="cursorArrow" class="cursor-arrow" data-direction="right" aria-hidden="true">
       <svg viewBox="0 0 78 78"><path d="M20 3 L56 39 L20 75" /></svg>
     </div>
@@ -218,18 +520,56 @@
       <button type="button" data-slide-jump="9" aria-label="Mostra fotografia 10 di 11"><span class="progress-track"><span class="progress-fill"></span></span></button>
       <button type="button" data-slide-jump="10" aria-label="Mostra fotografia 11 di 11"><span class="progress-track"><span class="progress-fill"></span></span></button>
     </nav>
-    <!-- Temporary CLIENT DEMO: choose V1, V2, or V2+; all three generators remain in one HTML. -->
-    <div class="version-switch" role="group" aria-label="Confronta le animazioni del logo">
-      <button type="button" class="version-btn" data-intro-mode="scattered" aria-pressed="false" aria-label="V1: lettere indipendenti" title="V1 — animazione originale">V1</button>
-      <button type="button" class="version-btn" data-intro-mode="grouped" aria-pressed="false" aria-label="V2: parole separate e dinamiche" title="V2 — animazione per gruppi">V2</button>
-      <button type="button" class="version-btn" data-intro-mode="grouped-plus" aria-pressed="true" aria-label="V2 plus: gruppi con maggiore dispersione verticale" title="V2+ — gruppi più dinamici">V2+</button>
-    </div>
     <div id="slideAnnouncer" role="status" class="visually-hidden" aria-live="off"></div>
   </main>
+  </div><!-- /site-shell -->
+  <button type="button" id="aboutToggle" class="about-toggle"
+    aria-expanded="false" aria-controls="aboutPanel"
+    aria-label="Apri il pannello About">
+    <span class="about-toggle-icon" aria-hidden="true"><svg class="about-toggle-glyph" viewBox="0 0 100 100" preserveAspectRatio="none" focusable="false"><path d="M50 0 V100 M0 50 H100" /></svg></span>
+  </button>
+  <div id="cursorDot" class="cursor-dot" aria-hidden="true"></div>
+  <div id="cursorAction" class="cursor-action" aria-hidden="true">CLICK</div>
   <script>
     (() => {
       'use strict';
       const scene = document.getElementById('scene');
+      // V21 — One coherent panel movement. The + is the ONLY control;
+      // it travels along the panel and rotates into the closing X.
+      const aboutPanel = document.getElementById('aboutPanel');
+      const aboutToggle = document.getElementById('aboutToggle');
+      let aboutIsOpen = false;
+      function setAboutOpen(open) {
+        aboutIsOpen = !!open;
+        // Suppress the short hover rotation throughout opening AND closing.
+        // CSS interpolates from the exact current angle, and rotation, travel,
+        // arm extension and panel opening all use the same timing curve.
+        document.body.classList.add('about-transitioning');
+        document.body.classList.toggle('about-open', aboutIsOpen);
+        aboutPanel.setAttribute('aria-hidden', String(!aboutIsOpen));
+        aboutPanel.inert = !aboutIsOpen;
+        aboutToggle.setAttribute('aria-expanded', String(aboutIsOpen));
+        aboutToggle.setAttribute('aria-label', aboutIsOpen ? 'Chiudi il pannello About' : 'Apri il pannello About');
+        if (aboutIsOpen) {
+          cursorArrow.style.visibility = 'hidden';
+        }
+        // Keep keyboard focus on the same control in both states.
+      }
+      aboutPanel.addEventListener('transitionend', event => {
+        if (event.target === aboutPanel && event.propertyName === 'margin-left') {
+          document.body.classList.remove('about-transitioning');
+        }
+      });
+      aboutToggle.addEventListener('click', event => {
+        event.stopPropagation();
+        setAboutOpen(!aboutIsOpen);
+      });
+      document.addEventListener('keydown', event => {
+        if (event.key === 'Escape' && aboutIsOpen) {
+          event.preventDefault(); setAboutOpen(false); aboutToggle.focus({preventScroll:true});
+        }
+      });
+
       // V08: set to false to restore native double/triple-click text selection.
       const DISABLE_CAROUSEL_TEXT_SELECTION = true;
       if (DISABLE_CAROUSEL_TEXT_SELECTION) scene.classList.add('no-accidental-selection');
@@ -248,6 +588,111 @@
 
       const svg = document.getElementById('mark');
       const glyphs = Array.from(svg.querySelectorAll('.glyph'));
+
+      // V27 | Independent miniature version of the original glyph game,
+      // tightly clipped to the photograph. Tapping this photo ONLY changes
+      // its ten SVG letter positions, never the main carousel or main logo.
+      const aboutPortrait = document.getElementById('aboutPortrait');
+      const aboutPortraitLogo = document.getElementById('aboutPortraitLogo');
+      glyphs.forEach(glyph => {
+        const cloned = glyph.cloneNode(true);
+        cloned.removeAttribute('id');
+        aboutPortraitLogo.appendChild(cloned);
+      });
+      const aboutLetters = Array.from(aboutPortraitLogo.querySelectorAll('.glyph'));
+      const aboutBounds = aboutLetters.map(letter => letter.getBBox());
+      let aboutTargets = null;   // position fractions in the photo; responsive
+      let aboutCurrent = null;
+      let aboutAnimation = 0;
+      let aboutLastSize = { w: 0, h: 0 };
+      const boundTo = (value, low, high) => Math.min(Math.max(value, low), high);
+
+      // V28 | Mini-V3 inside the photograph: bigger, deliberately dispersed
+      // vertical motion, with two recognisable nuclei that can exchange order.
+      // All placements use this photo's CURRENT dimensions and an inner SVG
+      // canvas, never the viewport. The logo stays within the inset frame.
+      function makeAboutTargets() {
+        const rect = aboutPortraitLogo.getBoundingClientRect();
+        const h = Math.max(1, rect.height);
+        const letterScale = Math.max(1, rect.width) / 55.37;
+        const tallest = Math.max(...aboutBounds.map(b => b.height)) * letterScale;
+        const innerMargin = Math.max(3, Math.min(10, h * .022));
+        const minTop = innerMargin / h;
+        const maxTop = Math.max(minTop, (h - tallest - innerMargin) / h);
+        const available = Math.max(0, maxTop-minTop);
+        // A wide excursion that still reads as two interrelated words.
+        const amplitude = Math.min(.19, available * .245);
+        const anchorsMin = minTop + amplitude;
+        const anchorsMax = Math.max(anchorsMin, maxTop - amplitude);
+        const span = anchorsMax - anchorsMin;
+        const minGap = Math.min(span * .90, Math.max(amplitude * 1.5, available * .33));
+        const first = anchorsMin + Math.random()*Math.max(0, span-minGap);
+        const second = first + minGap + Math.random()*Math.max(0, anchorsMax-first-minGap);
+        const wordAnchors = Math.random()<.5 ? [first,second] : [second,first];
+        const result = Array(aboutLetters.length).fill(0);
+        [[0,4],[4,6]].forEach(([start,count],word) => {
+          const levels = Array.from({length:count},(_,i) => -1+2*i/(count-1));
+          for(let i=count-1;i>0;i--){
+            const j=Math.floor(Math.random()*(i+1));
+            [levels[i],levels[j]]=[levels[j],levels[i]];
+          }
+          const slope = (Math.random()*2-1)*amplitude*.38;
+          for(let i=0;i<count;i++){
+            const spread = levels[i]*amplitude*.92;
+            const drift = (i/(count-1)-.5)*slope;
+            const noise = (Math.random()*2-1)*amplitude*.06;
+            result[start+i] = boundTo(wordAnchors[word]+spread+drift+noise,minTop,maxTop);
+          }
+        });
+        return result;
+      }
+
+      function paintAboutLogo() {
+        const box = aboutPortrait.getBoundingClientRect();
+        if (box.width < 35 || box.height < 35 || !aboutCurrent) return;
+        const scale = box.width/55.37;
+        aboutPortraitLogo.setAttribute('viewBox', `0 0 55.37 ${(box.height/scale).toFixed(5)}`);
+        aboutLetters.forEach((letter, i) => {
+          const bbox = aboutBounds[i];
+          const top = boundTo(aboutCurrent[i]*box.height, 4, Math.max(4, box.height - bbox.height*scale - 4));
+          const shift = top/scale - bbox.y;
+          letter.setAttribute('transform', `translate(0 ${shift.toFixed(4)})`);
+        });
+        aboutLastSize = {w:box.width,h:box.height};
+      }
+      function changeAboutLetterArrangement(animate = true) {
+        cancelAnimationFrame(aboutAnimation);
+        const destination = makeAboutTargets();
+        if (!aboutCurrent || !animate || window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+          aboutCurrent = destination;
+          aboutTargets = destination;
+          paintAboutLogo();
+          return;
+        }
+        const source = aboutCurrent.slice();
+        const start = performance.now();
+        const duration = 560;
+        aboutTargets = destination;
+        function frame(now) {
+          const t = boundTo((now-start)/duration,0,1);
+          const eased = 1-Math.pow(1-t,3);
+          aboutCurrent = source.map((v,i) => v+(destination[i]-v)*eased);
+          paintAboutLogo();
+          if (t<1) aboutAnimation=requestAnimationFrame(frame);
+          else { aboutCurrent=destination; aboutAnimation=0; paintAboutLogo(); }
+        }
+        aboutAnimation=requestAnimationFrame(frame);
+      }
+      aboutPortrait.addEventListener('click', event => {
+        event.stopPropagation();
+        changeAboutLetterArrangement(true);
+      });
+      const aboutPhotoObserver = new ResizeObserver(() => {
+        if (!aboutCurrent) changeAboutLetterArrangement(false);
+        else paintAboutLogo();
+      });
+      aboutPhotoObserver.observe(aboutPortrait);
+
       const slides = Array.from(document.querySelectorAll('.photo'));
       const announcer = document.getElementById('slideAnnouncer');
       const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -288,6 +733,10 @@
         }
         const nextImg = slides[(slideIndex + 1) % slides.length].querySelector('img');
         if (nextImg) nextImg.loading = 'eager';
+        // V3 ONLY, and ONLY before the initial scroll composition finishes:
+        // a manual photograph change re-rolls the ten scattered letters.
+        // Automatic carousel changes never affect the lettering.
+        if (userInitiated) moveV3LogoOnManualNavigation();
       }
       function stopCarousel() { cancelAnimationFrame(carouselFrame); carouselFrame = 0; }
       function carouselTick(now) {
@@ -320,44 +769,90 @@
       const hasMouseCursor = window.matchMedia('(hover: hover) and (pointer: fine)');
       let lastSwipeAt = -1000;
       function updateCursor(e) {
-        if (e.target.closest('.version-switch, .slide-progress') || !hasMouseCursor.matches || e.pointerType !== 'mouse') {
+        if (e.target.closest('.slide-progress') || !hasMouseCursor.matches || e.pointerType !== 'mouse') {
           cursorArrow.style.visibility = 'hidden';
           return;
         }
-        cursorArrow.style.left = e.clientX + 'px';
-        cursorArrow.style.top = e.clientY + 'px';
-        cursorArrow.dataset.direction = e.clientX < window.innerWidth / 2 ? 'left' : 'right';
+        const rect = scene.getBoundingClientRect();
+        cursorArrow.style.left = (e.clientX - rect.left) + 'px';
+        cursorArrow.style.top = (e.clientY - rect.top) + 'px';
+        cursorArrow.dataset.direction = e.clientX - rect.left < rect.width / 2 ? 'left' : 'right';
         cursorArrow.style.visibility = 'visible';
       }
       scene.addEventListener('pointermove', updateCursor);
       scene.addEventListener('pointerleave', () => { cursorArrow.style.visibility = 'hidden'; });
       scene.addEventListener('pointercancel', () => { cursorArrow.style.visibility = 'hidden'; });
+      // V25 | Pointer routing: arrows ONLY over the photographic stage;
+      // small #FF0000 dot over navigation controls and inside About.
+      // Do not intercept pointer events, and preserve native text cursors.
+      const cursorDot = document.getElementById('cursorDot');
+      const cursorAction = document.getElementById('cursorAction');
+      const decorativeCircle = document.querySelector('.circle');
+      function withinRect(x, y, r) {
+        return x >= r.left && x <= r.right && y >= r.top && y <= r.bottom;
+      }
+      function updateNavigationDot(event) {
+        if (!hasMouseCursor.matches || event.pointerType !== 'mouse') {
+          cursorDot.style.visibility = 'hidden';
+          cursorAction.style.visibility = 'hidden';
+          return;
+        }
+        const target = event.target;
+        const nativeField = target.closest('input, textarea, select, [contenteditable="true"], [role="textbox"]');
+        const onCircle = !aboutIsOpen && withinRect(event.clientX, event.clientY, decorativeCircle.getBoundingClientRect());
+        const onNavigation = !!target.closest('#aboutToggle, #aboutPanel, .slide-progress, a, button, [role="button"]');
+        const onInteractivePortrait = !!target.closest('#aboutPortrait');
+        const showClick = !nativeField && onInteractivePortrait;
+        const showDot = !nativeField && !showClick && (onNavigation || onCircle);
+        cursorDot.style.left = event.clientX + 'px';
+        cursorDot.style.top = event.clientY + 'px';
+        cursorDot.style.visibility = showDot ? 'visible' : 'hidden';
+        cursorAction.style.left = event.clientX + 'px';
+        cursorAction.style.top = event.clientY + 'px';
+        cursorAction.style.visibility = showClick ? 'visible' : 'hidden';
+        if (showDot || showClick) cursorArrow.style.visibility = 'hidden';
+      }
+      // Document's bubbling pointermove follows scene's updateCursor,
+      // ensuring the small dot overrides any photographic arrow.
+      document.addEventListener('pointermove', updateNavigationDot);
+      document.addEventListener('pointerout', event => {
+        if (!event.relatedTarget) {
+          cursorDot.style.visibility = 'hidden';
+          cursorAction.style.visibility = 'hidden';
+          cursorArrow.style.visibility = 'hidden';
+        }
+      });
+      window.addEventListener('blur', () => {
+        cursorDot.style.visibility = 'hidden';
+        cursorAction.style.visibility = 'hidden';
+        cursorArrow.style.visibility = 'hidden';
+      });
       // Whole left or right half of the viewport is clickable, including on touch screens.
       scene.addEventListener('click', e => {
         if (e.detail === 0 || performance.now() - lastSwipeAt < 450) return;
         if (e.target.closest('button, a, .slide-progress')) return;
-        changeSlide(e.clientX < window.innerWidth / 2 ? -1 : 1);
+        const rect = scene.getBoundingClientRect();
+        changeSlide(e.clientX - rect.left < rect.width / 2 ? -1 : 1);
       });
       document.addEventListener('visibilitychange', () => document.hidden ? stopCarousel() : startCarousel());
       startCarousel();
 
-      // Progressively compose letters vertically. Once composed, freeze permanently until reload.
-      // Client-review V10: both intro styles survive in the same project.
-      // 'scattered' = approved V08/V1 original, kept entirely unchanged.
-      // 'grouped' = V10/V2: readable DAGO and STUDIO clusters, with broader
-      // Y variation INSIDE each word and random placement of BOTH groups.
-      // To remove the temporary client switch, hide .version-switch via CSS
-      // and set DEFAULT_INTRO_VARIANT to the selected option.
-      // V13 client preview defaults to V2+. V1 and V2 generators are retained intact.
-      const DEFAULT_INTRO_VARIANT = 'grouped-plus';
-      let introVariant = DEFAULT_INTRO_VARIANT;
-      const GROUPED_LETTER_JITTER = 0.36; // V2 unchanged since V10.
-      const GROUPED_PLUS_LETTER_JITTER = 0.82; // V2+ only: expressive vertical offsets, still within word clusters.
+      // V30 — ONLY the approved V3 introduction remains.
+      // Its starting layout uses the expressive grouped-letter spread (0.82).
+      // Manual photograph navigation randomises the uncomposed letters;
+      // timed slide changes never alter the logo. After completion it is fixed.
+      const LETTER_JITTER = 0.82;
       let progress = reduceMotion ? 1 : 0;
       let completed = reduceMotion;
       let offsets = [];
       let baseY = 0;
+      let markScale = 1;
       let viewportHeight = window.innerHeight;
+      // V3: change the initial scattered position of EACH glyph on manual
+      // navigation, while the user is still assembling the logo. Once composed,
+      // ALL ten letters remain permanently at their approved final position.
+      // Only Y displacements are regenerated; SVG paths and X/kerning are fixed.
+      let v3AnimationFrame = 0;
       let raf = 0;
       let lastTouchX = null;
       let lastTouchY = null;
@@ -386,7 +881,11 @@
           progress = from + (to - from) * eased;
           if (fraction >= 1) {
             progress = to;
-            if (progress >= 1) { progress = 1; completed = true; }
+            if (progress >= 1) {
+              progress = 1;
+              completed = true;
+              cancelV3Movement();
+            }
           }
           renderMark();
           if (fraction < 1) introMomentumFrame = requestAnimationFrame(step);
@@ -401,60 +900,17 @@
         raf = requestAnimationFrame(() => {
           glyphs.forEach((glyph, i) => {
             const t = easing(clamp((progress - delays[i]) / (1 - delays[i]), 0, 1));
-            glyph.setAttribute('transform', `translate(0 ${(baseY + offsets[i] * (1 - t)).toFixed(4)})`);
+            const initialIntroOffset = offsets[i] * (1 - t);
+            // The assembled logo NEVER moves again, including during later taps.
+            glyph.setAttribute('transform', `translate(0 ${(baseY + initialIntroOffset).toFixed(4)})`);
           });
         });
       }
-      // V08 ORIGINAL INTRO - preserved, not changed. It can be reactivated in
-      // one line by setting INTRO_VARIANT to 'scattered' above.
-      function createScatteredOffsets(scale) {
-        const top = Math.min(110, viewportHeight * .13);
-        const bottom = Math.max(top + 40, viewportHeight - 12 * scale - 18);
-        return glyphs.map(() => (top + Math.random() * (bottom - top)) / scale - baseY);
-      }
-
-      // V10 / V2: readable word clusters, more expressive than V09.
-      // Both words may appear high, middle or low: STUDIO can be above DAGO.
-      // Gentle word-wide tilt plus independent vertical drift breaks the rigid
-      // stacks, without changing original glyph paths or horizontal kerning.
-      function createGroupedOffsets(scale) {
-        const letterHeight = 8.25 * scale;
-        const jitter = letterHeight * GROUPED_LETTER_JITTER;
-        const margin = Math.max(12, Math.min(32, viewportHeight * .035));
-        const minTop = margin;
-        const maxTop = Math.max(minTop, viewportHeight - letterHeight - margin);
-        const anchorMin = Math.min(maxTop, minTop + jitter * .75);
-        const anchorMax = Math.max(anchorMin, maxTop - jitter * .75);
-        const span = anchorMax - anchorMin;
-        // One random gap, one random ordering; neither word is pinned to a band.
-        const minGap = Math.min(span * .70, Math.max(letterHeight * .8, viewportHeight * .16));
-        const lower = anchorMin + Math.random() * Math.max(0, span - minGap);
-        const upper = lower + minGap + Math.random() * Math.max(0, anchorMax - lower - minGap);
-        const swap = Math.random() < .5;
-        const wordAnchors = swap ? [upper, lower] : [lower, upper];
-        const tilt = [(Math.random()*2-1)*jitter*1.2, (Math.random()*2-1)*jitter*1.2];
-        return glyphs.map((glyph, i) => {
-          const word = i < 4 ? 0 : 1;
-          const indexInWord = word === 0 ? i : i - 4;
-          const count = word === 0 ? 4 : 6;
-          const fraction = indexInWord / (count - 1) - .5;
-          const letterTop = clamp(
-            wordAnchors[word] + fraction * tilt[word] + (Math.random()*2-1)*jitter*.62,
-            minTop, maxTop
-          );
-          return letterTop / scale - baseY;
-        });
-      }
-
-      // V13 / V2+ — separate EXTRA expressive generator; V1 and V2 stay untouched.
-      // Always preserves the logo's original 10 paths, x positions and final kerning.
-      // Each word uses a random shared Y anchor and an intentional distribution
-      // of vertical displacements: at least one glyph goes clearly above and
-      // another below its word anchor (so V2+ does not look static by chance).
-      // All displacements are clamped to the visible viewport, on any screen.
+      // V3 initial composition: DAGO and STUDIO are two movable nuclei.
+      // Retain all ten original SVG glyphs and their final x/kerning positions.
       function createGroupedPlusOffsets(scale) {
         const letterHeight = 8.25 * scale;
-        const maxJitter = letterHeight * GROUPED_PLUS_LETTER_JITTER;
+        const maxJitter = letterHeight * LETTER_JITTER;
         const margin = Math.max(12, Math.min(32, viewportHeight * .035));
         const minTop = margin;
         const maxTop = Math.max(minTop, viewportHeight - letterHeight - margin);
@@ -492,19 +948,59 @@
         return output;
       }
 
+      // V3 — manual photo change DURING the intro only.
+      // Reroll positions of the ten ORIGINAL uncomposed glyphs; never scatter
+      // the already assembled mark. The automatic carousel does not call this.
+      function cancelV3Movement() {
+        cancelAnimationFrame(v3AnimationFrame);
+        v3AnimationFrame = 0;
+      }
+      function getFreshV3Offsets(reference) {
+        let best = null, score = -1;
+        for (let attempt = 0; attempt < 8; attempt++) {
+          const candidate = createGroupedPlusOffsets(markScale);
+          const movedPixels = candidate.reduce((sum, value, i) =>
+            sum + Math.abs(value - reference[i]) * markScale, 0) / candidate.length;
+          if (movedPixels > score) { best = candidate; score = movedPixels; }
+          if (movedPixels >= Math.min(100, viewportHeight * 0.19)) break;
+        }
+        return best;
+      }
+      function moveV3LogoOnManualNavigation() {
+        // Important: once the final logo has been composed, it is untouchable.
+        if (completed) return;
+        cancelV3Movement();
+        const from = [...offsets];
+        const target = getFreshV3Offsets(from);
+        if (reduceMotion) { offsets = target; renderMark(); return; }
+        const start = performance.now();
+        const duration = 560; // smooth changes to pre-composition glyphs, no fade
+        function step(now) {
+          // An ongoing movement must not outlive completion of the intro.
+          if (completed) {
+            v3AnimationFrame = 0;
+            return;
+          }
+          const t = clamp((now - start) / duration, 0, 1);
+          const eased = 1 - Math.pow(1 - t, 3);
+          offsets = from.map((value, i) => value + (target[i] - value) * eased);
+          renderMark();
+          if (t < 1) v3AnimationFrame = requestAnimationFrame(step);
+          else { offsets = target; renderMark(); v3AnimationFrame = 0; }
+        }
+        v3AnimationFrame = requestAnimationFrame(step);
+      }
+
       function layout(regenerate) {
         const rect = svg.getBoundingClientRect();
         const scale = Math.max(1, rect.width) / 55.37;
+        markScale = scale;
         viewportHeight = Math.max(1, scene.getBoundingClientRect().height);
         svg.setAttribute('viewBox', `0 0 55.37 ${(viewportHeight / scale).toFixed(4)}`);
         // Restore the exact final height used in the earlier approved prototype.
         baseY = Math.min(4, Math.max(15, viewportHeight * .025) / scale);
         if (regenerate || offsets.length !== glyphs.length) {
-          offsets = introVariant === 'grouped-plus'
-            ? createGroupedPlusOffsets(scale)
-            : introVariant === 'grouped'
-              ? createGroupedOffsets(scale)
-              : createScatteredOffsets(scale);
+          offsets = createGroupedPlusOffsets(scale);
         }
         if (window.matchMedia('(max-width: 680px)').matches) {
           const svgTop = svg.getBoundingClientRect().top - scene.getBoundingClientRect().top;
@@ -516,30 +1012,13 @@
         }
         renderMark();
       }
-      // Choosing V1 / V2 / V2+ always restarts just the introduction; photographs,
-      // cursor controls and all final logo geometry remain untouched.
-      const versionButtons = Array.from(document.querySelectorAll('.version-btn'));
-      function chooseIntroVariant(mode) {
-        if (!['scattered', 'grouped', 'grouped-plus'].includes(mode)) return;
-        introVariant = mode;
-        cancelIntroMomentum();
-        progress = reduceMotion ? 1 : 0;
-        completed = reduceMotion;
-        versionButtons.forEach(button =>
-          button.setAttribute('aria-pressed', String(button.dataset.introMode === mode))
-        );
-        layout(true);
-      }
-      versionButtons.forEach(button => button.addEventListener('click', (event) => {
-        event.stopPropagation();
-        chooseIntroVariant(button.dataset.introMode);
-      }));
       function changeProgress(delta) {
         if (completed) return;
         progress = clamp(progress + delta, 0, 1);
         if (progress >= 1) {
           progress = 1;
-          completed = true;  // NO way back to the scattered intro by scrolling upwards.
+          completed = true;  // NO return to scattered intro after composition.
+          cancelV3Movement();
         }
         renderMark();
       }
@@ -613,18 +1092,26 @@
         }
       });
       window.addEventListener('resize', () => layout(false));
+      // The photo stage smoothly changes WIDTH when About opens. Recalculate the
+      // responsive logo viewBox during that transition without resetting its state.
+      const sceneSizeObserver = new ResizeObserver(() => layout(false));
+      sceneSizeObserver.observe(scene);
       // Exposed for simple automated verification, not for the visitor UI.
       window.__dagoPreview = {
+        getAboutOpen: () => aboutIsOpen,
+        setAboutOpen: open => setAboutOpen(open),
         getActivePhoto: () => slideIndex,
         getSlideCount: () => slides.length,
         getSlideProgress: () => clamp((performance.now()-slideStartedAt)/interval,0,1),
-        getMobileIconLocations: () => [document.querySelector('.cross').getBoundingClientRect().top, document.querySelector('.circle').getBoundingClientRect().top],
+        getMobileIconLocations: () => [document.getElementById('aboutToggle').getBoundingClientRect().top, document.querySelector('.circle').getBoundingClientRect().top],
         getLogoComplete: () => completed,
         getLogoProgress: () => progress,
-        getIntroVariant: () => introVariant,
-        chooseIntroVariant: mode => chooseIntroVariant(mode),
-        getLetterJitterRatio: () => introVariant === 'grouped-plus' ? GROUPED_PLUS_LETTER_JITTER : GROUPED_LETTER_JITTER,
-        getIntroModes: () => ['scattered', 'grouped', 'grouped-plus'],
+        getIntroVariant: () => 'tap-reactive',
+        getLetterJitterRatio: () => LETTER_JITTER,
+        getIntroModes: () => ['tap-reactive'],
+        getV3LetterOffsets: () => null, // Legacy: post-intro scatter intentionally removed.
+        getIntroLetterOffsets: () => [...offsets],
+        getRenderedLetterOffsets: () => glyphs.map(g => Number((g.getAttribute('transform') || '').match(/translate\(0 ([^)]+)\)/)?.[1] ?? NaN)),
         getCursorDirection: () => cursorArrow.dataset.direction,
         nextPhoto: () => changeSlide(1),
         previousPhoto: () => changeSlide(-1)
