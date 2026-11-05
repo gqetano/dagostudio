@@ -1,33 +1,28 @@
-# DAGOSTUDIO V63 — sito completo
+# DAGOSTUDIO — GitHub Pages
 
-DAGOSTUDIO — SITO COMPLETO V63 — GITHUB PAGES
+Pacchetto **completo e pronto alla pubblicazione**, con risorse locali separate.
 
-Questa cartella contiene l'intero sito, non un aggiornamento incrementale:
-- index.html (homepage, animazioni, pannello About, contatti, colophon)
-- 11 foto di portfolio (images/foto-01.webp … foto-11.webp)
-- ritratto per About (images/about-christian.webp)
-- 4 immagini di riserva per le interazioni testuali
-- logo originale SVG (assets/logo-originale.svg)
-- verifica-font.html (test Ronzino su Safari)
-- crediti delle immagini (CREDITI-IMMAGINI.md)
+## Contenuto
 
-IMPORTANTE: FONT RONZINO
-Il sito utilizza il TUO file originale Ronzino-Medium.woff2.
-Il pacchetto non ripubblica il file proprietario. Per includerlo nel sito
-basta copiare il tuo Ronzino-Medium.woff2 dentro la cartella "assets".
-Il resto del sito e' gia' presente. Sono necessari esclusivamente Medium e non
-Regular, Bold, Oblique, ecc.
+- `index.html` — sito e animazioni
+- `images/` — 11 fotografie della Home, ritratto About e immagini di riserva degli hover
+- `assets/Ronzino-Medium.woff2` — carattere originale già incluso
+- `assets/logo-originale.svg` — logo vettoriale originale
+- `.nojekyll` — configurazione GitHub Pages
 
-Su Mac e' incluso PREPARA-ZIP-COMPLETO.command. Puoi aprirlo e scegliere il
-file Ronzino-Medium.woff2: genera un ZIP pronto per GitHub Pages nel percorso
-sopra la cartella del sito. In alternativa, copia a mano il font in assets/.
+## Pubblicazione
 
-COME CARICARE SU GITHUB PAGES
-1. Estrai lo ZIP.
-2. Copia Ronzino-Medium.woff2 in assets/ oppure esegui il comando per Mac.
-3. Carica tutti i file e le cartelle con index.html nella radice del repository.
-4. In GitHub Settings > Pages seleziona main e / (root).
-5. Verifica /verifica-font.html dal tuo dominio, anche con Safari.
+1. Apri lo ZIP ed estrai i file.
+2. Carica **tutto il contenuto estratto** nella directory principale del repository GitHub (non la cartella contenitore, non soltanto `index.html`).
+3. In GitHub apri **Settings → Pages → Build and deployment**, imposta **Deploy from a branch**, `main` e `/ (root)`.
+4. Attendi che GitHub abbia concluso la pubblicazione. Apri l'indirizzo mostrato in Pages e ricarica la pagina dopo l'aggiornamento.
 
-NOTA: nei contatti compare ancora "email e social da inserire". I video
-musicali aprono collegamenti ufficiali, non brani incorporati.
+**Non rinominare** le cartelle `images` e `assets`. I percorsi nell'HTML sono relativi, adatti sia a un sito GitHub Pages alla radice sia a un sito sotto il nome del repository.
+
+## Verifiche
+
+Confermati in test locale da server HTTP: Home e 11 foto, navigazione, apertura di About e font Medium senza file mancanti. Il sito usa immagini reali remote per alcuni hover quando raggiungibili e, in caso contrario, immagini di riserva locali. La versione Safari va verificata anche sul dispositivo di destinazione.
+
+## Da completare prima della pubblicazione definitiva
+
+Nell'About è ancora presente il testo segnaposto per email e social: sostituirlo quando disponibili.
