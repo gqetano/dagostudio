@@ -1,15 +1,33 @@
-# DAGOSTUDIO V62 — GitHub Pages
+# DAGOSTUDIO V63 — sito completo
 
-Tutte le scelte visive e interattive restano quelle della V61. In questa versione è stato corretto solo il caricamento di Ronzino Medium: dichiarazione @font-face con sorgente WOFF2 diretta e preload.
+DAGOSTUDIO — SITO COMPLETO V63 — GITHUB PAGES
 
-## FONT — UN PASSAGGIO PRIMA DI PUBBLICARE
+Questa cartella contiene l'intero sito, non un aggiornamento incrementale:
+- index.html (homepage, animazioni, pannello About, contatti, colophon)
+- 11 foto di portfolio (images/foto-01.webp … foto-11.webp)
+- ritratto per About (images/about-christian.webp)
+- 4 immagini di riserva per le interazioni testuali
+- logo originale SVG (assets/logo-originale.svg)
+- verifica-font.html (test Ronzino su Safari)
+- crediti delle immagini (CREDITI-IMMAGINI.md)
 
-Copia **il tuo file originale** `Ronzino-Medium.woff2` dentro `assets/` del sito. Il pacchetto contiene il percorso e il CSS necessari, non una copia del file del font. Non servono Regular, Bold o Oblique: questa versione usa solo Medium 500. Non rinominare il file.
+IMPORTANTE: FONT RONZINO
+Il sito utilizza il TUO file originale Ronzino-Medium.woff2.
+Il pacchetto non ripubblica il file proprietario. Per includerlo nel sito
+basta copiare il tuo Ronzino-Medium.woff2 dentro la cartella "assets".
+Il resto del sito e' gia' presente. Sono necessari esclusivamente Medium e non
+Regular, Bold, Oblique, ecc.
 
-Dopo l'upload apri `https://<tuo-sito>/verifica-font.html` e controlla che segnali il caricamento; in caso di cache Safari prova a ricaricare la pagina.
+Su Mac e' incluso PREPARA-ZIP-COMPLETO.command. Puoi aprirlo e scegliere il
+file Ronzino-Medium.woff2: genera un ZIP pronto per GitHub Pages nel percorso
+sopra la cartella del sito. In alternativa, copia a mano il font in assets/.
 
-## GitHub Pages
+COME CARICARE SU GITHUB PAGES
+1. Estrai lo ZIP.
+2. Copia Ronzino-Medium.woff2 in assets/ oppure esegui il comando per Mac.
+3. Carica tutti i file e le cartelle con index.html nella radice del repository.
+4. In GitHub Settings > Pages seleziona main e / (root).
+5. Verifica /verifica-font.html dal tuo dominio, anche con Safari.
 
-Estrai lo ZIP, copia il font nella cartella `assets/`, poi carica **i contenuti estratti**, con `index.html` alla radice. In Settings → Pages seleziona branch main e cartella / (root).
-
-Il colophon contiene due paragrafi, a due colonne su desktop e una su iPhone; l'About usa lettering rosso pieno, senza selettori o switch. I contatti sono ancora provvisori. Crediti immagini: `CREDITI-IMMAGINI.md`.
+NOTA: nei contatti compare ancora "email e social da inserire". I video
+musicali aprono collegamenti ufficiali, non brani incorporati.
