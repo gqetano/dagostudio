@@ -514,68 +514,9 @@
 
 
 
-    /* V38 — ABOUT THEME EXPERIMENT. The switch belongs only to About.
-       Default: the approved grey card. On: rich black #000, retaining
-       original grey biographical text and red italic name. */
+    /* V60 — About has one fixed grey canvas; no On/Off theme switching. */
     .site-shell .about-panel,
-    body.about-open .site-shell .about-panel {
-      background-color: #dedede;
-      transition: margin-left var(--panel-duration) var(--panel-ease), background-color 380ms ease;
-    }
-    .site-shell .about-panel.about-dark,
-    body.about-open .site-shell .about-panel.about-dark { background-color: #000000; }
-    .about-theme-switch {
-      --switch-width: 66px;
-      --switch-height: 33px;
-      --switch-knob: 23px;
-      --switch-inset: 4px;
-      position: absolute; z-index: 8;
-      right: calc(var(--pad) + env(safe-area-inset-right, 0px));
-      bottom: calc(var(--pad) + env(safe-area-inset-bottom, 0px));
-      display: block; box-sizing: border-box; width: var(--switch-width); height: var(--switch-height);
-      padding: 0; border: 1.5px solid var(--carmine); border-radius: 999px;
-      background: transparent; appearance: none;
-      -webkit-tap-highlight-color: transparent; touch-action: manipulation;
-      cursor: pointer;
-    }
-    .about-theme-switch-knob {
-      position: absolute;
-      top: 50%; left: var(--switch-inset); transform: translate3d(0,-50%,0);
-      width: var(--switch-knob); height: var(--switch-knob);
-      border: 1.5px solid var(--carmine); border-radius: 50%;
-      background-color: var(--carmine);
-      transition: transform 320ms cubic-bezier(.76,0,.18,1);
-      pointer-events: none;
-    }
-    .about-theme-switch[aria-checked="true"] .about-theme-switch-knob {
-      transform: translate3d(calc(var(--switch-width) - 2 * var(--switch-inset) - var(--switch-knob) - 3px), -50%, 0);
-    }
-    .about-theme-switch:focus-visible { outline: 2px solid var(--carmine); outline-offset: 5px; }
-    @media (hover: hover) and (pointer: fine) { .about-theme-switch { cursor: none; } }
-    @media (max-width: 680px) {
-      .site-shell .about-panel,
-      body.about-open .site-shell .about-panel {
-        transition: transform var(--panel-duration) var(--panel-ease), background-color 380ms ease;
-      }
-      .about-theme-switch {
-        --switch-width: 62px;
-        --switch-height: 31px;
-        --switch-knob: 21px;
-        --switch-inset: 4px;
-        right: auto;
-        left: calc(var(--pad) + env(safe-area-inset-left, 0px));
-        top: auto;
-        bottom: calc(var(--pad) + env(safe-area-inset-bottom, 0px));
-      }
-    }
-    /* Mobile: allow the biography to scroll fully above the bottom-left switch. */
-    @media (max-width:680px) { .site-shell .about-content {padding-bottom:calc(115px + env(safe-area-inset-bottom,0px));} }
-    @media (prefers-reduced-motion: reduce) {
-      .about-theme-switch-knob { transition-duration: 1ms; }
-      .site-shell .about-panel, body.about-open .site-shell .about-panel {
-        transition-duration: 1ms, 1ms;
-      }
-    }
+    body.about-open .site-shell .about-panel { background-color: #dedede; }
 
     /* V39 — PORTRAIT'S INTERACTIVE LETTERING: RED OUTLINE, NO FILL.
        Original SVG shapes and motion untouched. Stroke is kept at a stable
@@ -813,7 +754,6 @@
       image-rendering:auto;
     }
     .ref-preview::before {display:none!important;content:none!important;}
-    .about-panel.about-dark .ref-preview::before {display:none!important;}
     .ref-preview::after,.ref-preview-caption {display:none!important;}
     .site-shell .about-content .ref-preview[data-type="audio"] {width:min(230px,65%);aspect-ratio:4/2;}
     .ref-preview[data-type="audio"] .sound-lines {inset:10px 12px 10px;}
@@ -898,8 +838,6 @@
     }
     .site-shell .about-content .ref-preview { z-index: 2; }
     .site-shell .about-content .about-reference { color: inherit !important; }
-    .about-panel.about-dark .about-bio-panel--intro::before { background: #939393; }
-    .about-panel.about-dark .about-bio-panel--references::before { background: #b2b2b2; }
     @supports (text-box-trim: trim-both) and (text-box-edge: cap text) {
       .site-shell .about-bio-panel .about-bio {
         text-box-trim: trim-both;
@@ -942,9 +880,6 @@
     .site-shell .about-content > .about-bio-panel--colophon::before {
       background: #c9c9c9;
     }
-    .about-panel.about-dark .about-bio-panel--intro::before { background: #939393; }
-    .about-panel.about-dark .about-bio-panel--contacts::before { background: #b2b2b2; }
-    .about-panel.about-dark .about-bio-panel--colophon::before { background: #c4c4c4; }
     /* Override V51's cap/text trimming: text-edge: text includes descenders.
        A small font-metric helper below positions the paint to the cap and
        baseline; paragraph line boxes stay stable while the webfont loads. */
@@ -980,10 +915,7 @@
       --bio-field-grey: #a9a9a9;
       --bio-highlight-grey: #838383;
     }
-    .site-shell .about-content > .about-bio-panel::before,
-    .about-panel.about-dark .about-bio-panel--intro::before,
-    .about-panel.about-dark .about-bio-panel--contacts::before,
-    .about-panel.about-dark .about-bio-panel--colophon::before {
+    .site-shell .about-content > .about-bio-panel::before {
       background-color: var(--bio-field-grey);
     }
     .site-shell .about-bio-panel .about-name,
@@ -1090,8 +1022,16 @@
         padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
       }
     }
-    /* V59 — keep the +/X and ON/OFF controls at their original fixed corners.
-       The colophon can pass underneath; scrolling never shifts these controls. */
+    /* V60 — The +/X remains fixed while About content scrolls independently. */
+    @media (max-width: 600px) {
+      .site-shell .about-content > .about-bio-panel--colophon {
+        grid-template-columns: minmax(0, 1fr);
+        gap: .5rem;
+      }
+      .site-shell .about-bio-panel--colophon .about-colophon-credits {
+        text-align: left;
+      }
+    }
   </style>
 </head>
 <body>
@@ -1153,9 +1093,6 @@
         <div class="ref-preview-caption" id="referencePreviewCaption"></div>
       </div>
     </div>
-    <button type="button" id="aboutThemeSwitch" class="about-theme-switch" role="switch" aria-checked="false" aria-label="Attiva lo sfondo nero nell’About">
-      <span class="about-theme-switch-knob" aria-hidden="true"></span>
-    </button>
   </aside>
   <main class="scene" id="scene" aria-label="DAGOSTUDIO — portfolio fotografico">
     <div class="photos" id="photos" aria-label="Carosello fotografico a schermo intero">
@@ -1236,19 +1173,6 @@
       // it travels along the panel and rotates into the closing X.
       const aboutPanel = document.getElementById('aboutPanel');
       const aboutToggle = document.getElementById('aboutToggle');
-      // V37 — The About colour switch is independent of panel visibility and
-      // does not touch Home, carousel timing, photo, name or the main navigation.
-      const aboutThemeSwitch = document.getElementById('aboutThemeSwitch');
-      aboutThemeSwitch.addEventListener('click', (event) => {
-        event.stopPropagation();
-        const dark = !aboutPanel.classList.contains('about-dark');
-        aboutPanel.classList.toggle('about-dark', dark);
-        aboutThemeSwitch.setAttribute('aria-checked', String(dark));
-        aboutThemeSwitch.setAttribute('aria-label', dark
-          ? 'Ripristina lo sfondo grigio nell’About'
-          : 'Attiva lo sfondo nero nell’About');
-      });
-
       let aboutIsOpen = false;
       function setAboutOpen(open) {
         aboutIsOpen = !!open;
