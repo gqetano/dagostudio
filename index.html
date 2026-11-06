@@ -1041,8 +1041,8 @@
     @media (hover: hover) and (pointer: fine) { .logo-color-swatch, .logo-color-swatch input, .logo-color-random { cursor: none; } }
     body.contact-open .logo-color-picker { opacity: 0; pointer-events: none; }
     @media (max-width: 680px) {
-      /* Bottom-right, vertically centred on the circle / + pair. */
-      .logo-color-picker { bottom: calc(var(--pad) + ((var(--cross-size) - 24px) / 2) + env(safe-area-inset-bottom, 0px)); }
+      /* Bottom-right, on the same bottom line as the circle / + pair. */
+      .logo-color-picker { bottom: calc(var(--pad) + env(safe-area-inset-bottom, 0px)); }
       body.about-open .logo-color-picker { opacity: 0; pointer-events: none; }
     }
     /* ═══ END LOGO COLOUR PICKER ═══════════════════════════════════════ */
