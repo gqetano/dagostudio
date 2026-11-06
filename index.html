@@ -37,22 +37,11 @@
       overflow: visible; color: var(--logo); pointer-events: none;
     }
     .glyph { will-change: transform; }
-    .interface {
-      z-index: 5; inset: 0;
-      display: grid; grid-template-columns: repeat(5,minmax(0,1fr)); grid-template-rows: auto 1fr;
-      column-gap: var(--gap); padding:
-        calc(var(--pad) + env(safe-area-inset-top, 0px))
-        calc(var(--pad) + env(safe-area-inset-right, 0px))
-        calc(var(--pad) + env(safe-area-inset-bottom, 0px))
-        calc(var(--pad) + env(safe-area-inset-left, 0px));
-      pointer-events: none;
-    }
-    .cross, .circle { width: clamp(36px,5.8vw,78px); height: clamp(36px,5.8vw,78px); position: relative; }
+    .cross { width: clamp(36px,5.8vw,78px); height: clamp(36px,5.8vw,78px); position: relative; }
     .cross { grid-column: 1; grid-row: 1; }
     .cross::before,.cross::after { content:""; position:absolute; background:var(--carmine); }
     .cross::before { height:100%; left:50%; top:0; transform: translateX(-50%); }
     .cross::after { width:100%; left:0; top:50%; transform: translateY(-50%); }
-    .circle { grid-column:5; grid-row:1; justify-self:end; border:1.5px solid var(--carmine); border-radius:50%; }
     /* One custom full-size arrow follows the mouse; no persistent bottom controls. */
     .cursor-arrow {
       left: 0; top: 0; z-index: 20;
@@ -103,14 +92,11 @@
     .visually-hidden { position:absolute!important;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap; }
     @media (max-width: 680px) {
       :root { --pad: 10px; --gap: 0px; }
-      .interface { grid-template-columns: 1fr; }
-      .cross,.circle { grid-column: 1; }
+      .cross { grid-column: 1; }
     }
     /* Last mobile overrides, after the original V10 mobile grid. */
     @media (max-width: 680px) {
-      .interface { grid-template-rows: 1fr auto; }
-      .cross,.circle { grid-row: 2; }
-      .circle { justify-self: end; }
+      .cross { grid-row: 2; }
       /* V14 — MOBILE ONLY: align the logo's horizontal margins to the red
          controls (the same --pad + safe-area inset on either side), and put
          the composed lettering below the story-progress rail. Desktop untouched.
@@ -240,13 +226,13 @@
     }
     @media (hover: hover) and (pointer: fine) {
       .about-panel, .about-toggle,
-      .slide-progress, .slide-progress button, .circle { cursor: none; }
+      .slide-progress, .slide-progress button { cursor: none; }
       .about-panel input:not([type=checkbox]):not([type=radio]),
       .about-panel textarea, .about-panel [contenteditable=true] { cursor: text; }
       .about-panel select { cursor: default; }
     }
     /* The photo controls remain attached to the picture area. */
-    .interface, .slide-progress, .cursor-arrow { position: absolute; }
+    .slide-progress, .cursor-arrow { position: absolute; }
     @media (max-width: 680px) {
       :root {
         --about-width: 100vw;
@@ -262,6 +248,7 @@
     }
     @media (prefers-reduced-motion: reduce) {
       :root { --panel-duration: 1ms; }
+      .contact-toggle-icon, .contact-ring { transition-duration: 1ms !important; }
       .about-toggle-icon, .about-toggle-glyph path { transition-duration: 1ms !important; }
     }
     @media (prefers-reduced-motion: reduce) { .glyph { will-change: auto; } }
@@ -437,7 +424,7 @@
        scene, photographic frame or original SVG wordmark. */
     @media (max-width: 680px) {
       :root { --cross-size: 49.2px; }
-      .cross, .circle { width: 49.2px; height: 49.2px; }
+      .cross { width: 49.2px; height: 49.2px; }
       .about-bio { font-size: clamp(28.5px, 7.875vw, 37.5px); }
       .site-shell { display: block; }
       .site-shell .scene,
@@ -465,7 +452,6 @@
        The mobile overrides below 680px remain 49.2px with unchanged strokes. */
     @media (min-width: 681px) {
       :root { --cross-size: clamp(43.2px, 6.96vw, 93.6px); }
-      .circle { width: clamp(43.2px, 6.96vw, 93.6px); height: clamp(43.2px, 6.96vw, 93.6px); }
     }
 
     /* V61 — One medium family; highlighted name changes colour only. */
@@ -481,11 +467,11 @@
     .site-shell .about-panel,
     body.about-open .site-shell .about-panel { background-color: #dedede; }
 
-    /* V61 — Single red, solid lettering treatment in the About photograph.
+    /* The About photograph uses the SAME logo colour as the Home (--logo).
        Original SVG outlines and autonomous movement are preserved. */
-    .about-portrait-logo { color: var(--carmine); }
+    .about-portrait-logo { color: var(--logo); }
     .about-portrait-logo .glyph :is(path, polygon, rect, circle) {
-      fill: var(--carmine) !important;
+      fill: var(--logo) !important;
       stroke: none !important;
     }
 
@@ -602,16 +588,6 @@
        The circle stays with the full-size Home underneath the About overlay. */
     @media (max-width: 680px) {
       :root { --mobile-nav-half-gap: 9px; }
-      .interface .circle {
-        position: absolute;
-        grid-column: auto; grid-row: auto;
-        left: calc(50% - var(--cross-size) - var(--mobile-nav-half-gap));
-        right: auto;
-        top: auto;
-        bottom: calc(var(--pad) + env(safe-area-inset-bottom, 0px));
-        justify-self: auto;
-        width: var(--cross-size); height: var(--cross-size);
-      }
       body:not(.about-open) .about-toggle {
         left: calc(50% + var(--mobile-nav-half-gap));
       }
@@ -712,7 +688,6 @@
 
     /* V53 — same *actual* 2px stroke on circle and + / X.
        Keep both controls' proportions, size, position and animation untouched. */
-    .circle { border-width: 2px; }
     .about-toggle-glyph path { stroke-width: 2px; }
     .cross::before { width: 2px; }
     .cross::after { height: 2px; }
@@ -755,11 +730,7 @@
     .site-shell .about-bio-panel .about-bio {
       font-size: var(--about-editorial-size);
     }
-    /* V56 — colophon is small-print, independent of biography scale.
-       The rem bounds respond to the visitor's root font preference;
-       the viewport term introduces only a subtle responsive change. */
-
-    /* V57 — Editorial two-column colophon at the end of the About sheet.
+    /* V57 — Colophon at the end of the sheet.
        The flexible blank interval separates contact information from credits;
        its guaranteed minimum produces intentional scrolling on short screens. */
     .site-shell .about-content {
@@ -777,35 +748,26 @@
       min-height: 170px;
       pointer-events: none;
     }
+    /* One left-aligned field, one piece of information per line, in the
+       same editorial size and style as every other text on the sheet. */
     .site-shell .about-content > .about-bio-panel--colophon {
-      display: grid;
-      grid-template-columns: minmax(0, 38%) minmax(0, 1fr);
-      column-gap: clamp(12px, 2.2vw, 28px);
-      align-items: start;
       margin-top: 0;
       width: 100%;
     }
     .site-shell .about-bio-panel--colophon .about-bio {
-      margin: 0;
+      margin: 0; white-space: nowrap;
+      /* Small print: the original colophon size, same as the form labels. */
       font-size: clamp(0.875rem, 0.8rem + 0.23vw, 1rem);
     }
-    .site-shell .about-bio-panel--colophon .about-colophon-signature {
-      text-align: left;
-    }
-    .site-shell .about-bio-panel--colophon .about-colophon-credits {
-      min-width: 0;
-      text-align: right;
-      position: relative;
-      z-index: 1;
+    .about-colophon-email { color: inherit; text-decoration: none; }
+    .site-shell .about-bio-panel--colophon .about-colophon-email { color: var(--bio-highlight-grey); }
+    @media (hover: hover) and (pointer: fine) {
+      .about-colophon-email:hover { color: #090909 !important; }
     }
     @media (max-width:680px) {
       /* Mobile retains the existing bottom control clearance. */
       .site-shell .about-content > .about-colophon-spacer {
         flex-basis: clamp(170px, 25vh, 280px);
-      }
-      .site-shell .about-content > .about-bio-panel--colophon {
-        grid-template-columns: minmax(0, 39%) minmax(0, 1fr);
-        column-gap: 12px;
       }
     }
 
@@ -820,16 +782,269 @@
         padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
       }
     }
-    /* V60 — The +/X remains fixed while About content scrolls independently. */
-    @media (max-width: 600px) {
-      .site-shell .about-content > .about-bio-panel--colophon {
-        grid-template-columns: minmax(0, 1fr);
-        gap: .5rem;
-      }
-      .site-shell .about-bio-panel--colophon .about-colophon-credits {
-        text-align: left;
+    /* V60 — The +/X remains fixed while About content scrolls independently.
+       Mobile: the last colophon line stops above the X in the bottom corner. */
+    @media (max-width: 680px) {
+      .site-shell .about-panel .about-content {
+        padding-bottom: calc(var(--cross-size) + (2 * var(--pad)) + env(safe-area-inset-bottom, 0px));
       }
     }
+
+    /* ─────────────────────────────────────────────────────────────────
+       CONTACT PANEL — the mirror of About.
+       Desktop: a fixed-width sheet enters from the RIGHT edge; the photo
+       stage flexes into the remainder (same technique as About, with
+       margin-right instead of margin-left). The circle rides the panel's
+       moving (left) edge and turns, open, as the closing control.
+       Mobile: a full-screen sheet slides over the stationary Home; the
+       circle travels to the bottom-left corner (mirror of the + / X).
+       Only one panel can be open at a time.
+       ───────────────────────────────────────────────────────────────── */
+    :root { --contact-width: var(--about-width); }
+    .contact-panel {
+      position: relative; z-index: 2;
+      width: var(--contact-width); min-width: var(--contact-width);
+      flex: 0 0 var(--contact-width); height: 100%;
+      margin-right: calc(0px - var(--contact-width));
+      overflow: hidden;
+      background-color: #dedede; color: #101010;
+      transition: margin-right var(--panel-duration) var(--panel-ease);
+      --bio-field-grey: #a9a9a9;
+      --bio-highlight-grey: #838383;
+      --about-editorial-size: clamp(28.5px, 3.075vw, 40.5px);
+    }
+    body.contact-open .contact-panel { margin-right: 0px; }
+
+    /* The circle: same size, stroke and position as the original pictogram. */
+    .contact-toggle {
+      position: absolute; z-index: 3;
+      top: calc(var(--pad) + env(safe-area-inset-top, 0px));
+      right: calc(var(--pad) + env(safe-area-inset-right, 0px));
+      display: block; width: var(--cross-size); height: var(--cross-size);
+      padding: 0; margin: 0; border: 0; border-radius: 0;
+      background: transparent; color: var(--carmine);
+      cursor: pointer; pointer-events: auto;
+      transition: right var(--panel-duration) var(--panel-ease),
+                  left var(--panel-duration) var(--panel-ease);
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+    .contact-toggle:focus-visible { outline: 2px solid var(--carmine); outline-offset: 4px; }
+    body.contact-open .contact-toggle {
+      right: calc(var(--contact-width) - var(--pad) - var(--cross-size));
+    }
+    .contact-toggle-icon {
+      position: absolute; inset: 0; display: block;
+      transform: rotate(0deg); transform-origin: center center;
+      transition: transform var(--panel-duration) var(--panel-ease);
+    }
+    .contact-toggle-glyph { display: block; width: 100%; height: 100%; overflow: visible; }
+    .contact-toggle-glyph circle {
+      fill: none; stroke: var(--carmine); stroke-width: 2px;
+      vector-effect: non-scaling-stroke; stroke-linecap: butt;
+      transition: stroke-dashoffset var(--panel-duration) var(--panel-ease);
+    }
+    /* The circle never becomes an X. Mirror of the + :
+         closed + hover: a small opening appears and the ring turns -12deg;
+         click: the ring keeps turning (half a turn) with the SAME opening;
+         open + hover: it turns back 12deg, opening unchanged;
+         click again: it turns back to 0deg and closes into the full circle.
+       One continuous movement: hover angle flows into the opening animation. */
+    .contact-ring {
+      stroke-dasharray: 100 100; stroke-dashoffset: 0;
+      transform-origin: 50px 50px; transform: rotate(-90deg);
+    }
+    body.contact-open .contact-ring { stroke-dashoffset: -7; }
+    body.contact-open .contact-toggle-icon { transform: rotate(-180deg); }
+    @media (hover: hover) and (pointer: fine) {
+      body:not(.contact-open):not(.contact-transitioning) .contact-toggle:hover .contact-ring {
+        stroke-dashoffset: -7;
+        transition-duration: 220ms; transition-timing-function: ease-out;
+      }
+      body:not(.contact-open):not(.contact-transitioning) .contact-toggle:hover .contact-toggle-icon {
+        transform: rotate(-12deg);
+        transition-duration: 220ms; transition-timing-function: ease-out;
+      }
+      body.contact-open:not(.contact-transitioning) .contact-toggle:hover .contact-toggle-icon {
+        transform: rotate(-168deg);
+        transition-duration: 220ms; transition-timing-function: ease-out;
+      }
+      .contact-panel, .contact-toggle { cursor: none; }
+      .contact-panel input:not([type=checkbox]):not([type=radio]),
+      .contact-panel textarea { cursor: text; }
+    }
+
+    /* Sheet content re-uses the About editorial system (.about-content,
+       .about-bio-panel, .about-bio). Only contact-specific parts follow. */
+    .site-shell .contact-content > .about-bio-panel--intro { margin-top: 0; }
+
+    .contact-form { margin: 0; padding: 0; border: 0; min-width: 0; }
+    .contact-grid {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 18px 12px; margin-top: 18px;
+    }
+    .contact-field { display: flex; flex-direction: column; gap: 7px; min-width: 0; margin: 0; padding: 0; border: 0; }
+    .contact-field--wide { grid-column: 1 / -1; }
+    .contact-label {
+      font-size: clamp(0.875rem, 0.8rem + 0.23vw, 1rem);
+      line-height: 1; letter-spacing: -0.01em; color: #090909;
+      padding: 0;
+    }
+    .contact-label .contact-optional { color: var(--bio-highlight-grey); }
+    .contact-input {
+      display: block; width: 100%; min-width: 0; margin: 0;
+      border: 0; border-radius: 0; outline: none;
+      -webkit-appearance: none; appearance: none;
+      background: var(--bio-field-grey); color: #090909;
+      font: 500 clamp(20px, 1.7vw, 26px)/1.1 'Ronzino', Arial, Helvetica, sans-serif;
+      letter-spacing: -0.02em; font-synthesis: none;
+      padding: .42em .45em .36em;
+      box-shadow: inset 0 -2px 0 transparent;
+      transition: box-shadow 160ms ease, background-color 160ms ease;
+    }
+    .contact-input::placeholder { color: var(--bio-highlight-grey); opacity: 1; }
+    .contact-input:focus { background: #bdbdbd; box-shadow: inset 0 -2px 0 var(--carmine); }
+    .contact-input[aria-invalid="true"] { box-shadow: inset 0 -2px 0 var(--carmine); }
+    textarea.contact-input { min-height: 7.2em; resize: vertical; }
+
+    /* INK BOX — the editorial text field used everywhere: the paint starts at
+       the capital height and stops at the typographic baseline, with no inner
+       padding. --cap-inset / --baseline-inset are measured from the real font
+       by the small script at the end of the page (same one as the About). */
+    .ink-box { position: relative; isolation: isolate; --cap-inset: .2em; --baseline-inset: .2em; }
+    .ink-box::before {
+      content: ""; position: absolute; z-index: -1; left: 0; right: 0;
+      top: var(--cap-inset); bottom: var(--baseline-inset);
+      background: var(--ink-fill, var(--bio-field-grey));
+      transition: background-color 160ms ease;
+    }
+
+    /* Service: four typographic choices; the chosen one turns red. */
+    .contact-choices { display: flex; flex-wrap: wrap; gap: 10px 8px; }
+    .contact-choice { position: relative; display: block; }
+    .contact-choice input { position: absolute; opacity: 0; width: 1px; height: 1px; pointer-events: none; }
+    .contact-choice span {
+      display: block; padding: 0; color: #090909;
+      font-size: var(--about-editorial-size); line-height: .98; letter-spacing: -0.03em;
+    }
+    .contact-choice input:checked + span { --ink-fill: var(--carmine); }
+    .contact-choice input:focus-visible + span { outline: 2px solid var(--carmine); outline-offset: 2px; }
+    @media (hover: hover) and (pointer: fine) {
+      .contact-choice input:not(:checked) + span:hover { --ink-fill: #bdbdbd; }
+    }
+
+    .contact-consent {
+      display: grid; grid-template-columns: auto 1fr; gap: 10px; align-items: start;
+      margin-top: 18px;
+      font-size: clamp(0.875rem, 0.8rem + 0.23vw, 1rem); line-height: 1.15; color: #090909;
+    }
+    .contact-consent input { position: absolute; opacity: 0; width: 1px; height: 1px; pointer-events: none; }
+    .contact-check {
+      display: block; width: 18px; height: 18px; margin-top: -1px;
+      border: 2px solid var(--carmine); background: transparent;
+      transition: background-color 120ms ease;
+    }
+    .contact-consent input:checked + .contact-check { background: var(--carmine); }
+    .contact-consent input:focus-visible + .contact-check { outline: 2px solid var(--carmine); outline-offset: 2px; }
+    .contact-consent[data-invalid="true"] .contact-consent-text { color: var(--carmine); }
+    .contact-trap { position: absolute !important; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+
+    .contact-submit {
+      display: block; width: 100%; margin: 18px 0 0; padding: 0;
+      border: 0; border-radius: 0; -webkit-appearance: none; appearance: none;
+      background: transparent; color: #090909;
+      font: 500 var(--about-editorial-size)/.98 'Ronzino', Arial, Helvetica, sans-serif;
+      letter-spacing: -0.03em; font-synthesis: none; text-align: left;
+    }
+    .contact-submit[disabled] { opacity: .55; }
+    @media (hover: hover) and (pointer: fine) {
+      .contact-submit:not([disabled]):hover { --ink-fill: var(--carmine); }
+    }
+    .contact-submit:focus-visible { outline: 2px solid var(--carmine); outline-offset: 3px; }
+    .contact-status {
+      min-height: 1.2em; margin: 10px 0 0;
+      font-size: clamp(0.875rem, 0.8rem + 0.23vw, 1rem); line-height: 1.2; color: #090909;
+    }
+    .contact-status[data-tone="error"] { color: var(--carmine); }
+    .site-shell .contact-content > .contact-thanks[hidden], .contact-form[hidden] { display: none; }
+    .site-shell .contact-content > .contact-thanks { margin-top: 18px; }
+
+    @media (max-width: 680px) {
+      :root { --contact-width: 100vw; }
+      .contact-panel {
+        --about-editorial-size: clamp(28.5px, 7.875vw, 37.5px);
+        position: absolute; inset: 0 0 0 auto;
+        width: 100%; min-width: 100%; flex: none; height: 100%;
+        margin-right: 0;
+        transform: translate3d(100%, 0, 0);
+        transition: transform var(--panel-duration) var(--panel-ease);
+      }
+      body.contact-open .contact-panel { margin-right: 0; transform: translate3d(0, 0, 0); }
+      /* Closed: the original position, left half of the centred pair. */
+      .contact-toggle,
+      body.contact-open .contact-toggle {
+        top: auto; right: auto;
+        bottom: calc(var(--pad) + env(safe-area-inset-bottom, 0px));
+      }
+      .contact-toggle { left: calc(50% - var(--cross-size) - var(--mobile-nav-half-gap)); }
+      body.contact-open .contact-toggle { left: calc(var(--pad) + env(safe-area-inset-left, 0px)); }
+      /* Below the About sheet, above its own Contact sheet. */
+      body:not(.contact-open):not(.contact-transitioning) .contact-toggle { z-index: 1; }
+      /* The + steps aside while Contact covers the screen. */
+      .about-toggle { transition: left var(--panel-duration) var(--panel-ease), opacity 260ms ease; }
+      body.contact-open .about-toggle { opacity: 0; pointer-events: none; }
+      .site-shell .contact-content {
+        padding-bottom: calc(var(--cross-size) + (2 * var(--pad)) + env(safe-area-inset-bottom, 0px));
+      }
+      .contact-grid { grid-template-columns: minmax(0, 1fr); gap: 16px; }
+      .contact-input { font-size: 21px; }
+    }
+
+    /* ═══ LOGO COLOUR PICKER — TEMPORARY TEST TOOL ═══════════════════════
+       To remove it: delete this CSS block, the <div class="logo-color-picker">
+       element and the <script> marked LOGO COLOUR PICKER at the end of the page.
+       Then write the chosen colour in :root → --logo at the top of the CSS. */
+    .logo-color-picker {
+      position: fixed; z-index: 60;
+      right: calc(var(--pad) + env(safe-area-inset-right, 0px));
+      bottom: calc(36px + env(safe-area-inset-bottom, 0px));
+      display: flex; align-items: center; gap: 10px;
+      -webkit-tap-highlight-color: transparent;
+      transition: opacity 260ms ease;
+    }
+    /* Random colour: a twelve-ray asterisk in the logo colour, as wide as the
+       swatch, one turn per click. */
+    .logo-color-random {
+      display: block; width: 24px; height: 24px; margin: 0; padding: 0;
+      border: 0; background: transparent; color: var(--logo);
+      cursor: pointer; touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .logo-color-random svg {
+      display: block; width: 100%; height: 100%; overflow: visible;
+      transition: transform 600ms var(--panel-ease);
+    }
+    .logo-color-random path {
+      fill: none; stroke: currentColor; stroke-width: 2px;
+      vector-effect: non-scaling-stroke; stroke-linecap: butt; stroke-linejoin: miter;
+    }
+    .logo-color-random:focus-visible { outline: 2px solid var(--carmine); outline-offset: 3px; }
+    .logo-color-swatch {
+      position: relative; display: block; width: 24px; height: 24px;
+      border-radius: 50%; background: var(--logo); cursor: pointer;
+    }
+    .logo-color-swatch input {
+      position: absolute; inset: 0; width: 100%; height: 100%;
+      margin: 0; padding: 0; border: 0; opacity: 0; cursor: pointer;
+    }
+    .logo-color-swatch:focus-within { outline: 2px solid var(--carmine); outline-offset: 3px; }
+    @media (hover: hover) and (pointer: fine) { .logo-color-swatch, .logo-color-swatch input, .logo-color-random { cursor: none; } }
+    body.contact-open .logo-color-picker { opacity: 0; pointer-events: none; }
+    @media (max-width: 680px) {
+      .logo-color-picker { bottom: auto; top: calc(36px + env(safe-area-inset-top, 0px)); }
+      body.about-open .logo-color-picker { opacity: 0; pointer-events: none; }
+    }
+    /* ═══ END LOGO COLOUR PICKER ═══════════════════════════════════════ */
   </style>
 </head>
 <body>
@@ -845,8 +1060,7 @@
       <div class="about-bio-panel about-bio-panel--contacts"><p class="about-bio">Molfetta, Puglia · Italia.<br>Contatti: <span class="pending-detail">email e social da inserire</span>.</p></div>
       <div class="about-colophon-spacer" aria-hidden="true"></div>
       <div class="about-bio-panel about-bio-panel--colophon" aria-label="Colophon">
-        <p class="about-bio about-colophon-signature">DAGOSTUDIO © 2026 · Tutti i diritti riservati</p>
-        <p class="about-bio about-colophon-credits">Fotografie: Christian D’Agostino<br>Design by Gaetano Roselli</p>
+        <p class="about-bio">DAGOSTUDIO © 2026<br>Tutti i diritti riservati<br>Fotografie by Christian D’Agostino<br>Design by Gaetano Roselli</p>
       </div>
       <div class="ref-preview" id="referencePreview" aria-hidden="true">
         <img id="referencePreviewImage" alt="" decoding="async" />
@@ -896,8 +1110,6 @@
   </g>
     </svg>
 
-    <!-- Symbols stay overlaid on every photograph, including after logo completion. -->
-    <div class="interface"><div class="circle" aria-hidden="true"></div></div>
     <div id="cursorArrow" class="cursor-arrow" data-direction="right" aria-hidden="true">
       <svg viewBox="0 0 78 78"><path d="M20 3 L56 39 L20 75" /></svg>
     </div>
@@ -917,12 +1129,79 @@
     </nav>
     <div id="slideAnnouncer" role="status" class="visually-hidden" aria-live="off"></div>
   </main>
+  <aside class="contact-panel" id="contactPanel" aria-label="Pannello Contatti DAGOSTUDIO" aria-hidden="true" inert>
+    <div class="about-content contact-content allow-text-selection">
+      <div class="about-bio-panel about-bio-panel--intro"><p class="about-bio">Scrivimi per un matrimonio, un ritratto o una storia da raccontare per immagini.</p></div>
+      <form class="contact-form" id="contactForm" novalidate>
+        <div class="contact-grid">
+          <label class="contact-field">
+            <span class="contact-label">Nome e cognome</span>
+            <input class="contact-input" type="text" name="nome" autocomplete="name" required>
+          </label>
+          <label class="contact-field">
+            <span class="contact-label">Email</span>
+            <input class="contact-input" type="email" name="email" autocomplete="email" inputmode="email" required>
+          </label>
+          <label class="contact-field">
+            <span class="contact-label">Telefono <span class="contact-optional">(facoltativo)</span></span>
+            <input class="contact-input" type="tel" name="telefono" autocomplete="tel" inputmode="tel">
+          </label>
+          <label class="contact-field">
+            <span class="contact-label">Data o periodo <span class="contact-optional">(facoltativo)</span></span>
+            <input class="contact-input" type="text" name="data" placeholder="Giugno 2027">
+          </label>
+          <fieldset class="contact-field contact-field--wide">
+            <legend class="contact-label">Di cosa hai bisogno</legend>
+            <div class="contact-choices" style="margin-top:7px">
+              <label class="contact-choice"><input type="radio" name="servizio" value="Wedding" checked><span class="ink-box">Wedding</span></label>
+              <label class="contact-choice"><input type="radio" name="servizio" value="Evento"><span class="ink-box">Evento</span></label>
+              <label class="contact-choice"><input type="radio" name="servizio" value="Shooting in studio"><span class="ink-box">Shooting in studio</span></label>
+              <label class="contact-choice"><input type="radio" name="servizio" value="Altro"><span class="ink-box">Altro</span></label>
+            </div>
+          </fieldset>
+          <label class="contact-field contact-field--wide">
+            <span class="contact-label">Luogo <span class="contact-optional">(facoltativo)</span></span>
+            <input class="contact-input" type="text" name="luogo" placeholder="Città, location">
+          </label>
+          <label class="contact-field contact-field--wide">
+            <span class="contact-label">Messaggio</span>
+            <textarea class="contact-input" name="messaggio" rows="5" placeholder="Raccontami qualcosa del progetto" required></textarea>
+          </label>
+        </div>
+        <label class="contact-consent" id="contactConsent">
+          <input type="checkbox" name="privacy" value="accettata" required>
+          <span class="contact-check" aria-hidden="true"></span>
+          <span class="contact-consent-text">Acconsento al trattamento dei miei dati personali per essere ricontattato/a, ai sensi del Regolamento UE 2016/679 (GDPR).</span>
+        </label>
+        <div class="contact-trap" aria-hidden="true"><label>Non compilare<input type="text" name="botcheck" tabindex="-1" autocomplete="off"></label></div>
+        <button class="contact-submit ink-box" type="submit">Invia</button>
+        <p class="contact-status" id="contactStatus" role="status" aria-live="polite"></p>
+      </form>
+      <div class="about-bio-panel about-bio-panel--contacts contact-thanks" id="contactThanks" hidden tabindex="-1"><p class="about-bio">Grazie, il messaggio è arrivato. Ti rispondo al più presto.</p></div>
+      <div class="about-colophon-spacer" aria-hidden="true"></div>
+      <div class="about-bio-panel about-bio-panel--colophon" aria-label="Colophon">
+        <p class="about-bio">Per qualsiasi informazione scrivi a<br><a class="about-colophon-email" href="mailto:info@dagostudio.it">info@dagostudio.it</a><br>DAGOSTUDIO © 2026<br>Tutti i diritti riservati</p>
+      </div>
+    </div>
+  </aside>
+  <button type="button" id="contactToggle" class="contact-toggle"
+    aria-expanded="false" aria-controls="contactPanel"
+    aria-label="Apri il pannello Contatti">
+    <span class="contact-toggle-icon" aria-hidden="true"><svg class="contact-toggle-glyph" viewBox="0 0 100 100" focusable="false">
+      <circle class="contact-ring" cx="50" cy="50" r="48.8" pathLength="100" />
+    </svg></span>
+  </button>
   </div><!-- /site-shell -->
   <button type="button" id="aboutToggle" class="about-toggle"
     aria-expanded="false" aria-controls="aboutPanel"
     aria-label="Apri il pannello About">
     <span class="about-toggle-icon" aria-hidden="true"><svg class="about-toggle-glyph" viewBox="0 0 100 100" preserveAspectRatio="none" focusable="false"><path d="M50 0 V100 M0 50 H100" /></svg></span>
   </button>
+  <!-- LOGO COLOUR PICKER — TEMPORARY TEST TOOL (delete with its CSS and script) -->
+  <div class="logo-color-picker" id="logoColorPicker">
+    <button type="button" class="logo-color-random" id="logoColorRandom" title="Colore casuale" aria-label="Colore casuale per il logo"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M24.00 12.00 L0.00 12.00 M22.39 18.00 L1.61 6.00 M18.00 22.39 L6.00 1.61 M12.00 24.00 L12.00 0.00 M6.00 22.39 L18.00 1.61 M1.61 18.00 L22.39 6.00" /></svg></button>
+    <label class="logo-color-swatch" title="Scegli il colore del logo"><input type="color" id="logoColorInput" value="#e7e7e7" aria-label="Colore del logo"></label>
+  </div>
   <div id="cursorDot" class="cursor-dot" aria-hidden="true"></div>
   <div id="cursorAction" class="cursor-action" aria-hidden="true">CLICK</div>
 
@@ -963,6 +1242,141 @@
       document.addEventListener('keydown', event => {
         if (event.key === 'Escape' && aboutIsOpen) {
           event.preventDefault(); setAboutOpen(false); aboutToggle.focus({preventScroll:true});
+        }
+      });
+
+      // CONTACT — the circle opens the mirror panel. Only one sheet at a time:
+      // opening one closes the other in the same movement.
+      const contactPanel = document.getElementById('contactPanel');
+      const contactToggle = document.getElementById('contactToggle');
+      let contactIsOpen = false;
+      function setContactOpen(open) {
+        contactIsOpen = !!open;
+        if (contactIsOpen && aboutIsOpen) setAboutOpen(false);
+        document.body.classList.add('contact-transitioning');
+        document.body.classList.toggle('contact-open', contactIsOpen);
+        contactPanel.setAttribute('aria-hidden', String(!contactIsOpen));
+        contactPanel.inert = !contactIsOpen;
+        contactToggle.setAttribute('aria-expanded', String(contactIsOpen));
+        contactToggle.setAttribute('aria-label', contactIsOpen ? 'Chiudi il pannello Contatti' : 'Apri il pannello Contatti');
+        if (contactIsOpen) cursorArrow.style.visibility = 'hidden';
+      }
+      contactPanel.addEventListener('transitionend', event => {
+        if (event.target === contactPanel && (event.propertyName === 'margin-right' || event.propertyName === 'transform')) {
+          document.body.classList.remove('contact-transitioning');
+        }
+      });
+      contactToggle.addEventListener('click', event => {
+        event.stopPropagation();
+        setContactOpen(!contactIsOpen);
+      });
+      // Opening About closes Contact.
+      aboutToggle.addEventListener('click', () => {
+        if (aboutIsOpen && contactIsOpen) setContactOpen(false);
+      });
+      document.addEventListener('keydown', event => {
+        if (event.key === 'Escape' && contactIsOpen) {
+          event.preventDefault(); setContactOpen(false); contactToggle.focus({preventScroll:true});
+        }
+      });
+
+      // CONTACT FORM — GitHub Pages is static, so messages are delivered by an
+      // external form service. Fill in ONE of the two options below:
+      //   A) Web3Forms (free): endpoint 'https://api.web3forms.com/submit'
+      //      and the access key received by email at web3forms.com
+      //   B) Formspree (free tier): endpoint 'https://formspree.io/f/XXXXXXXX'
+      //      and leave accessKey empty.
+      // With no endpoint but an email, the visitor's mail app opens instead.
+      const CONTACT_CONFIG = {
+        endpoint: '',
+        accessKey: '',
+        fallbackEmail: '',
+        subject: 'Nuova richiesta dal sito DAGOSTUDIO',
+      };
+      const contactForm = document.getElementById('contactForm');
+      const contactStatus = document.getElementById('contactStatus');
+      const contactThanks = document.getElementById('contactThanks');
+      const contactConsent = document.getElementById('contactConsent');
+      const contactSubmit = contactForm.querySelector('.contact-submit');
+      function contactSay(text, tone = '') {
+        contactStatus.textContent = text;
+        if (tone) contactStatus.dataset.tone = tone; else delete contactStatus.dataset.tone;
+      }
+      function validateContact() {
+        let first = null;
+        contactForm.querySelectorAll('.contact-input').forEach(field => {
+          const bad = !field.checkValidity() || (field.required && !field.value.trim());
+          if (bad) field.setAttribute('aria-invalid', 'true'); else field.removeAttribute('aria-invalid');
+          if (bad && !first) first = field;
+        });
+        const consent = contactForm.elements.privacy;
+        contactConsent.dataset.invalid = String(!consent.checked);
+        if (first) {
+          const isEmail = first.type === 'email' && first.value.trim();
+          contactSay(isEmail ? 'Controlla l’indirizzo email.' : 'Compila i campi richiesti.', 'error');
+          first.focus();
+          return false;
+        }
+        if (!consent.checked) {
+          contactSay('Per inviare il messaggio serve il consenso al trattamento dei dati.', 'error');
+          consent.focus();
+          return false;
+        }
+        return true;
+      }
+      contactForm.addEventListener('input', event => {
+        if (event.target.matches('.contact-input') && event.target.getAttribute('aria-invalid') && event.target.checkValidity() && event.target.value.trim()) {
+          event.target.removeAttribute('aria-invalid');
+        }
+        if (event.target.name === 'privacy' && event.target.checked) contactConsent.dataset.invalid = 'false';
+      });
+      function showContactThanks() {
+        contactForm.hidden = true;
+        contactThanks.hidden = false;
+        contactThanks.focus({preventScroll:true});
+        contactThanks.closest('.about-content').scrollTo({top: 0, behavior: reduceMotion ? 'auto' : 'smooth'});
+      }
+      contactForm.addEventListener('submit', async event => {
+        event.preventDefault();
+        if (!validateContact()) return;
+        const data = new FormData(contactForm);
+        if (data.get('botcheck')) return; // spam bot
+        if (!CONTACT_CONFIG.endpoint) {
+          if (CONTACT_CONFIG.fallbackEmail) {
+            const body = ['Nome: ' + data.get('nome'), 'Email: ' + data.get('email'),
+              'Telefono: ' + (data.get('telefono') || '—'), 'Servizio: ' + data.get('servizio'),
+              'Data o periodo: ' + (data.get('data') || '—'), 'Luogo: ' + (data.get('luogo') || '—'),
+              '', data.get('messaggio')].join('\n');
+            window.location.href = 'mailto:' + CONTACT_CONFIG.fallbackEmail +
+              '?subject=' + encodeURIComponent(CONTACT_CONFIG.subject) + '&body=' + encodeURIComponent(body);
+            contactSay('Si apre il tuo programma di posta con il messaggio già compilato.');
+          } else {
+            contactSay('Il modulo è in fase di attivazione: a breve potrai inviare la richiesta da qui.', 'error');
+          }
+          return;
+        }
+        data.delete('botcheck');
+        if (CONTACT_CONFIG.accessKey) {
+          data.append('access_key', CONTACT_CONFIG.accessKey);
+          data.append('subject', CONTACT_CONFIG.subject);
+          data.append('from_name', 'Sito DAGOSTUDIO');
+        } else {
+          data.append('_subject', CONTACT_CONFIG.subject);
+        }
+        contactSubmit.disabled = true;
+        contactSay('Invio in corso…');
+        try {
+          const response = await fetch(CONTACT_CONFIG.endpoint, {
+            method: 'POST', body: data, headers: { Accept: 'application/json' }
+          });
+          if (!response.ok) throw new Error(String(response.status));
+          contactSay('');
+          contactForm.reset();
+          showContactThanks();
+        } catch (error) {
+          contactSay('Non è stato possibile inviare il messaggio. Riprova tra poco.', 'error');
+        } finally {
+          contactSubmit.disabled = false;
         }
       });
 
@@ -1312,7 +1726,6 @@
       // Do not intercept pointer events, and preserve native text cursors.
       const cursorDot = document.getElementById('cursorDot');
       const cursorAction = document.getElementById('cursorAction');
-      const decorativeCircle = document.querySelector('.circle');
       function withinRect(x, y, r) {
         return x >= r.left && x <= r.right && y >= r.top && y <= r.bottom;
       }
@@ -1323,12 +1736,11 @@
           return;
         }
         const target = event.target;
-        const nativeField = target.closest('input, textarea, select, [contenteditable="true"], [role="textbox"]');
-        const onCircle = !aboutIsOpen && withinRect(event.clientX, event.clientY, decorativeCircle.getBoundingClientRect());
-        const onNavigation = !!target.closest('#aboutToggle, #aboutPanel, .slide-progress, a, button, [role="button"]');
+        const nativeField = target.closest('input:not([type="color"]), textarea, select, [contenteditable="true"], [role="textbox"]');
+        const onNavigation = !!target.closest('#aboutToggle, #aboutPanel, #contactToggle, #contactPanel, .slide-progress, a, button, label, [role="button"]');
         const onInteractivePortrait = !!target.closest('#aboutPortrait');
         const showClick = !nativeField && onInteractivePortrait;
-        const showDot = !nativeField && !showClick && (onNavigation || onCircle);
+        const showDot = !nativeField && !showClick && onNavigation;
         cursorDot.style.left = event.clientX + 'px';
         cursorDot.style.top = event.clientY + 'px';
         cursorDot.style.visibility = showDot ? 'visible' : 'hidden';
@@ -1607,6 +2019,7 @@
         lastTouchX = lastTouchY = null;
       }, {passive:true});
       window.addEventListener('keydown', e => {
+        if (contactIsOpen || e.target.closest?.('input, textarea, select, [contenteditable]')) return;
         if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
           e.preventDefault(); changeSlide(e.key === 'ArrowRight' ? 1 : -1); return;
         }
@@ -1623,11 +2036,13 @@
       // Exposed for simple automated verification, not for the visitor UI.
       window.__dagoPreview = {
         getAboutOpen: () => aboutIsOpen,
+        getContactOpen: () => contactIsOpen,
+        setContactOpen: open => setContactOpen(open),
         setAboutOpen: open => setAboutOpen(open),
         getActivePhoto: () => slideIndex,
         getSlideCount: () => slides.length,
         getSlideProgress: () => clamp((performance.now()-slideStartedAt)/interval,0,1),
-        getMobileIconLocations: () => [document.getElementById('aboutToggle').getBoundingClientRect().top, document.querySelector('.circle').getBoundingClientRect().top],
+        getMobileIconLocations: () => [document.getElementById('aboutToggle').getBoundingClientRect().top, contactToggle.getBoundingClientRect().top],
         getLogoComplete: () => completed,
         getLogoProgress: () => progress,
         getIntroVariant: () => 'tap-reactive',
@@ -1683,16 +2098,73 @@
       block.style.setProperty('--baseline-inset', `${baselineCut.toFixed(3)}px`);
     }
   }
-  alignPanelInk();
-  addEventListener('resize', alignPanelInk, {passive:true});
+  // Same measurement for every single-line ink box (buttons, choices).
+  const inkBoxes = [...document.querySelectorAll('.ink-box')];
+  function alignInkBoxes() {
+    if (!ctx) return;
+    for (const box of inkBoxes) {
+      const cs = getComputedStyle(box);
+      const size = parseFloat(cs.fontSize);
+      const leading = parseFloat(cs.lineHeight) || size;
+      ctx.font = `${cs.fontStyle} ${cs.fontWeight} ${size}px ${cs.fontFamily}`;
+      const metric = ctx.measureText('H');
+      const fontAscent = metric.fontBoundingBoxAscent || size * .9;
+      const fontDescent = metric.fontBoundingBoxDescent || size * .24;
+      const capHeight = metric.actualBoundingBoxAscent || size * .72;
+      const extra = (leading - fontAscent - fontDescent) / 2;
+      box.style.setProperty('--cap-inset', `${Math.max(0, extra + fontAscent - capHeight).toFixed(3)}px`);
+      box.style.setProperty('--baseline-inset', `${Math.max(0, extra + fontDescent).toFixed(3)}px`);
+    }
+  }
+  const alignAllInk = () => { alignPanelInk(); alignInkBoxes(); };
+  alignAllInk();
+  addEventListener('resize', alignAllInk, {passive:true});
   if (document.fonts) {
-    document.fonts.ready.then(alignPanelInk);
-    document.fonts.addEventListener?.('loadingdone', alignPanelInk);
+    document.fonts.ready.then(alignAllInk);
+    document.fonts.addEventListener?.('loadingdone', alignAllInk);
   }
 })();
 </script>
 
 
 
+<script>
+/* ═══ LOGO COLOUR PICKER — TEMPORARY TEST TOOL ═══════════════════════════
+   Changes --logo, used by BOTH the Home logo and the About photo logo.
+   Preview only: reloading the page restores the original grey. Delete this whole
+   <script>, the matching CSS block and the <div class="logo-color-picker">. */
+(() => {
+  const input = document.getElementById('logoColorInput');
+  if (!input) return;
+  function apply(hex) {
+    document.documentElement.style.setProperty('--logo', hex);
+    input.value = hex;
+  }
+  input.value = '#e7e7e7'; // browsers may restore the last value on reload
+  input.addEventListener('input', () => apply(input.value));
+
+  // Random colour: any hue, kept light enough to stand out on B/W photographs.
+  const randomButton = document.getElementById('logoColorRandom');
+  const randomIcon = randomButton.querySelector('svg');
+  let turns = 0;
+  function hslToHex(h, s, l) {
+    s /= 100; l /= 100;
+    const k = n => (n + h / 30) % 12;
+    const a = s * Math.min(l, 1 - l);
+    const f = n => l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)));
+    return '#' + [f(0), f(8), f(4)].map(x => Math.round(x * 255).toString(16).padStart(2, '0')).join('');
+  }
+  randomButton.addEventListener('click', event => {
+    event.stopPropagation();
+    turns += 1;
+    randomIcon.style.transform = `rotate(${turns * 360}deg)`;
+    const hue = Math.floor(Math.random() * 360);
+    const saturation = 35 + Math.random() * 60;
+    const lightness = 62 + Math.random() * 24;
+    apply(hslToHex(hue, saturation, lightness));
+  });
+})();
+/* ═══ END LOGO COLOUR PICKER ═════════════════════════════════════════════ */
+</script>
 </body>
 </html>
