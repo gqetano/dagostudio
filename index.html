@@ -1041,7 +1041,8 @@
     @media (hover: hover) and (pointer: fine) { .logo-color-swatch, .logo-color-swatch input, .logo-color-random { cursor: none; } }
     body.contact-open .logo-color-picker { opacity: 0; pointer-events: none; }
     @media (max-width: 680px) {
-      .logo-color-picker { bottom: auto; top: calc(36px + env(safe-area-inset-top, 0px)); }
+      /* Bottom-right, vertically centred on the circle / + pair. */
+      .logo-color-picker { bottom: calc(var(--pad) + ((var(--cross-size) - 24px) / 2) + env(safe-area-inset-bottom, 0px)); }
       body.about-open .logo-color-picker { opacity: 0; pointer-events: none; }
     }
     /* ═══ END LOGO COLOUR PICKER ═══════════════════════════════════════ */
@@ -1199,8 +1200,8 @@
   </button>
   <!-- LOGO COLOUR PICKER — TEMPORARY TEST TOOL (delete with its CSS and script) -->
   <div class="logo-color-picker" id="logoColorPicker">
-    <button type="button" class="logo-color-random" id="logoColorRandom" title="Colore casuale" aria-label="Colore casuale per il logo"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M24.00 12.00 L0.00 12.00 M22.39 18.00 L1.61 6.00 M18.00 22.39 L6.00 1.61 M12.00 24.00 L12.00 0.00 M6.00 22.39 L18.00 1.61 M1.61 18.00 L22.39 6.00" /></svg></button>
     <label class="logo-color-swatch" title="Scegli il colore del logo"><input type="color" id="logoColorInput" value="#e7e7e7" aria-label="Colore del logo"></label>
+    <button type="button" class="logo-color-random" id="logoColorRandom" title="Colore casuale" aria-label="Colore casuale per il logo"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M24.00 12.00 L0.00 12.00 M22.39 18.00 L1.61 6.00 M18.00 22.39 L6.00 1.61 M12.00 24.00 L12.00 0.00 M6.00 22.39 L18.00 1.61 M1.61 18.00 L22.39 6.00" /></svg></button>
   </div>
   <div id="cursorDot" class="cursor-dot" aria-hidden="true"></div>
   <div id="cursorAction" class="cursor-action" aria-hidden="true">CLICK</div>
