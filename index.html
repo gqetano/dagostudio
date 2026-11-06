@@ -1004,13 +1004,14 @@
        To remove it: delete this CSS block, the <div class="logo-color-picker">
        element and the <script> marked LOGO COLOUR PICKER at the end of the page.
        Then write the chosen colour in :root → --logo at the top of the CSS. */
+    /* Lives on the Home layer (inside the site shell, under both sheets):
+       it never moves or fades; About and Contact simply slide over it. */
     .logo-color-picker {
-      position: fixed; z-index: 60;
+      position: absolute; z-index: 1;
       right: calc(var(--pad) + env(safe-area-inset-right, 0px));
       bottom: calc(36px + env(safe-area-inset-bottom, 0px));
       display: flex; align-items: center; gap: 10px;
       -webkit-tap-highlight-color: transparent;
-      transition: opacity 260ms ease;
     }
     /* Random colour: a twelve-ray asterisk in the logo colour, as wide as the
        swatch, one turn per click. */
@@ -1039,11 +1040,9 @@
     }
     .logo-color-swatch:focus-within { outline: 2px solid var(--carmine); outline-offset: 3px; }
     @media (hover: hover) and (pointer: fine) { .logo-color-swatch, .logo-color-swatch input, .logo-color-random { cursor: none; } }
-    body.contact-open .logo-color-picker { opacity: 0; pointer-events: none; }
     @media (max-width: 680px) {
       /* Bottom-right, on the same bottom line as the circle / + pair. */
       .logo-color-picker { bottom: calc(var(--pad) + env(safe-area-inset-bottom, 0px)); }
-      body.about-open .logo-color-picker { opacity: 0; pointer-events: none; }
     }
     /* ═══ END LOGO COLOUR PICKER ═══════════════════════════════════════ */
   </style>
@@ -1192,17 +1191,17 @@
       <circle class="contact-ring" cx="50" cy="50" r="48.8" pathLength="100" />
     </svg></span>
   </button>
+  <!-- LOGO COLOUR PICKER — TEMPORARY TEST TOOL (delete with its CSS and script) -->
+  <div class="logo-color-picker" id="logoColorPicker">
+    <label class="logo-color-swatch" title="Scegli il colore del logo"><input type="color" id="logoColorInput" value="#e7e7e7" aria-label="Colore del logo"></label>
+    <button type="button" class="logo-color-random" id="logoColorRandom" title="Colore casuale" aria-label="Colore casuale per il logo"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M24.00 12.00 L0.00 12.00 M22.39 18.00 L1.61 6.00 M18.00 22.39 L6.00 1.61 M12.00 24.00 L12.00 0.00 M6.00 22.39 L18.00 1.61 M1.61 18.00 L22.39 6.00" /></svg></button>
+  </div>
   </div><!-- /site-shell -->
   <button type="button" id="aboutToggle" class="about-toggle"
     aria-expanded="false" aria-controls="aboutPanel"
     aria-label="Apri il pannello About">
     <span class="about-toggle-icon" aria-hidden="true"><svg class="about-toggle-glyph" viewBox="0 0 100 100" preserveAspectRatio="none" focusable="false"><path d="M50 0 V100 M0 50 H100" /></svg></span>
   </button>
-  <!-- LOGO COLOUR PICKER — TEMPORARY TEST TOOL (delete with its CSS and script) -->
-  <div class="logo-color-picker" id="logoColorPicker">
-    <label class="logo-color-swatch" title="Scegli il colore del logo"><input type="color" id="logoColorInput" value="#e7e7e7" aria-label="Colore del logo"></label>
-    <button type="button" class="logo-color-random" id="logoColorRandom" title="Colore casuale" aria-label="Colore casuale per il logo"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M24.00 12.00 L0.00 12.00 M22.39 18.00 L1.61 6.00 M18.00 22.39 L6.00 1.61 M12.00 24.00 L12.00 0.00 M6.00 22.39 L18.00 1.61 M1.61 18.00 L22.39 6.00" /></svg></button>
-  </div>
   <div id="cursorDot" class="cursor-dot" aria-hidden="true"></div>
   <div id="cursorAction" class="cursor-action" aria-hidden="true">CLICK</div>
 
@@ -1217,6 +1216,10 @@
       let aboutIsOpen = false;
       function setAboutOpen(open) {
         aboutIsOpen = !!open;
+        // Every opening starts from the top, like a freshly loaded sheet.
+        if (aboutIsOpen) aboutPanel.querySelector('.about-content').scrollTop = 0;
+        // Only one sheet at a time: opening About closes Contact.
+        if (aboutIsOpen && contactIsOpen) setContactOpen(false);
         // Suppress the short hover rotation throughout opening AND closing.
         // CSS interpolates from the exact current angle, and rotation, travel,
         // arm extension and panel opening all use the same timing curve.
@@ -1253,6 +1256,7 @@
       let contactIsOpen = false;
       function setContactOpen(open) {
         contactIsOpen = !!open;
+        if (contactIsOpen) contactPanel.querySelector('.about-content').scrollTop = 0;
         if (contactIsOpen && aboutIsOpen) setAboutOpen(false);
         document.body.classList.add('contact-transitioning');
         document.body.classList.toggle('contact-open', contactIsOpen);
@@ -1270,10 +1274,6 @@
       contactToggle.addEventListener('click', event => {
         event.stopPropagation();
         setContactOpen(!contactIsOpen);
-      });
-      // Opening About closes Contact.
-      aboutToggle.addEventListener('click', () => {
-        if (aboutIsOpen && contactIsOpen) setContactOpen(false);
       });
       document.addEventListener('keydown', event => {
         if (event.key === 'Escape' && contactIsOpen) {
