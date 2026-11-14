@@ -30,7 +30,7 @@
     html { overscroll-behavior: none; }
     body { overflow: hidden; font-family: Arial, Helvetica, sans-serif; }
     button { font: inherit; }
-    .scene { background: #000; isolation: isolate; touch-action: none; }
+    .scene { background: #000; isolation: isolate; touch-action: none; -webkit-touch-callout: none; }
     /* V08: prevent fast carousel clicks selecting the page. Reversible via
        DISABLE_CAROUSEL_TEXT_SELECTION (below); future selectable content can
        opt back in with .allow-text-selection. */
@@ -1072,7 +1072,7 @@
       <div class="about-bio-panel about-bio-panel--contacts"><p class="about-bio">Molfetta, Puglia · Italia.<br>Contatti: <span class="pending-detail">email e social da inserire</span>.</p></div>
       <div class="about-colophon-spacer" aria-hidden="true"></div>
       <div class="about-bio-panel about-bio-panel--colophon" aria-label="Colophon">
-        <p class="about-bio">DAGOSTUDIO © 2026<br>Tutti i diritti riservati<br>Fotografie by Christian D’Agostino<br>Design by Gaetano Roselli</p>
+        <p class="about-bio">Fotografie by Christian D’Agostino<br>Design by Gaetano Roselli<br>DAGOSTUDIO © 2026<br>Tutti i diritti riservati</p>
       </div>
       <div class="ref-preview" id="referencePreview" aria-hidden="true">
         <img id="referencePreviewImage" alt="" decoding="async" />
@@ -1710,6 +1710,28 @@
         carouselFrame = requestAnimationFrame(carouselTick);
       }
       function restartCarousel() { stopCarousel(); startCarousel(); }
+      // V31 | Instagram-style hold: pressing and holding on the photograph
+      // freezes the story timer; releasing resumes from the same point.
+      // A short tap still changes photograph as before.
+      let holdPaused = false;
+      let holdStartedAt = 0;
+      let holdPointerId = null;
+      let suppressClickUntil = 0;
+      const HOLD_THRESHOLD = 220;
+      function pauseCarousel() {
+        if (holdPaused) return;
+        holdPaused = true;
+        holdStartedAt = performance.now();
+        stopCarousel();
+      }
+      function resumeCarousel() {
+        if (!holdPaused) return;
+        holdPaused = false;
+        const heldFor = performance.now() - holdStartedAt;
+        if (document.hidden || carouselFrame) return;
+        slideStartedAt += heldFor;
+        carouselFrame = requestAnimationFrame(carouselTick);
+      }
       function changeSlide(dir) { setSlide(slideIndex + dir, true); restartCarousel(); }
       progressSegments.forEach(button => button.addEventListener('click', event => {
         event.stopPropagation();
@@ -1780,11 +1802,38 @@
       // Whole left or right half of the viewport is clickable, including on touch screens.
       scene.addEventListener('click', e => {
         if (e.detail === 0 || performance.now() - lastSwipeAt < 450) return;
+        if (performance.now() < suppressClickUntil) return;
         if (e.target.closest('button, a, .slide-progress')) return;
         const rect = scene.getBoundingClientRect();
         changeSlide(e.clientX - rect.left < rect.width / 2 ? -1 : 1);
       });
-      document.addEventListener('visibilitychange', () => document.hidden ? stopCarousel() : startCarousel());
+      const HOLD_EXCLUDED = 'button, a, input, textarea, select, label, .slide-progress, #aboutPanel, #contactPanel, [role="button"], [contenteditable]';
+      scene.addEventListener('pointerdown', e => {
+        if (!e.isPrimary || (e.pointerType === 'mouse' && e.button !== 0)) return;
+        if (e.target.closest(HOLD_EXCLUDED)) return;
+        holdPointerId = e.pointerId;
+        pauseCarousel();
+      });
+      function endHold(e) {
+        if (holdPointerId === null || (e && e.pointerId !== undefined && e.pointerId !== holdPointerId)) return;
+        holdPointerId = null;
+        // A long press is a pause, not a tap: don't let it change photograph.
+        if (holdPaused && performance.now() - holdStartedAt >= HOLD_THRESHOLD) {
+          suppressClickUntil = performance.now() + 400;
+        }
+        resumeCarousel();
+      }
+      window.addEventListener('pointerup', endHold);
+      window.addEventListener('pointercancel', endHold);
+      window.addEventListener('blur', () => endHold());
+      // No long-press menu / image callout on phones while holding a photograph.
+      scene.addEventListener('contextmenu', e => {
+        if (!e.target.closest(HOLD_EXCLUDED)) e.preventDefault();
+      });
+      document.addEventListener('visibilitychange', () => {
+        if (document.hidden) { stopCarousel(); }
+        else { holdPaused = false; holdPointerId = null; startCarousel(); }
+      });
       startCarousel();
 
       // V30 — ONLY the approved V3 introduction remains.
