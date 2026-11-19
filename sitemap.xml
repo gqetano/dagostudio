@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+  <url>
+    <loc>https://dagostudio.it/</loc>
+    <lastmod>2026-11-19</lastmod>
+    <image:image><image:loc>https://dagostudio.it/images/about-christian.webp</image:loc></image:image>
+    <image:image><image:loc>https://dagostudio.it/images/foto-01.webp</image:loc></image:image>
+    <image:image><image:loc>https://dagostudio.it/images/foto-02.webp</image:loc></image:image>
+    <image:image><image:loc>https://dagostudio.it/images/foto-03.webp</image:loc></image:image>
+    <image:image><image:loc>https://dagostudio.it/images/foto-04.webp</image:loc></image:image>
+    <image:image><image:loc>https://dagostudio.it/images/foto-05.webp</image:loc></image:image>
+    <image:image><image:loc>https://dagostudio.it/images/foto-06.webp</image:loc></image:image>
+    <image:image><image:loc>https://dagostudio.it/images/foto-07.webp</image:loc></image:image>
+    <image:image><image:loc>https://dagostudio.it/images/foto-08.webp</image:loc></image:image>
+    <image:image><image:loc>https://dagostudio.it/images/foto-09.webp</image:loc></image:image>
+    <image:image><image:loc>https://dagostudio.it/images/foto-10.webp</image:loc></image:image>
+    <image:image><image:loc>https://dagostudio.it/images/foto-11.webp</image:loc></image:image>
+  </url>
+</urlset>

@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /index_BACKUP.html
+Disallow: /default_BACKUP.html
+
+Sitemap: https://dagostudio.it/sitemap.xml
