@@ -302,7 +302,7 @@
     }
     .about-portrait img {
       position: absolute; inset: 0; width: 100%; height: 100%;
-      object-fit: cover; object-position: center center; pointer-events: none;
+      object-fit: cover; object-position: 50% 29%; pointer-events: none;
     }
     .about-portrait-logo {
       position: absolute; inset: 0; width: 100%; height: 100%;
@@ -981,6 +981,26 @@
     .site-shell .contact-content > .contact-thanks[hidden], .contact-form[hidden] { display: none; }
     .site-shell .contact-content > .contact-thanks { margin-top: 18px; }
 
+    /* CALENDLY — booking calendar, loaded only the first time the panel opens. */
+    .contact-booking { margin-top: 42px; flex-shrink: 0; }
+    .contact-booking .about-bio-panel--intro { margin-top: 0; }
+    .calendly-embed {
+      position: relative; margin-top: 18px;
+      width: 100%; min-width: 320px; height: 700px;
+      background: #dedede; cursor: auto;
+    }
+    .calendly-embed iframe { display: block; width: 100%; height: 100%; border: 0; }
+    .calendly-fallback {
+      display: inline-block; margin: 0 10px; color: #090909;
+      font-size: clamp(0.875rem, 0.8rem + 0.23vw, 1rem);
+      text-decoration: underline; text-underline-offset: .15em;
+    }
+    .calendly-embed.is-loaded .calendly-fallback { display: none; }
+    @media (max-width: 680px) {
+      .calendly-embed { height: 760px; min-width: 0; }
+      .calendly-fallback { margin: 0 8px; }
+    }
+
     @media (max-width: 680px) {
       :root { --contact-width: 100vw; }
       .contact-panel {
@@ -1190,6 +1210,12 @@
         <p class="contact-status" id="contactStatus" role="status" aria-live="polite"></p>
       </form>
       <div class="about-bio-panel about-bio-panel--contacts contact-thanks" id="contactThanks" hidden tabindex="-1"><p class="about-bio">Grazie, il messaggio è arrivato. Ti rispondo al più presto.</p></div>
+      <section class="contact-booking" aria-label="Prenota una call">
+        <div class="about-bio-panel about-bio-panel--intro"><p class="about-bio">Preferisci parlarne a voce? Prenota una call conoscitiva di 45 minuti.</p></div>
+        <div class="calendly-embed" id="calendlyEmbed" data-url="https://calendly.com/dagostudioph/45min?background_color=dedede&amp;text_color=101010&amp;primary_color=ff0000">
+          <a class="calendly-fallback" href="https://calendly.com/dagostudioph/45min" target="_blank" rel="noopener">Apri il calendario delle disponibilità</a>
+        </div>
+      </section>
       <div class="about-colophon-spacer" aria-hidden="true"></div>
       <div class="about-bio-panel about-bio-panel--colophon" aria-label="Colophon">
         <p class="about-bio">Per qualsiasi informazione scrivi a<br><a class="about-colophon-email" href="mailto:info@dagostudio.it">info@dagostudio.it</a><br>DAGOSTUDIO © 2026<br>Tutti i diritti riservati</p>
@@ -1277,6 +1303,25 @@
         contactToggle.setAttribute('aria-expanded', String(contactIsOpen));
         contactToggle.setAttribute('aria-label', contactIsOpen ? 'Chiudi il pannello Contatti' : 'Apri il pannello Contatti');
         if (contactIsOpen) cursorArrow.style.visibility = 'hidden';
+        if (contactIsOpen) loadCalendly();
+      }
+      // CALENDLY — the widget script is requested only on the first opening,
+      // so the Home stays light. If it cannot load, the plain link remains.
+      let calendlyRequested = false;
+      function loadCalendly() {
+        if (calendlyRequested) return;
+        calendlyRequested = true;
+        const box = document.getElementById('calendlyEmbed');
+        if (!box) return;
+        const script = document.createElement('script');
+        script.src = 'https://assets.calendly.com/assets/external/widget.js';
+        script.async = true;
+        script.onload = () => {
+          if (!window.Calendly) return;
+          window.Calendly.initInlineWidget({ url: box.dataset.url, parentElement: box });
+          box.classList.add('is-loaded');
+        };
+        document.head.appendChild(script);
       }
       contactPanel.addEventListener('transitionend', event => {
         if (event.target === contactPanel && (event.propertyName === 'margin-right' || event.propertyName === 'transform')) {
