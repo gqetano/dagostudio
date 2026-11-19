@@ -810,6 +810,15 @@
         padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
       }
     }
+    /* End space of the sheets as a real element: iOS Safari ignores the
+       bottom padding of a scrolling flex column, so the last block ran under
+       the X / circle. Mobile: the block stops one margin above the icons. */
+    .site-shell .about-content { --sheet-end: calc(12px + env(safe-area-inset-bottom, 0px)); }
+    .site-shell .about-content::after { content: ""; display: block; flex: 0 0 var(--sheet-end); }
+    @media (max-width: 680px) {
+      .site-shell .about-content { --sheet-end: calc(var(--pad) + env(safe-area-inset-bottom, 0px)); }
+    }
+    .site-shell .about-content.about-content { padding-bottom: 0 !important; }
     /* V60 — The +/X remains fixed while About content scrolls independently.
        Mobile: the last colophon line stops above the X in the bottom corner. */
     @media (max-width: 680px) {
@@ -1028,32 +1037,47 @@
     .calendly-embed.is-gated .calendly-fallback { display: inline-block; margin: 14px 10px 0; }
     /* End of the Contatti sheet: one large button back to the Home. */
     .site-shell .contact-content > .contact-back { flex-shrink: 0; }
-    /* Grey block as tall as the Home photo arrow (desktop) or the + / circle
-       icons (mobile). Black chevron filling the block's height on the left;
-       "Home" at the sheet's text size, sitting on the block's bottom edge. */
+    /* End of the Contatti sheet: one tall grey block, the mirror of the About
+       colophon. It takes the space after the calendar; "Home" in the
+       colophon's small size sits on its bottom edge. The whole block closes
+       the sheet. */
+    /* Desktop: the block is only as tall as the arrow and sits at the end of
+       the sheet (the circle is at the top, so nothing collides).
+       Mobile: tall block, so the arrow stays well above the circle below. */
+
+    .site-shell .contact-content > .contact-back {
+      flex: 0 0 auto; height: clamp(36px, 5.8vw, 78px);
+      margin-top: auto;
+    }
     .contact-back {
-      --back-size: clamp(36px, 5.8vw, 78px);
-      position: relative; display: flex; align-items: flex-end; justify-content: space-between;
-      width: 100%; height: var(--back-size); margin: 0; padding: 0 .22em 0 0;
+      position: relative; display: flex; align-items: flex-end; justify-content: flex-end;
+      width: 100%; padding: 0;
       border: 0; border-radius: 0; -webkit-appearance: none; appearance: none;
-      background: var(--bio-field-grey, #a9a9a9); color: #090909;
-      font: 500 var(--about-editorial-size)/.98 'Ronzino', Arial, Helvetica, sans-serif;
-      letter-spacing: -0.03em; font-synthesis: none; cursor: pointer;
+      background: #a9a9a9; color: #090909;
+      font: 500 clamp(0.875rem, 0.8rem + 0.23vw, 1rem)/1.0 'Ronzino', Arial, Helvetica, sans-serif;
+      letter-spacing: -0.01em; font-synthesis: none; cursor: pointer;
       transition: background-color 160ms ease;
     }
+    /* Arrow hanging from the top-left corner, as tall as the Home photo arrow
+       (desktop) or the + / circle (mobile); like the colophon's credits. */
     .contact-back-arrow {
-      align-self: stretch; flex: 0 0 auto; display: block;
-      height: 100%; width: calc(var(--back-size) * 36 / 72);
+      --arrow-size: clamp(36px, 5.8vw, 78px);
+      position: absolute; top: 0; left: 0; display: block;
+      height: var(--arrow-size); width: calc(var(--arrow-size) * 36 / 72);
       color: #090909; overflow: visible;
     }
     .contact-back-arrow path {
       fill: none; stroke: currentColor; stroke-width: 2px;
       vector-effect: non-scaling-stroke; stroke-linecap: butt; stroke-linejoin: miter;
     }
+    @media (max-width: 680px) { .contact-back-arrow { --arrow-size: var(--cross-size); } }
     .contact-back-label { display: block; white-space: nowrap; margin-bottom: calc(0px - var(--baseline-inset)); }
     .contact-back-label.ink-box::before { display: none; }
     @media (max-width: 680px) {
-      .contact-back { --back-size: var(--cross-size); }
+      .site-shell .contact-content > .contact-back { flex: 1 0 clamp(260px, 38vh, 420px); height: auto; }
+      /* Mobile Contatti: the Home block ends at the usual margin from the
+         bottom edge; the circle may sit over it. */
+      .site-shell .about-content.contact-content { --sheet-end: calc(var(--pad) + env(safe-area-inset-bottom, 0px)); }
     }
     @media (hover: hover) and (pointer: fine) {
       .contact-back:hover { background: var(--carmine); }
@@ -1286,7 +1310,6 @@
           </div>
           <a class="calendly-fallback" href="https://calendly.com/dagostudioph/45min" target="_blank" rel="noopener">Prenota su calendly.com</a>
         </div>
-      <div class="about-colophon-spacer" aria-hidden="true"></div>
       <button type="button" class="contact-back" id="contactBack" aria-label="Torna alla Home">
         <svg class="contact-back-arrow" viewBox="21 3 38 72" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path d="M58 3 L22 39 L58 75" /></svg>
         <span class="contact-back-label ink-box">Home</span>
@@ -2345,7 +2368,37 @@
       box.style.setProperty('--baseline-inset', `${Math.max(0, extra + fontDescent).toFixed(3)}px`);
     }
   }
-  const alignAllInk = () => { alignPanelInk(); alignInkBoxes(); };
+  // GAPS — the visible distance between two grey blocks equals the page
+  // margin (--pad). Text fields paint only from cap height to baseline, so
+  // their trimmed edges are subtracted from the spacing.
+  const padProbe = document.createElement('div');
+  padProbe.style.cssText = 'position:absolute;visibility:hidden;width:var(--pad);height:0;pointer-events:none';
+  document.body.appendChild(padProbe);
+  function spaceBlocks() {
+    const pad = padProbe.getBoundingClientRect().width || 10;
+    const px = name => (el) => parseFloat(getComputedStyle(el).getPropertyValue(name)) || 0;
+    const capTrim = px('--cap-inset'), baseTrim = px('--baseline-inset');
+    const isText = el => el.classList.contains('about-bio-panel');
+    document.querySelectorAll('.site-shell .about-content').forEach(sheet => {
+      const items = [...sheet.children].filter(el => {
+        const cs = getComputedStyle(el);
+        return cs.display !== 'none' && cs.position !== 'absolute' && !el.classList.contains('about-colophon-spacer');
+      });
+      items.forEach((el, i) => {
+        if (i === 0) return;
+        const prev = items[i - 1];
+        const gap = pad - (isText(prev) ? baseTrim(prev) : 0) - (isText(el) ? capTrim(el) : 0);
+        if (el.classList.contains('contact-back')) {
+          // Home keeps margin-top:auto (it sits at the end); the minimum gap
+          // goes on the block before it.
+          prev.style.marginBottom = gap.toFixed(2) + 'px';
+        } else {
+          el.style.marginTop = gap.toFixed(2) + 'px';
+        }
+      });
+    });
+  }
+  const alignAllInk = () => { alignPanelInk(); alignInkBoxes(); spaceBlocks(); };
   alignAllInk();
   addEventListener('resize', alignAllInk, {passive:true});
   if (document.fonts) {
