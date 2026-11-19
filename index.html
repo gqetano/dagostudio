@@ -982,10 +982,8 @@
     .site-shell .contact-content > .contact-thanks { margin-top: 18px; }
 
     /* CALENDLY — booking calendar, loaded only the first time the panel opens. */
-    .contact-booking { margin-top: 42px; flex-shrink: 0; }
-    .contact-booking .about-bio-panel--intro { margin-top: 0; }
     .calendly-embed {
-      position: relative; margin-top: 18px;
+      position: relative; margin-top: 18px; flex-shrink: 0;
       width: 100%; min-width: 320px; height: 700px;
       background: #dedede; cursor: auto;
     }
@@ -1163,59 +1161,10 @@
   </main>
   <aside class="contact-panel" id="contactPanel" aria-label="Pannello Contatti DAGOSTUDIO" aria-hidden="true" inert>
     <div class="about-content contact-content allow-text-selection">
-      <div class="about-bio-panel about-bio-panel--intro"><p class="about-bio">Scrivimi per un matrimonio, un ritratto o una storia da raccontare per immagini.</p></div>
-      <form class="contact-form" id="contactForm" novalidate>
-        <div class="contact-grid">
-          <label class="contact-field">
-            <span class="contact-label">Nome e cognome</span>
-            <input class="contact-input" type="text" name="nome" autocomplete="name" required>
-          </label>
-          <label class="contact-field">
-            <span class="contact-label">Email</span>
-            <input class="contact-input" type="email" name="email" autocomplete="email" inputmode="email" required>
-          </label>
-          <label class="contact-field">
-            <span class="contact-label">Telefono <span class="contact-optional">(facoltativo)</span></span>
-            <input class="contact-input" type="tel" name="telefono" autocomplete="tel" inputmode="tel">
-          </label>
-          <label class="contact-field">
-            <span class="contact-label">Data o periodo <span class="contact-optional">(facoltativo)</span></span>
-            <input class="contact-input" type="text" name="data" placeholder="Giugno 2027">
-          </label>
-          <fieldset class="contact-field contact-field--wide">
-            <legend class="contact-label">Di cosa hai bisogno</legend>
-            <div class="contact-choices" style="margin-top:7px">
-              <label class="contact-choice"><input type="radio" name="servizio" value="Wedding" checked><span class="ink-box">Wedding</span></label>
-              <label class="contact-choice"><input type="radio" name="servizio" value="Evento"><span class="ink-box">Evento</span></label>
-              <label class="contact-choice"><input type="radio" name="servizio" value="Shooting in studio"><span class="ink-box">Shooting in studio</span></label>
-              <label class="contact-choice"><input type="radio" name="servizio" value="Altro"><span class="ink-box">Altro</span></label>
-            </div>
-          </fieldset>
-          <label class="contact-field contact-field--wide">
-            <span class="contact-label">Luogo <span class="contact-optional">(facoltativo)</span></span>
-            <input class="contact-input" type="text" name="luogo" placeholder="Città, location">
-          </label>
-          <label class="contact-field contact-field--wide">
-            <span class="contact-label">Messaggio</span>
-            <textarea class="contact-input" name="messaggio" rows="5" placeholder="Raccontami qualcosa del progetto" required></textarea>
-          </label>
-        </div>
-        <label class="contact-consent" id="contactConsent">
-          <input type="checkbox" name="privacy" value="accettata" required>
-          <span class="contact-check" aria-hidden="true"></span>
-          <span class="contact-consent-text">Acconsento al trattamento dei miei dati personali per essere ricontattato/a, ai sensi del Regolamento UE 2016/679 (GDPR).</span>
-        </label>
-        <div class="contact-trap" aria-hidden="true"><label>Non compilare<input type="text" name="botcheck" tabindex="-1" autocomplete="off"></label></div>
-        <button class="contact-submit ink-box" type="submit">Invia</button>
-        <p class="contact-status" id="contactStatus" role="status" aria-live="polite"></p>
-      </form>
-      <div class="about-bio-panel about-bio-panel--contacts contact-thanks" id="contactThanks" hidden tabindex="-1"><p class="about-bio">Grazie, il messaggio è arrivato. Ti rispondo al più presto.</p></div>
-      <section class="contact-booking" aria-label="Prenota una call">
-        <div class="about-bio-panel about-bio-panel--intro"><p class="about-bio">Preferisci parlarne a voce? Prenota una call conoscitiva di 45 minuti.</p></div>
-        <div class="calendly-embed" id="calendlyEmbed" data-url="https://calendly.com/dagostudioph/45min?background_color=dedede&amp;text_color=101010&amp;primary_color=ff0000">
+      <div class="about-bio-panel about-bio-panel--intro"><p class="about-bio">Hai una storia da raccontare? Un matrimonio, un ritratto, un progetto: prenota un incontro e parliamone.</p></div>
+      <div class="calendly-embed" id="calendlyEmbed" data-url="https://calendly.com/dagostudioph/45min?background_color=dedede&amp;text_color=101010&amp;primary_color=ff0000">
           <a class="calendly-fallback" href="https://calendly.com/dagostudioph/45min" target="_blank" rel="noopener">Apri il calendario delle disponibilità</a>
         </div>
-      </section>
       <div class="about-colophon-spacer" aria-hidden="true"></div>
       <div class="about-bio-panel about-bio-panel--colophon" aria-label="Colophon">
         <p class="about-bio">Per qualsiasi informazione scrivi a<br><a class="about-colophon-email" href="mailto:info@dagostudio.it">info@dagostudio.it</a><br>DAGOSTUDIO © 2026<br>Tutti i diritti riservati</p>
@@ -1335,106 +1284,6 @@
       document.addEventListener('keydown', event => {
         if (event.key === 'Escape' && contactIsOpen) {
           event.preventDefault(); setContactOpen(false); contactToggle.focus({preventScroll:true});
-        }
-      });
-
-      // CONTACT FORM — GitHub Pages is static, so messages are delivered by an
-      // external form service. Fill in ONE of the two options below:
-      //   A) Web3Forms (free): endpoint 'https://api.web3forms.com/submit'
-      //      and the access key received by email at web3forms.com
-      //   B) Formspree (free tier): endpoint 'https://formspree.io/f/XXXXXXXX'
-      //      and leave accessKey empty.
-      // With no endpoint but an email, the visitor's mail app opens instead.
-      const CONTACT_CONFIG = {
-        endpoint: '',
-        accessKey: '',
-        fallbackEmail: '',
-        subject: 'Nuova richiesta dal sito DAGOSTUDIO',
-      };
-      const contactForm = document.getElementById('contactForm');
-      const contactStatus = document.getElementById('contactStatus');
-      const contactThanks = document.getElementById('contactThanks');
-      const contactConsent = document.getElementById('contactConsent');
-      const contactSubmit = contactForm.querySelector('.contact-submit');
-      function contactSay(text, tone = '') {
-        contactStatus.textContent = text;
-        if (tone) contactStatus.dataset.tone = tone; else delete contactStatus.dataset.tone;
-      }
-      function validateContact() {
-        let first = null;
-        contactForm.querySelectorAll('.contact-input').forEach(field => {
-          const bad = !field.checkValidity() || (field.required && !field.value.trim());
-          if (bad) field.setAttribute('aria-invalid', 'true'); else field.removeAttribute('aria-invalid');
-          if (bad && !first) first = field;
-        });
-        const consent = contactForm.elements.privacy;
-        contactConsent.dataset.invalid = String(!consent.checked);
-        if (first) {
-          const isEmail = first.type === 'email' && first.value.trim();
-          contactSay(isEmail ? 'Controlla l’indirizzo email.' : 'Compila i campi richiesti.', 'error');
-          first.focus();
-          return false;
-        }
-        if (!consent.checked) {
-          contactSay('Per inviare il messaggio serve il consenso al trattamento dei dati.', 'error');
-          consent.focus();
-          return false;
-        }
-        return true;
-      }
-      contactForm.addEventListener('input', event => {
-        if (event.target.matches('.contact-input') && event.target.getAttribute('aria-invalid') && event.target.checkValidity() && event.target.value.trim()) {
-          event.target.removeAttribute('aria-invalid');
-        }
-        if (event.target.name === 'privacy' && event.target.checked) contactConsent.dataset.invalid = 'false';
-      });
-      function showContactThanks() {
-        contactForm.hidden = true;
-        contactThanks.hidden = false;
-        contactThanks.focus({preventScroll:true});
-        contactThanks.closest('.about-content').scrollTo({top: 0, behavior: reduceMotion ? 'auto' : 'smooth'});
-      }
-      contactForm.addEventListener('submit', async event => {
-        event.preventDefault();
-        if (!validateContact()) return;
-        const data = new FormData(contactForm);
-        if (data.get('botcheck')) return; // spam bot
-        if (!CONTACT_CONFIG.endpoint) {
-          if (CONTACT_CONFIG.fallbackEmail) {
-            const body = ['Nome: ' + data.get('nome'), 'Email: ' + data.get('email'),
-              'Telefono: ' + (data.get('telefono') || '—'), 'Servizio: ' + data.get('servizio'),
-              'Data o periodo: ' + (data.get('data') || '—'), 'Luogo: ' + (data.get('luogo') || '—'),
-              '', data.get('messaggio')].join('\n');
-            window.location.href = 'mailto:' + CONTACT_CONFIG.fallbackEmail +
-              '?subject=' + encodeURIComponent(CONTACT_CONFIG.subject) + '&body=' + encodeURIComponent(body);
-            contactSay('Si apre il tuo programma di posta con il messaggio già compilato.');
-          } else {
-            contactSay('Il modulo è in fase di attivazione: a breve potrai inviare la richiesta da qui.', 'error');
-          }
-          return;
-        }
-        data.delete('botcheck');
-        if (CONTACT_CONFIG.accessKey) {
-          data.append('access_key', CONTACT_CONFIG.accessKey);
-          data.append('subject', CONTACT_CONFIG.subject);
-          data.append('from_name', 'Sito DAGOSTUDIO');
-        } else {
-          data.append('_subject', CONTACT_CONFIG.subject);
-        }
-        contactSubmit.disabled = true;
-        contactSay('Invio in corso…');
-        try {
-          const response = await fetch(CONTACT_CONFIG.endpoint, {
-            method: 'POST', body: data, headers: { Accept: 'application/json' }
-          });
-          if (!response.ok) throw new Error(String(response.status));
-          contactSay('');
-          contactForm.reset();
-          showContactThanks();
-        } catch (error) {
-          contactSay('Non è stato possibile inviare il messaggio. Riprova tra poco.', 'error');
-        } finally {
-          contactSubmit.disabled = false;
         }
       });
 
