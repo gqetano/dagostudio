@@ -766,6 +766,20 @@
       margin-top: 0;
       width: 100%;
     }
+    /* About colophon as one tall grey block (like the Home button): it takes
+       the flexible space after the contacts and sets its lines on the
+       block's bottom edge. */
+    .site-shell .about-panel .about-content > .about-bio-panel--colophon {
+      flex: 1 0 clamp(300px, 40vh, 520px);
+      display: flex; flex-direction: column; justify-content: flex-end;
+      margin-top: 18px;
+    }
+    .site-shell .about-panel .about-content > .about-bio-panel--colophon::before {
+      top: 0; background: #a9a9a9;
+    }
+    @media (max-width: 680px) {
+      .site-shell .about-panel .about-content > .about-bio-panel--colophon { flex-basis: clamp(260px, 38vh, 420px); }
+    }
     .site-shell .about-bio-panel--colophon .about-bio {
       margin: 0; white-space: nowrap;
       /* Small print: the original colophon size, same as the form labels. */
@@ -1010,6 +1024,39 @@
       letter-spacing: -0.03em; font-synthesis: none; cursor: pointer;
     }
     .calendly-embed.is-gated .calendly-fallback { display: inline-block; margin: 14px 10px 0; }
+    /* End of the Contatti sheet: one large button back to the Home. */
+    .site-shell .contact-content > .contact-back { flex-shrink: 0; }
+    /* Grey block as tall as the Home photo arrow (desktop) or the + / circle
+       icons (mobile). Black chevron filling the block's height on the left;
+       "Home" at the sheet's text size, sitting on the block's bottom edge. */
+    .contact-back {
+      --back-size: clamp(36px, 5.8vw, 78px);
+      position: relative; display: flex; align-items: flex-end; justify-content: space-between;
+      width: 100%; height: var(--back-size); margin: 0; padding: 0 .22em 0 0;
+      border: 0; border-radius: 0; -webkit-appearance: none; appearance: none;
+      background: var(--bio-field-grey, #a9a9a9); color: #090909;
+      font: 500 var(--about-editorial-size)/.98 'Ronzino', Arial, Helvetica, sans-serif;
+      letter-spacing: -0.03em; font-synthesis: none; cursor: pointer;
+      transition: background-color 160ms ease;
+    }
+    .contact-back-arrow {
+      align-self: stretch; flex: 0 0 auto; display: block;
+      height: 100%; width: calc(var(--back-size) * 36 / 72);
+      color: #090909; overflow: visible;
+    }
+    .contact-back-arrow path {
+      fill: none; stroke: currentColor; stroke-width: 2px;
+      vector-effect: non-scaling-stroke; stroke-linecap: butt; stroke-linejoin: miter;
+    }
+    .contact-back-label { display: block; white-space: nowrap; margin-bottom: calc(0px - var(--baseline-inset)); }
+    .contact-back-label.ink-box::before { display: none; }
+    @media (max-width: 680px) {
+      .contact-back { --back-size: var(--cross-size); }
+    }
+    @media (hover: hover) and (pointer: fine) {
+      .contact-back:hover { background: var(--carmine); }
+    }
+    .contact-back:focus-visible { outline: 2px solid var(--carmine); outline-offset: 3px; }
     .cookie-prefs {
       padding: 0; border: 0; background: none; color: inherit; font: inherit;
       text-decoration: underline; text-underline-offset: .15em; cursor: pointer;
@@ -1026,15 +1073,17 @@
     .cookie-overlay.is-visible { opacity: 1; }
     .cookie-overlay[hidden] { display: none; }
     .cookie-banner {
-      position: fixed; z-index: 60; left: 0; right: 0; bottom: 0;
+      position: fixed; z-index: 60;
+      left: calc(var(--pad) + env(safe-area-inset-left, 0px));
+      right: calc(var(--pad) + env(safe-area-inset-right, 0px));
+      bottom: calc(var(--pad) + env(safe-area-inset-bottom, 0px));
       display: flex; align-items: flex-end; justify-content: space-between; gap: 12px 40px;
-      padding: 16px calc(var(--pad) + env(safe-area-inset-right, 0px))
-        calc(16px + env(safe-area-inset-bottom, 0px)) calc(var(--pad) + env(safe-area-inset-left, 0px));
+      padding: 14px 12px 16px;
       background: #dedede; color: #090909;
       font-family: 'Ronzino', Arial, Helvetica, sans-serif; font-weight: 500;
       --bio-field-grey: #a9a9a9;
       --about-editorial-size: clamp(26px, 2.4vw, 34px);
-      transform: translate3d(0, 100%, 0);
+      transform: translate3d(0, calc(100% + var(--pad) + env(safe-area-inset-bottom, 0px)), 0);
       transition: transform 420ms var(--panel-ease);
     }
     .cookie-banner.is-visible { transform: none; }
@@ -1139,6 +1188,7 @@
       /* Bottom-right, on the same bottom line as the circle / + pair. */
       .logo-color-picker { bottom: calc(var(--pad) + env(safe-area-inset-bottom, 0px)); }
     }
+    .logo-color-picker[hidden] { display: none !important; }
     /* ═══ END LOGO COLOUR PICKER ═══════════════════════════════════════ */
   </style>
 </head>
@@ -1153,9 +1203,8 @@
       </div>
       <div class="about-bio-panel about-bio-panel--intro"><p class="about-bio">Sono <span class="about-name">Christian D’Agostino</span>, mi occupo di fotografia: wedding, ritrattistica e visual storytelling.<span class="bio-internal-break" aria-hidden="true"></span>Il mio immaginario affonda le radici nel <span class="about-reference" data-ref="brutalismo" tabindex="0" role="button" aria-label="Anteprima visiva del brutalismo architettonico">brutalismo architettonico</span>, nell’estetica razionale del <span class="about-reference" data-ref="bauhaus" tabindex="0" role="button" aria-label="Anteprima visiva del Bauhaus">Bauhaus</span>, passando per il cinema visionario di <span class="about-reference" data-ref="lynch" tabindex="0" role="button" aria-label="Anteprima visiva di Lynch">Lynch</span> e <span class="about-reference" data-ref="fellini" tabindex="0" role="button" aria-label="Anteprima visiva di Fellini">Fellini</span>, fino alle sonorità dark e post-punk dei <a class="about-reference" data-ref="depeche" href="https://www.youtube.com/watch?v=aGSKrC7dGcY" target="_blank" rel="noopener noreferrer" aria-label="Depeche Mode: apri il video ufficiale di Enjoy the Silence. All’hover senti una prova sonora originale">Depeche Mode</a> e <a class="about-reference" data-ref="joy" href="https://www.youtube.com/watch?v=674KGKRQBPE" target="_blank" rel="noopener noreferrer" aria-label="Joy Division: apri il video ufficiale di Love Will Tear Us Apart. All’hover senti una prova sonora originale">Joy Division</a>.</p></div>
       <div class="about-bio-panel about-bio-panel--contacts"><p class="about-bio">Molfetta, Puglia · Italia.<br>Contatti: <span class="pending-detail">email e social da inserire</span>.</p></div>
-      <div class="about-colophon-spacer" aria-hidden="true"></div>
       <div class="about-bio-panel about-bio-panel--colophon" aria-label="Colophon">
-        <p class="about-bio">Fotografie by Christian D’Agostino<br>Design by Gaetano Roselli<br>DAGOSTUDIO © 2026<br>Tutti i diritti riservati</p>
+        <p class="about-bio">Fotografie by Christian D’Agostino<br>Design by Gaetano Roselli<br>Per informazioni: <a class="about-colophon-email" href="mailto:info@dagostudio.it">info@dagostudio.it</a><br>DAGOSTUDIO © 2026<br>Tutti i diritti riservati<br><button type="button" class="cookie-prefs" id="cookiePrefs">Preferenze cookie</button></p>
       </div>
       <div class="ref-preview" id="referencePreview" aria-hidden="true">
         <img id="referencePreviewImage" alt="" decoding="async" />
@@ -1235,9 +1284,10 @@
           <a class="calendly-fallback" href="https://calendly.com/dagostudioph/45min" target="_blank" rel="noopener">Prenota su calendly.com</a>
         </div>
       <div class="about-colophon-spacer" aria-hidden="true"></div>
-      <div class="about-bio-panel about-bio-panel--colophon" aria-label="Colophon">
-        <p class="about-bio">Per qualsiasi informazione scrivi a<br><a class="about-colophon-email" href="mailto:info@dagostudio.it">info@dagostudio.it</a><br>DAGOSTUDIO © 2026<br>Tutti i diritti riservati<br><button type="button" class="cookie-prefs" id="cookiePrefs">Preferenze cookie</button></p>
-      </div>
+      <button type="button" class="contact-back" id="contactBack" aria-label="Torna alla Home">
+        <svg class="contact-back-arrow" viewBox="21 3 38 72" preserveAspectRatio="none" aria-hidden="true" focusable="false"><path d="M58 3 L22 39 L58 75" /></svg>
+        <span class="contact-back-label ink-box">Home</span>
+      </button>
     </div>
   </aside>
   <button type="button" id="contactToggle" class="contact-toggle"
@@ -1248,7 +1298,7 @@
     </svg></span>
   </button>
   <!-- LOGO COLOUR PICKER — TEMPORARY TEST TOOL (delete with its CSS and script) -->
-  <div class="logo-color-picker" id="logoColorPicker">
+  <div class="logo-color-picker" id="logoColorPicker" hidden>
     <label class="logo-color-swatch" title="Scegli il colore del logo"><input type="color" id="logoColorInput" value="#e7e7e7" aria-label="Colore del logo"></label>
     <button type="button" class="logo-color-random" id="logoColorRandom" title="Colore casuale" aria-label="Colore casuale per il logo"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M24.00 12.00 L0.00 12.00 M22.39 18.00 L1.61 6.00 M18.00 22.39 L6.00 1.61 M12.00 24.00 L12.00 0.00 M6.00 22.39 L18.00 1.61 M1.61 18.00 L22.39 6.00" /></svg></button>
   </div>
@@ -1268,6 +1318,7 @@
   </button>
   <div id="cursorDot" class="cursor-dot" aria-hidden="true"></div>
   <div id="cursorAction" class="cursor-action" aria-hidden="true">CLICK</div>
+  <div id="cursorPause" class="cursor-action" aria-hidden="true">PAUSE</div>
 
   <script>
     (() => {
@@ -1398,6 +1449,10 @@
       cookieBanner.addEventListener('click', event => {
         const button = event.target.closest('[data-consent]');
         if (button) setConsent(button.dataset.consent);
+      });
+      document.getElementById('contactBack').addEventListener('click', () => {
+        setContactOpen(false);
+        contactToggle.focus({ preventScroll: true });
       });
       document.getElementById('cookiePrefs').addEventListener('click', () => {
         if (contactIsOpen) setContactOpen(false);
@@ -1793,7 +1848,7 @@
       let holdStartedAt = 0;
       let holdPointerId = null;
       let suppressClickUntil = 0;
-      const HOLD_THRESHOLD = 220;
+      const HOLD_THRESHOLD = 180;
       function pauseCarousel() {
         if (holdPaused) return;
         holdPaused = true;
@@ -1819,6 +1874,12 @@
       const hasMouseCursor = window.matchMedia('(hover: hover) and (pointer: fine)');
       let lastSwipeAt = -1000;
       function updateCursor(e) {
+        if (pauseShown) {
+          cursorArrow.style.visibility = 'hidden';
+          cursorPause.style.left = e.clientX + 'px';
+          cursorPause.style.top = e.clientY + 'px';
+          return;
+        }
         if (e.target.closest('.slide-progress') || !hasMouseCursor.matches || e.pointerType !== 'mouse') {
           cursorArrow.style.visibility = 'hidden';
           return;
@@ -1884,15 +1945,42 @@
         changeSlide(e.clientX - rect.left < rect.width / 2 ? -1 : 1);
       });
       const HOLD_EXCLUDED = 'button, a, input, textarea, select, label, .slide-progress, #aboutPanel, #contactPanel, [role="button"], [contenteditable]';
+      // Desktop only: while the photograph is held, the arrow becomes the word
+      // PAUSE (same typographic pointer as CLICK on the About portrait).
+      const cursorPause = document.getElementById('cursorPause');
+      let pauseTimer = 0;
+      let pauseShown = false;
+      function showPause(x, y) {
+        pauseShown = true;
+        cursorArrow.style.visibility = 'hidden';
+        cursorPause.style.left = x + 'px';
+        cursorPause.style.top = y + 'px';
+        cursorPause.style.visibility = 'visible';
+      }
+      function hidePause() {
+        clearTimeout(pauseTimer); pauseTimer = 0;
+        if (!pauseShown) return;
+        pauseShown = false;
+        cursorPause.style.visibility = 'hidden';
+        cursorArrow.style.visibility = 'visible';
+      }
       scene.addEventListener('pointerdown', e => {
         if (!e.isPrimary || (e.pointerType === 'mouse' && e.button !== 0)) return;
         if (e.target.closest(HOLD_EXCLUDED)) return;
         holdPointerId = e.pointerId;
         pauseCarousel();
+        if (e.pointerType === 'mouse' && hasMouseCursor.matches) {
+          const x = e.clientX, y = e.clientY;
+          clearTimeout(pauseTimer);
+          pauseTimer = setTimeout(() => {
+            if (holdPaused && holdPointerId !== null) showPause(x, y);
+          }, HOLD_THRESHOLD);
+        }
       });
       function endHold(e) {
         if (holdPointerId === null || (e && e.pointerId !== undefined && e.pointerId !== holdPointerId)) return;
         holdPointerId = null;
+        hidePause();
         // A long press is a pause, not a tap: don't let it change photograph.
         if (holdPaused && performance.now() - holdStartedAt >= HOLD_THRESHOLD) {
           suppressClickUntil = performance.now() + 400;
@@ -2271,9 +2359,14 @@
    Changes --logo, used by BOTH the Home logo and the About photo logo.
    Preview only: reloading the page restores the original grey. Delete this whole
    <script>, the matching CSS block and the <div class="logo-color-picker">. */
+// ON / OFF — set to true to show the colour tools again (nothing else to change).
+const LOGO_COLOR_PICKER_ENABLED = false;
 (() => {
+  const picker = document.getElementById('logoColorPicker');
   const input = document.getElementById('logoColorInput');
-  if (!input) return;
+  if (!input || !picker) return;
+  if (!LOGO_COLOR_PICKER_ENABLED) { picker.hidden = true; return; }
+  picker.hidden = false;
   function apply(hex) {
     document.documentElement.style.setProperty('--logo', hex);
     input.value = hex;
