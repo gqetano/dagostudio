@@ -1,0 +1,1015 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>DAGOSTUDIO Tool</title>
+<style>
+  @font-face {
+    font-family: 'Ronzino';
+    src: url('ronzino-medium.woff2') format('woff2');
+    font-weight: 500; font-style: normal; font-display: swap;
+  }
+  :root { --ink: #000; --mute: #8a8a8a; --line: #e4e4e4; --red: #FF0000; --side: 288px; --stage: #ececec; }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; }
+  body {
+    font: 500 12px/1.3 'Ronzino', Arial, sans-serif; letter-spacing: .01em;
+    color: var(--ink); background: var(--stage);
+    display: grid; grid-template-columns: var(--side) 1fr; overflow: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+  button, input { font: inherit; color: inherit; letter-spacing: inherit; }
+  button { cursor: pointer; }
+  [hidden] { display: none !important; }
+  :focus-visible { outline: 1px solid var(--red); outline-offset: 2px; }
+
+  /* ── Sidebar ───────────────────────────────────────────── */
+  aside { background: #fff; height: 100vh; overflow-y: auto; border-right: 1px solid var(--line); }
+  .brand { padding: 20px 20px 18px; border-bottom: 1px solid var(--line); }
+  .brand h1 { margin: 0; font-size: 22px; font-weight: 500; line-height: 1; letter-spacing: -.03em; }
+  section { padding: 16px 20px 18px; border-bottom: 1px solid var(--line); }
+  h2 { margin: 0 0 12px; font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: .04em; color: var(--mute); }
+  .row { margin-top: 16px; }
+  h2 + .row { margin-top: 0; }
+  .label { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; }
+  .label output { color: var(--mute); font-variant-numeric: tabular-nums; }
+
+  /* colori: palline */
+  .swatches { display: flex; gap: 9px; flex-wrap: wrap; align-items: center; }
+  .swatch { width: 24px; height: 24px; padding: 0; border-radius: 50%; border: 1px solid rgba(0,0,0,.16); position: relative; }
+  .swatch[aria-pressed="true"]::after { content: ''; position: absolute; inset: -5px; border: 1px solid var(--ink); border-radius: 50%; }
+  .swatch.alpha, .checker {
+    background-color: #fff;
+    background-image: linear-gradient(45deg,#cfcfcf 25%,transparent 25%,transparent 75%,#cfcfcf 75%),
+                      linear-gradient(45deg,#cfcfcf 25%,transparent 25%,transparent 75%,#cfcfcf 75%);
+    background-size: 8px 8px; background-position: 0 0, 4px 4px;
+  }
+
+  /* foto: + e miniatura con X */
+  .photos { display: flex; gap: 9px; align-items: center; }
+  .add, .thumb { width: 44px; height: 44px; border: 1px solid var(--line); background: #fff; padding: 0; position: relative; }
+  .add { font-size: 20px; line-height: 1; font-weight: 500; }
+  .add:hover { border-color: var(--ink); }
+  .thumb { background-size: cover; background-position: center; border-color: transparent; cursor: pointer; }
+  .thumb[aria-current="true"] { outline: 1px solid var(--ink); outline-offset: 3px; }
+  .photos { flex-wrap: wrap; }
+  /* Livelli: dall'alto verso il basso come in Figma */
+  .layers { margin: 0; padding: 0; list-style: none; border-top: 1px solid var(--line); }
+  .layers li { display: grid; grid-template-columns: 32px 1fr auto; gap: 10px; align-items: center;
+    padding: 6px 4px 6px 0; border-bottom: 1px solid var(--line); cursor: pointer; }
+  .layers li:hover { background: #f6f6f6; }
+  .layers li[aria-current="true"] { background: #f0f0f0; box-shadow: inset 2px 0 0 var(--ink); }
+  .layers li.fixed { cursor: default; color: var(--mute); }
+  .layers li.fixed:hover { background: none; }
+  .layers .pic { width: 32px; height: 32px; background: #eee center / cover no-repeat; margin-left: 6px; }
+  .layers .fixed .pic { background: #fff; display: grid; place-items: center; }
+  .layers .fixed .pic svg { width: 26px; fill: var(--ink); }
+  .layers .name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .layers .act { display: flex; gap: 2px; }
+  .layers .act button { width: 22px; height: 22px; border: 0; background: none; padding: 0; color: var(--mute); font-size: 13px; line-height: 1; }
+  .layers .act button:hover { color: var(--red); }
+  .layers .act button:disabled { opacity: .25; pointer-events: none; }
+  .add-photo { margin-top: 10px; border: 0; background: none; padding: 0; display: flex; align-items: center; gap: 8px; }
+  .add-photo b { width: 22px; height: 22px; border: 1px solid var(--ink); display: grid; place-items: center; font-weight: 500; font-size: 15px; line-height: 1; }
+  .add-photo:hover b { background: var(--ink); color: #fff; }
+  .thumb button {
+    position: absolute; top: -7px; right: -7px; width: 18px; height: 18px; border-radius: 50%;
+    border: 0; background: var(--ink); color: #fff; font-size: 11px; line-height: 18px; padding: 0;
+  }
+  .thumb button:hover { background: var(--red); }
+
+  /* posizione: griglia 3×3 */
+  .align { display: grid; grid-template-columns: repeat(3, 24px); gap: 6px; padding: 8px; border: 1px solid var(--line); width: max-content; }
+  .align button { width: 24px; height: 24px; border: 0; background: none; padding: 0; display: grid; place-items: center; }
+  .align button::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: #cdcdcd; }
+  .align button:hover::before { background: var(--mute); }
+  .align button[aria-pressed="true"]::before { width: 9px; height: 9px; background: var(--ink); }
+  .pos-row { display: flex; gap: 14px; align-items: center; }
+  .pos-row p { margin: 0; color: var(--mute); font-size: 11px; line-height: 1.35; }
+
+  /* slider */
+  input[type=range] { -webkit-appearance: none; appearance: none; width: 100%; height: 16px; background: transparent; margin: 0; cursor: pointer; }
+  input[type=range]::-webkit-slider-runnable-track { height: 1px; background: var(--ink); }
+  input[type=range]::-moz-range-track { height: 1px; background: var(--ink); }
+  input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 11px; height: 11px; border-radius: 50%; background: var(--ink); margin-top: -5px; border: 0; }
+  input[type=range]::-moz-range-thumb { width: 11px; height: 11px; border-radius: 50%; background: var(--ink); border: 0; }
+
+  /* pulsanti */
+  .btn { width: 100%; border: 1px solid var(--ink); background: #fff; padding: 10px 12px 9px; border-radius: 0; text-align: left; }
+  .btn:hover { background: var(--ink); color: #fff; }
+  .btn.solid { background: var(--ink); color: #fff; }
+  .btn.solid:hover { background: var(--red); border-color: var(--red); }
+  .pair { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+  .link { border: 0; background: none; padding: 0; color: var(--mute); text-decoration: underline; text-underline-offset: .15em; }
+  .link:hover { color: var(--red); }
+
+  /* ── Stage ─────────────────────────────────────────────── */
+  main { position: relative; height: 100vh; overflow: hidden; }
+  /* Tavolo da lavoro: le slide restano della stessa dimensione e il carosello
+     scorre in orizzontale (rotella, trackpad o trascinando il grigio). */
+  #stage { position: absolute; inset: 0; overflow-x: auto; overflow-y: hidden; scrollbar-width: none; cursor: grab; }
+  #stage::-webkit-scrollbar { display: none; }
+  #stage.panning { cursor: grabbing; }
+  #board { display: flex; align-items: center; gap: 14px; height: 100%; width: max-content; }
+  #frame { position: relative; flex: none; box-shadow: 0 0 0 1px rgba(0,0,0,.06); cursor: auto; }
+  #art { display: block; width: 100%; height: 100%; touch-action: none; user-select: none; -webkit-user-select: none; cursor: pointer; }
+  .formats { position: absolute; top: 18px; right: 24px; display: flex; gap: 16px; z-index: 2; }
+  .formats button { border: 0; background: none; padding: 4px 0; font-size: 13px; opacity: .3; transition: opacity 120ms ease; }
+  .formats button:hover { opacity: .65; }
+  .formats button[aria-pressed="true"] { opacity: 1; }
+  /* interruttore */
+  /* in basso a destra nell'area del canvas */
+  .toggle { position: absolute; right: 24px; bottom: 18px; z-index: 2; display: flex; align-items: flex-end; gap: 10px;
+    border: 0; background: none; padding: 4px 0; font-size: 13px; }
+  /* la linea di base di "Guide" coincide con la base dello switch */
+  .toggle span { line-height: 1; text-box: trim-both cap alphabetic; }   /* il box del testo finisce esattamente sulla linea di base */
+  @supports not (text-box: trim-both cap alphabetic) { .toggle span { position: relative; top: 2px; } }
+  .toggle i { width: 30px; height: 16px; border-radius: 8px; background: #d6d6d6; position: relative; transition: background 140ms ease; }
+  .toggle i::after { content: ''; position: absolute; top: 2px; left: 2px; width: 12px; height: 12px; border-radius: 50%;
+    background: #fff; transition: transform 140ms ease; }
+  .toggle[aria-pressed="true"] i { background: var(--red); }
+  .toggle[aria-pressed="true"] i::after { transform: translateX(14px); }
+  #art .guide, #art .guide * { fill: none; vector-effect: non-scaling-stroke; pointer-events: none; }
+  /* + / − slide del carosello, a destra del canvas */
+  .slides-ctl { flex: none; display: flex; flex-direction: column; gap: 6px; cursor: auto; }
+  .slides-ctl button { width: 30px; height: 30px; border: 0; background: none; padding: 0; color: var(--ink);
+    display: grid; place-items: center; }
+  .slides-ctl button:hover { color: var(--red); }
+  .slides-ctl svg { width: 18px; height: 18px; stroke: currentColor; stroke-width: 2.2; fill: none; }
+  #drop {
+    position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none;
+    background: rgba(255,0,0,.08); color: var(--red); font-size: 13px; text-transform: uppercase;
+    letter-spacing: .04em; opacity: 0; transition: opacity 120ms ease;
+  }
+  body.dragging #drop { opacity: 1; }
+
+  @media (max-width: 760px) {
+    body { grid-template-columns: 1fr; grid-template-rows: 60vh auto; overflow: auto; height: auto; }
+    aside { order: 2; height: auto; border-right: 0; border-top: 1px solid var(--line); }
+    main { order: 1; height: 60vh; }
+  }
+</style>
+</head>
+<body>
+
+<aside>
+  <div class="brand"><h1>Dago Tool</h1></div>
+
+  <section>
+    <h2>Sfondo</h2>
+    <div class="row">
+      <div class="label"><span>Colore</span><output id="bgName"></output></div>
+      <div class="swatches" id="bgSwatches"></div>
+    </div>
+    <div class="row">
+      <div class="label"><span>Livelli</span></div>
+      <ul class="layers" id="layers"></ul>
+      <button type="button" class="add-photo" id="photoPick"><b>+</b>Aggiungi foto</button>
+      <input type="file" id="photoInput" accept="image/*" multiple hidden>
+    </div>
+    <div id="photoTools" hidden>
+      <div class="row">
+        <div class="label"><span>Zoom foto selezionata</span><output id="zoomOut"></output></div>
+        <input type="range" id="zoom" min="1" max="100" step="1" value="1">
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Logo</h2>
+    <div class="row">
+      <div class="label"><span>Colore</span><output id="logoName"></output></div>
+      <div class="swatches" id="logoSwatches"></div>
+    </div>
+    <div class="row">
+      <div class="label"><span>Dimensione</span><output id="sizeOut"></output></div>
+      <input type="range" id="size" min="0" max="100" step="1">
+    </div>
+    <div class="row">
+      <div class="label"><span>Posizione</span></div>
+      <div class="pos-row">
+        <div class="align" id="align"></div>
+        <p>Oppure trascina il box nel canvas e ridimensionalo dalle maniglie.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>Movimento</h2>
+    <div class="row">
+      <div class="label"><span>Escursione</span><output id="bandOut"></output></div>
+      <input type="range" id="band" min="0" max="100" step="1">
+    </div>
+    <div class="row">
+      <div class="label"><span>Dispersione lettere</span><output id="jitterOut"></output></div>
+      <input type="range" id="jitter" min="0" max="100" step="1">
+    </div>
+    <div class="row">
+      <div class="label"><span>Distanza DAGO / STUDIO</span><output id="gapOut"></output></div>
+      <input type="range" id="gap" min="0" max="100" step="1">
+    </div>
+    <div class="row">
+      <div class="label"><span>Inclinazione</span><output id="slopeOut"></output></div>
+      <input type="range" id="slope" min="0" max="100" step="1">
+    </div>
+    <div class="row">
+      <div class="label"><span>Durata animazione</span><output id="durOut"></output></div>
+      <input type="range" id="duration" min="0" max="1500" step="10">
+    </div>
+    <div class="pair row">
+      <button type="button" class="btn solid" id="shuffle">Rimescola</button>
+      <button type="button" class="btn" id="compose">Ricomponi</button>
+    </div>
+    <div class="row"><button type="button" class="link" id="resetParams">Ripristina parametri</button></div>
+  </section>
+
+  <section>
+    <h2>Esporta</h2>
+    <div class="pair">
+      <button type="button" class="btn" id="exportPng">PNG</button>
+      <button type="button" class="btn" id="exportSvg">SVG</button>
+    </div>
+  </section>
+</aside>
+
+<main>
+  <div class="formats" id="formats">
+    <button type="button" data-format="1:1">1:1</button>
+    <button type="button" data-format="3:4">3:4</button>
+    <button type="button" data-format="9:16">9:16</button>
+  </div>
+  <div id="stage">
+    <div id="board">
+    <div id="frame">
+      <svg id="art" xmlns="http://www.w3.org/2000/svg" aria-label="Anteprima">
+        <rect id="artBg" x="0" y="0"></rect>
+        <g id="artPhotos"></g>
+        <g id="artLogo"></g>
+        <g id="guideSlides" class="guide" stroke="#FF0000" stroke-width="1" visibility="hidden"></g>
+        <g id="selPhoto" class="guide" visibility="hidden"><rect stroke="#FFFFFF" stroke-width="4"/><rect stroke="#FF00FF" stroke-width="2"/></g>
+        <g id="guideSnap" class="guide" stroke="#FF00FF" stroke-width="1"></g>
+      </svg>
+    </div>
+    <div class="slides-ctl">
+      <button type="button" id="slideAdd" aria-label="Aggiungi slide" title="Aggiungi slide"><svg viewBox="0 0 18 18"><path d="M9 1v16M1 9h16"/></svg></button>
+      <button type="button" id="slideRemove" aria-label="Togli l'ultima slide" title="Togli l'ultima slide"><svg viewBox="0 0 18 18"><path d="M1 9h16"/></svg></button>
+    </div>
+    </div>
+  </div>
+  <button type="button" class="toggle" id="guidesToggle" title="Safe area e box del logo (tasto G)">
+    <span>Guide</span><i aria-hidden="true"></i>
+  </button>
+  <div id="drop">Rilascia la foto</div>
+</main>
+
+<script>
+(() => {
+  // ── Logo approvato: geometria e spaziatura IDENTICHE a assets/logo-originale.svg
+  //    (472.97 × 99.47). Le sovrapposizioni tra lettere sono volute. Il gioco
+  //    sposta le lettere SOLO in Y: X e kerning non si toccano mai.
+  const GLYPHS = [{"c": "d", "d": "M38.74.46v17.38h-11.88c-14.8,0-26.86,11.96-26.86,26.86s12.06,26.86,26.86,26.86h27.74V.46H38.74ZM12.85,44.7c0-7.8,6.3-14.1,14.01-14.1,5.05,0,9.48,2.66,11.88,6.65,1.33,2.13,2.12,4.7,2.12,7.45s-.79,5.23-2.12,7.35c-2.4,3.99-6.83,6.65-11.88,6.65C19.15,58.7,12.85,52.41,12.85,44.7Z"}, {"c": "a", "d": "M80.26,17.78c-12.05,0-22.25,7.89-25.61,18.88-.54,1.69-.89,3.37-1.07,5.23v.09c-.17.89-.17,1.77-.17,2.66s0,1.77.17,2.66v.09c.18,1.77.53,3.54,1.07,5.23,3.36,10.9,13.56,18.88,25.61,18.88h27.66V17.78H80.26ZM80.26,58.65c-7.71,0-14-6.3-14-14.01s6.29-14.09,14-14.09,14.01,6.29,14.01,14.09S87.98,58.65,80.26,58.65Z"}, {"c": "g", "d": "M122.85,79.62l22.55-9.58,16.89-7.05v-18.46c0-15.24-12.36-27.6-27.69-27.6s-27.6,12.36-27.6,27.6c0,8.97,4.27,16.98,10.89,22.03l-.44.17c-7.75,3.31-11.75,10.97-10.1,19.07,1.65,8.19,8.36,13.67,16.72,13.67h38.22v-13.93h-38.22c-2.27,0-2.87-1.57-3.05-2.44C120.85,82.15,120.76,80.49,122.85,79.62ZM120.85,44.62c0-7.66,6.18-13.85,13.75-13.85s13.76,6.19,13.76,13.85c0,5.4-3.13,10.1-7.75,12.36h-.08l-1.22.52c0,.09-.09.09-.18.09-1.39.52-2.96.78-4.53.78C127.03,58.37,120.85,52.19,120.85,44.62Z"}, {"c": "o", "d": "M188.33,16.93c-15.25,0-27.63,12.37-27.63,27.62s12.38,27.71,27.63,27.71,27.71-12.37,27.71-27.71S203.66,16.93,188.33,16.93ZM188.32,58.65c-7.71,0-14-6.3-14-14.01s6.29-14.09,14-14.09,14.01,6.29,14.01,14.09S196.04,58.65,188.32,58.65Z"}, {"c": "s", "d": "M228.38,34.96c-.82-.23-1.42-.99-1.42-1.89,0-1.08.87-1.96,1.96-1.96h33.45v-13.36h-33.45c-8.47,0-15.33,6.86-15.33,15.32,0,7.15,4.9,13.16,11.53,14.85,0,0,24.61,6.43,24.61,6.43.82.24,1.43.99,1.43,1.89,0,1.08-.88,1.96-1.96,1.96h-33.29v13.36h33.29c8.46,0,15.32-6.86,15.32-15.32,0-7.11-4.84-13.08-11.41-14.81C253.11,41.43,228.38,34.96,228.38,34.96Z"}, {"c": "t", "d": "M293.77 17.72 L293.68 31.02 L283.15 31.02 L283.24 71.5 L268.15 71.5 L268.15 71.41 L268.06 31.11 L261.58 31.11 L282.09 0.49 L282.09 17.72 L293.77 17.72Z"}, {"c": "u", "d": "M341.85,17.78v53.77h-27.43c-14.49,0-26.23-11.74-26.23-26.23v-27.54h14.75v27.6c0,6.67,5.4,12.08,12.08,12.08s12.08-5.41,12.08-12.08v-27.6H341.85Z"}, {"c": "d", "d": "M380.09.46v17.38h-11.88c-14.8,0-26.86,11.96-26.86,26.86s12.06,26.86,26.86,26.86h27.74V.46H380.09ZM354.2,44.7c0-7.8,6.3-14.1,14.01-14.1,5.05,0,9.48,2.66,11.88,6.65,1.33,2.13,2.13,4.7,2.13,7.45s-.8,5.23-2.13,7.35c-2.4,3.99-6.83,6.65-11.88,6.65C360.5,58.7,354.2,52.41,354.2,44.7Z"}, {"c": "i", "d": "M407.37,17.71c4.75,0,8.76-4.1,8.76-8.95s-4.01-8.76-8.76-8.76-8.76,4.01-8.76,8.76S402.62,17.71,407.37,17.71ZM399.71 23.62h15.02v47.94h-15.02Z"}, {"c": "o", "d": "M445.16,17.05c-15.31,0-27.72,12.42-27.72,27.72s12.41,27.81,27.72,27.81,27.81-12.42,27.81-27.81S460.55,17.05,445.16,17.05ZM445.25,58.86c-7.71,0-14.01-6.29-14.01-14s6.3-14.09,14.01-14.09,14,6.29,14,14.09S452.96,58.86,445.25,58.86Z"}];
+  const LOGO_W = 472.97, LOGO_H = 99.47;
+
+  // ── Palette ufficiale (Figma › Brand manual › Color palette)
+  const PALETTE = [
+    { name: 'Black', hex: '#000000' }, { name: 'Grey', hex: '#B5B5B5' }, { name: 'White', hex: '#FFFFFF' },
+    { name: 'Red', hex: '#FF0000' }, { name: 'Bordeaux', hex: '#500915' },
+  ];
+  const TRANSPARENT = { name: 'Trasparente', hex: 'none' };
+  // Grigio scuro: solo come colore del logo sullo sfondo Grey (abbinamento del brand manual).
+  const LOGO_COLORS = [...PALETTE, { name: 'Grigio scuro', hex: '#4C4C4C' }];
+  const PAIRING = { '#000000': '#FFFFFF', '#B5B5B5': '#4C4C4C', '#FFFFFF': '#000000', '#500915': '#FF0000', '#FF0000': '#FFFFFF' };
+
+  const FORMATS = { '1:1': [1080, 1080], '3:4': [1080, 1440], '9:16': [1080, 1920] };
+  // Safe area: 2% su tutti i lati; nel 9:16 restano liberi 250 px sopra e sotto
+  // (l'interfaccia di storie e reel di Instagram).
+  const EDGE = 0.02;
+  const SAFE_TB = { '1:1': null, '3:4': null, '9:16': 250 };
+  // Dimensione 0–100: 0 = margine laterale 20% (minimo leggibile), 100 = margine 2%.
+  const sizeToMargin = v => 0.20 - 0.18 * v / 100;
+  // I parametri interni del sito, riportati su una scala 0–100.
+  const SNAP = 16;   // il box si aggancia a 16 posizioni per asse
+  const DEFAULTS = { size: 83, band: 45, jitter: 75, gap: 50, slope: 30, duration: 560 };
+
+  const state = {
+    format: '3:4', bg: '#000000', logo: '#FFFFFF', fx: .5, fy: .5, align: 4,
+    ...DEFAULTS,
+    slides: 1,              // carosello: slide affiancate senza spazio
+    photos: [], sel: -1,    // foto a livelli: l'ultima è quella sopra
+    composed: false, draw: null, manual: Array(10).fill(0), guides: true,   // si parte con le guide accese
+  };
+
+  const $ = id => document.getElementById(id);
+  const NS = 'http://www.w3.org/2000/svg';
+  const art = $('art'), artBg = $('artBg'), artPhotos = $('artPhotos'), artLogo = $('artLogo');
+  const clamp = (n, a, b) => Math.min(b, Math.max(a, n));
+  const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  const glyphEls = GLYPHS.map((g, i) => {
+    const el = document.createElementNS(NS, 'path');
+    el.setAttribute('d', g.d); el.setAttribute('class', 'glyph'); el.dataset.index = i;
+    artLogo.appendChild(el); return el;
+  });
+  const paths2d = GLYPHS.map(g => new Path2D(g.d));
+  const bounds = glyphEls.map(el => { const b = el.getBBox(); return { x: b.x, w: b.width, y: b.y, h: b.height }; });
+
+  // ── Geometria: safe area → dimensione del logo → box → posizione
+  function geo() {
+    const [W, H] = FORMATS[state.format];
+    const n = state.slides, TW = W * n;
+    const edge = W * EDGE, tb = SAFE_TB[state.format] ?? edge;
+    // Il logo si muove dentro la safe area esterna dell'intero carosello.
+    const safe = { x: edge, y: tb, w: TW - 2 * edge, h: H - 2 * tb };
+    const logoW = W * (1 - 2 * sizeToMargin(state.size));
+    const s = logoW / LOGO_W, logoH = LOGO_H * s;
+    const bandH = logoH + Math.max(0, safe.h - logoH) * state.band / 100;
+    const left = safe.x + Math.max(0, safe.w - logoW) * state.fx;
+    const top = safe.y + Math.max(0, safe.h - bandH) * state.fy;
+    return { W, H, n, TW, edge, tb, safe, s, logoW, logoH, bandH, left, top };
+  }
+
+  // ── Movimento
+  //  1. Ogni rimescolamento estrae SOLO la parte casuale (ordine dei livelli,
+  //     rumore, quale gruppo sta sopra, verso dell'inclinazione) e la conserva:
+  //     gli slider rimodellano la stessa composizione invece di rigenerarla.
+  //  2. Forma = gruppi DAGO / STUDIO (Distanza) + inclinazione + livelli casuali,
+  //     normalizzata su un'ampiezza 1.
+  //  3. L'escursione è il margine reale: si calcola lo spostamento massimo con
+  //     cui tutte le lettere restano nelil box. Dispersione 100 = la lettera
+  //     più alta tocca il bordo superiore e la più bassa quello inferiore.
+  //     Dispersione 0 = logo dritto, come "Ricomponi".
+  const GROUPS = [[0, 4], [4, 6]];
+  function draw() {
+    return {
+      levels: GROUPS.map(([, n]) => {
+        const l = Array.from({ length: n }, (_, j) => -1 + 2 * j / (n - 1));
+        for (let j = n - 1; j > 0; j--) { const k = Math.floor(Math.random() * (j + 1)); [l[j], l[k]] = [l[k], l[j]]; }
+        return l;
+      }),
+      noise: Array.from({ length: 10 }, () => Math.random() * 2 - 1),
+      upper: Math.random() < .5 ? 0 : 1,
+      tilt: GROUPS.map(() => Math.random() < .5 ? -1 : 1),
+    };
+  }
+  function shape(d) {
+    const r = Array(10).fill(0);
+    GROUPS.forEach(([start, n], w) => {
+      const side = w === d.upper ? -.5 : .5;
+      for (let j = 0; j < n; j++) {
+        const f = j / (n - 1) - .5;
+        r[start + j] = side * 1.6 * state.gap / 100
+                     + f * 1.2 * d.tilt[w] * state.slope / 100
+                     + (d.levels[w][j] * .75 + d.noise[start + j] * .15) * .5;
+      }
+    });
+    const lo = Math.min(...r), hi = Math.max(...r), span = hi - lo || 1;
+    return r.map(v => (v - (lo + hi) / 2) / span);   // centrata, ampiezza 1
+  }
+  function targetY(g) {
+    const top = bounds.map(b => b.y * g.s), bot = bounds.map(b => (b.y + b.h) * g.s);
+    const r = state.composed ? Array(10).fill(0) : shape(state.draw);
+    // Ampiezza massima: per ogni coppia (i sopra, j sotto) la lettera j non deve
+    // uscire dal fondo mentre la i tocca la cima.
+    let aMax = Infinity;
+    for (let i = 0; i < 10; i++) for (let j = 0; j < 10; j++) {
+      const dr = r[j] - r[i];
+      if (dr > 1e-9) aMax = Math.min(aMax, (g.bandH - bot[j] + top[i]) / dr);
+    }
+    if (!isFinite(aMax)) aMax = 0;
+    const a = Math.max(0, aMax) * (state.composed ? 0 : state.jitter / 100);
+    // Posizione comune: dentro lo spazio rimasto, allineata come il box.
+    const cMin = Math.max(...r.map((v, i) => -top[i] - a * v));
+    const cMax = Math.min(...r.map((v, i) => g.bandH - bot[i] - a * v));
+    const c = cMin + Math.max(0, cMax - cMin) * state.fy;
+    return r.map((v, i) => {
+      const m = (state.manual[i] || 0) * g.bandH;   // ritocco a mano della singola lettera
+      return g.top + clamp(c + a * v + m, -top[i], g.bandH - bot[i]);
+    });
+  }
+  function freshDraw() {
+    const g = geo(), old = shownY;
+    let best = null, score = -1;
+    for (let k = 0; k < 8; k++) {
+      const d = draw();
+      if (!old) return d;
+      const keep = state.draw; state.draw = d;
+      const comp = state.composed; state.composed = false;
+      const y = targetY(g);
+      state.draw = keep; state.composed = comp;
+      const moved = y.reduce((s, v, i) => s + Math.abs(v - old[i]), 0) / 10 / Math.max(1, g.bandH - g.logoH);
+      if (moved > score) { best = d; score = moved; }
+      if (moved > .2) break;
+    }
+    return best;
+  }
+
+  // ── Disegno
+  let shownY = null, anim = 0;
+  let snapping = false;   // la foto trascinata è agganciata a qualcosa
+  // Foto: posizione in unità di slide (u = x / larghezza slide, v = y / altezza),
+  // zoom 1 = copre esattamente una slide. Così resistono al cambio di formato.
+  function photoRect(ph, g) {
+    const scale = Math.max(g.W / ph.w, g.H / ph.h) * ph.zoom;
+    const w = ph.w * scale, h = ph.h * scale;
+    return { x: ph.u * g.W - w / 2, y: ph.v * g.H - h / 2, w, h, scale };
+  }
+  function renderPhotos() {
+    artPhotos.textContent = '';
+    state.photos.forEach(ph => {
+      const im = document.createElementNS(NS, 'image');
+      im.setAttribute('href', ph.url); im.setAttribute('preserveAspectRatio', 'none');
+      ph.el = im; artPhotos.appendChild(im);
+    });
+  }
+  function paint() {
+    const g = geo();
+    art.setAttribute('viewBox', `0 0 ${g.TW} ${g.H}`);
+    artBg.setAttribute('width', g.TW); artBg.setAttribute('height', g.H);
+    artBg.setAttribute('fill', state.bg);
+    $('frame').classList.toggle('checker', state.bg === 'none');
+    state.photos.forEach(ph => {
+      const r = photoRect(ph, g);
+      ph.el.setAttribute('x', r.x); ph.el.setAttribute('y', r.y);
+      ph.el.setAttribute('width', r.w); ph.el.setAttribute('height', r.h);
+    });
+    artLogo.setAttribute('fill', state.logo);
+    glyphEls.forEach((el, i) => el.setAttribute('transform', `translate(${g.left.toFixed(3)} ${shownY[i].toFixed(3)}) scale(${g.s.toFixed(6)})`));
+    // Guide: safe area di ogni slide (tratteggiata), confini tra le slide
+    // (tratto lungo) e ingombro delil box (continua).
+    let gs = '';
+    for (let i = 0; i < g.n; i++) {
+      gs += `<rect x="${i * g.W + g.edge}" y="${g.tb}" width="${g.W - 2 * g.edge}" height="${g.H - 2 * g.tb}" stroke-dasharray="4 4"/>`;
+      if (i) gs += `<line x1="${i * g.W}" y1="0" x2="${i * g.W}" y2="${g.H}" stroke-dasharray="14 8"/>`;
+    }
+    gs += `<rect x="${g.left}" y="${g.top}" width="${g.logoW}" height="${g.bandH}"/>`;
+    // maniglie del box, come in Illustrator: 8 quadratini di dimensione fissa a schermo
+    const hs = HANDLE_PX * canvasPerPx(g);
+    handles(g).forEach(h => {
+      gs += `<rect x="${h.x - hs / 2}" y="${h.y - hs / 2}" width="${hs}" height="${hs}" style="fill:#fff"/>`;
+    });
+    $('guideSlides').innerHTML = gs;
+    // contorno della foto selezionata (solo a schermo, mai negli export)
+    const sel = state.photos[state.sel], so = $('selPhoto');
+    // Contorno magenta solo mentre la foto si sta agganciando a qualcosa, poi sparisce.
+    so.setAttribute('visibility', sel && snapping ? 'visible' : 'hidden');
+    if (sel) { const r = photoRect(sel, g); so.querySelectorAll('rect').forEach(el => { el.setAttribute('x', r.x); el.setAttribute('y', r.y); el.setAttribute('width', r.w); el.setAttribute('height', r.h); }); }
+    fit();
+  }
+  // ── Box del logo: maniglie per allargarlo / stringerlo (larghezza = Dimensione,
+  //    altezza = Escursione). Il lato opposto alla maniglia resta fermo.
+  const HANDLE_PX = 8;
+  const canvasPerPx = g => g.TW / Math.max(1, $('frame').getBoundingClientRect().width);
+  function handles(g) {
+    const x0 = g.left, x1 = g.left + g.logoW, xm = (x0 + x1) / 2, y0 = g.top, y1 = g.top + g.bandH, ym = (y0 + y1) / 2;
+    return [
+      { id: 'nw', x: x0, y: y0 }, { id: 'n', x: xm, y: y0 }, { id: 'ne', x: x1, y: y0 }, { id: 'e', x: x1, y: ym },
+      { id: 'se', x: x1, y: y1 }, { id: 's', x: xm, y: y1 }, { id: 'sw', x: x0, y: y1 }, { id: 'w', x: x0, y: ym },
+    ];
+  }
+  const CURSORS = { n: 'ns-resize', s: 'ns-resize', e: 'ew-resize', w: 'ew-resize', nw: 'nwse-resize', se: 'nwse-resize', ne: 'nesw-resize', sw: 'nesw-resize' };
+  function resizeBox(d, p) {
+    const [W] = FORMATS[state.format];
+    const g0 = d.box, dx = p.x - d.p0.x, dy = p.y - d.p0.y, h = d.handle;
+    let w = g0.logoW;
+    if (h.includes('e')) w = g0.logoW + dx;
+    if (h.includes('w')) w = g0.logoW - dx;
+    w = clamp(w, W * 0.6, W * 0.96);                       // limiti di Dimensione (0–100)
+    state.size = clamp((w / W - 0.6) / 0.36 * 100, 0, 100);
+    let g = geo();                                         // nuova altezza del logo
+    const room = Math.max(1e-6, g.safe.h - g.logoH);
+    let bh = g.bandH;
+    if (h.includes('s')) bh = g0.bandH + dy;
+    if (h.includes('n')) bh = g0.bandH - dy;
+    if (h.includes('n') || h.includes('s')) state.band = clamp((bh - g.logoH) / room * 100, 0, 100);
+    g = geo();
+    // lato opposto fermo
+    const left = h.includes('w') ? g0.left + g0.logoW - g.logoW : g0.left;
+    const top = h.includes('n') ? g0.top + g0.bandH - g.bandH : h.includes('s') ? g0.top : g0.top + (g0.bandH - g.bandH) / 2;
+    const fX = g.safe.w - g.logoW, fY = g.safe.h - g.bandH;
+    state.fx = fX > 0 ? clamp((left - g.safe.x) / fX, 0, 1) : 0;
+    state.fy = fY > 0 ? clamp((top - g.safe.y) / fY, 0, 1) : 0;
+    state.align = null;
+  }
+  // Guide sempre visibili mentre trascini il box; altrimenti con "Guide".
+  function guides(dragging) {
+    $('guideSlides').setAttribute('visibility', dragging || state.guides ? 'visible' : 'hidden');
+  }
+  function toggleGuides() { state.guides = !state.guides; $('guidesToggle').setAttribute('aria-pressed', state.guides); guides(false); }
+  function settle() { cancelAnimationFrame(anim); anim = 0; shownY = targetY(geo()); paint(); }
+  function animateTo() {
+    const to = targetY(geo());
+    if (!shownY || reduceMotion || state.duration === 0) { shownY = to; paint(); return; }
+    cancelAnimationFrame(anim);
+    const from = shownY.slice(), start = performance.now(), dur = state.duration;
+    const step = now => {
+      const t = clamp((now - start) / dur, 0, 1), e = 1 - Math.pow(1 - t, 3);
+      shownY = from.map((v, i) => v + (to[i] - v) * e);
+      paint();
+      anim = t < 1 ? requestAnimationFrame(step) : 0;
+    };
+    anim = requestAnimationFrame(step);
+  }
+  function fit() {
+    // La dimensione dipende da UNA slide: aggiungendone altre non si rimpicciolisce,
+    // il carosello si allunga e scorre.
+    const g = geo(), box = $('stage').getBoundingClientRect();
+    const padX = window.innerWidth < 760 ? 20 : 100, padY = window.innerWidth < 760 ? 44 : 64;
+    const k = Math.min((box.width - padX * 2) / g.W, (box.height - padY * 2) / g.H);
+    const sw = Math.max(10, g.W * k);
+    $('frame').style.width = sw * g.n + 'px';
+    $('frame').style.height = Math.max(10, g.H * k) + 'px';
+    // margini del tavolo: la prima e l'ultima slide possono arrivare al centro
+    const side = Math.max(20, (box.width - sw) / 2);
+    $('board').style.paddingLeft = side + 'px';
+    $('board').style.paddingRight = Math.max(20, side - 44) + 'px';
+    return sw;
+  }
+  // Porta la slide i al centro dello schermo.
+  function showSlide(i, smooth = true) {
+    const sw = fit();
+    $('stage').scrollTo({ left: i * sw, behavior: smooth && !reduceMotion ? 'smooth' : 'auto' });
+  }
+  // Navigazione del tavolo: la rotella scorre in orizzontale; trascinando il
+  // grigio (fuori dalle slide) si sposta il carosello, come la mano di Illustrator.
+  $('stage').addEventListener('wheel', e => {
+    if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) { e.preventDefault(); $('stage').scrollLeft += e.deltaY; }
+  }, { passive: false });
+  let pan = null;
+  $('stage').addEventListener('pointerdown', e => {
+    if (e.button !== 0 || e.target.closest('#frame, .slides-ctl')) return;
+    pan = { id: e.pointerId, x: e.clientX, left: $('stage').scrollLeft };
+    $('stage').setPointerCapture(e.pointerId); $('stage').classList.add('panning');
+  });
+  $('stage').addEventListener('pointermove', e => {
+    if (!pan || e.pointerId !== pan.id) return;
+    if (e.buttons === 0) { pan = null; $('stage').classList.remove('panning'); return; }
+    $('stage').scrollLeft = pan.left - (e.clientX - pan.x);
+  });
+  const endPan = e => { if (pan && e.pointerId === pan.id) { pan = null; $('stage').classList.remove('panning'); } };
+  $('stage').addEventListener('pointerup', endPan);
+  $('stage').addEventListener('pointercancel', endPan);
+  $('stage').addEventListener('lostpointercapture', endPan);
+  window.addEventListener('pointerup', endPan);
+
+  // ── Slide del carosello: il logo resta fermo dov'è mentre aggiungi o togli slide.
+  function setSlides(n) {
+    const g0 = geo();
+    state.slides = clamp(n, 1, 10);
+    const g = geo(), free = g.safe.w - g.logoW;
+    state.fx = free > 0 ? clamp((g0.left - g.safe.x) / free, 0, 1) : 0;
+    sync(); settle();
+  }
+  $('slideAdd').addEventListener('click', () => { setSlides(state.slides + 1); showSlide(state.slides - 1); });
+  $('slideRemove').addEventListener('click', () => { setSlides(state.slides - 1); showSlide(state.slides - 1); });
+  function shuffle() { state.draw = freshDraw(); state.manual = Array(10).fill(0); state.composed = false; animateTo(); }
+  function compose() { state.manual = Array(10).fill(0); state.composed = true; animateTo(); }
+
+  // ── Interfaccia
+  function buildSwatches(container, list, onPick) {
+    list.forEach(c => {
+      const b = document.createElement('button');
+      b.type = 'button'; b.className = 'swatch' + (c.hex === 'none' ? ' alpha' : '');
+      if (c.hex !== 'none') b.style.background = c.hex;
+      b.title = c.hex === 'none' ? c.name : `${c.name} ${c.hex}`;
+      b.setAttribute('aria-label', b.title); b.dataset.hex = c.hex;
+      b.addEventListener('click', () => onPick(c.hex));
+      container.appendChild(b);
+    });
+  }
+  buildSwatches($('bgSwatches'), [...PALETTE, TRANSPARENT], hex => { state.bg = hex; if (PAIRING[hex]) state.logo = PAIRING[hex]; sync(); paint(); });
+  buildSwatches($('logoSwatches'), LOGO_COLORS, hex => { state.logo = hex; sync(); paint(); });
+
+  const ALIGN = [[0, 0], [.5, 0], [1, 0], [0, .5], [.5, .5], [1, .5], [0, 1], [.5, 1], [1, 1]];
+  const NAMES = ['In alto a sinistra', 'In alto al centro', 'In alto a destra', 'Al centro a sinistra', 'Al centro', 'Al centro a destra', 'In basso a sinistra', 'In basso al centro', 'In basso a destra'];
+  // La posizione 3×3 è sempre riferita a UNA slide (quella che hai al centro
+  // dello schermo), mai all'intero carosello.
+  function currentSlide() {
+    const sw = $('frame').getBoundingClientRect().width / state.slides;
+    return clamp(Math.round($('stage').scrollLeft / Math.max(1, sw)), 0, state.slides - 1);
+  }
+  function alignTo(ax, ay, idx) {
+    const g = geo(), i = currentSlide();
+    const left = i * g.W + g.edge + Math.max(0, g.W - 2 * g.edge - g.logoW) * ax;
+    const free = g.safe.w - g.logoW;
+    state.fx = free > 0 ? clamp((left - g.safe.x) / free, 0, 1) : 0;
+    state.fy = ay; state.align = idx;
+    sync(); animateTo();
+  }
+  ALIGN.forEach(([fx, fy], i) => {
+    const b = document.createElement('button');
+    b.type = 'button'; b.dataset.fx = fx; b.dataset.fy = fy; b.setAttribute('aria-label', NAMES[i]); b.title = NAMES[i];
+    b.addEventListener('click', () => { alignTo(fx, fy, i); });
+    $('align').appendChild(b);
+  });
+
+  const nameOf = hex => hex === 'none' ? TRANSPARENT.name : ((LOGO_COLORS.find(c => c.hex === hex) || {}).name || hex);
+  const SLIDERS = { size: 'sizeOut', band: 'bandOut', jitter: 'jitterOut', gap: 'gapOut', slope: 'slopeOut', duration: 'durOut' };
+  const fmt = (k, v) => k === 'duration' ? v + ' ms' : String(Math.round(v));
+  Object.keys(SLIDERS).forEach(key => {
+    $(key).addEventListener('input', e => {
+      state[key] = parseFloat(e.target.value);
+      $(SLIDERS[key]).textContent = fmt(key, state[key]);
+      if (key === 'duration') return;
+      if (['jitter', 'gap', 'slope'].includes(key)) state.composed = false;
+      settle();
+    });
+  });
+
+  function sync() {
+    document.querySelectorAll('#formats button[data-format]').forEach(b => b.setAttribute('aria-pressed', b.dataset.format === state.format));
+    $('guidesToggle').setAttribute('aria-pressed', state.guides);
+    document.querySelectorAll('#bgSwatches .swatch').forEach(b => b.setAttribute('aria-pressed', b.dataset.hex === state.bg));
+    document.querySelectorAll('#logoSwatches .swatch').forEach(b => b.setAttribute('aria-pressed', b.dataset.hex === state.logo));
+    document.querySelectorAll('#align button').forEach((b, i) => b.setAttribute('aria-pressed', i === state.align));
+    $('bgName').textContent = nameOf(state.bg);
+    $('logoName').textContent = nameOf(state.logo);
+    Object.keys(SLIDERS).forEach(k => { $(k).value = state[k]; $(SLIDERS[k]).textContent = fmt(k, state[k]); });
+    // Livelli: le foto dalla più alta alla più bassa (il logo sta sempre sopra a tutto).
+    const list = $('layers'); list.textContent = '';
+    for (let i = state.photos.length - 1; i >= 0; i--) {
+      const ph = state.photos[i], li = document.createElement('li');
+      li.setAttribute('aria-current', i === state.sel);
+      const pic = document.createElement('span'); pic.className = 'pic'; pic.style.backgroundImage = `url("${ph.url}")`;
+      const name = document.createElement('span'); name.className = 'name'; name.textContent = ph.name; name.title = ph.name;
+      const act = document.createElement('span'); act.className = 'act';
+      [['↑', 'Porta sopra', () => moveLayer(1, i), i === state.photos.length - 1],
+       ['↓', 'Porta sotto', () => moveLayer(-1, i), i === 0],
+       ['×', 'Rimuovi', () => removePhoto(i), false]].forEach(([txt, label, fn, off]) => {
+        const b = document.createElement('button');
+        b.type = 'button'; b.textContent = txt; b.title = label; b.setAttribute('aria-label', label); b.disabled = off;
+        b.addEventListener('click', ev => { ev.stopPropagation(); fn(); });
+        act.appendChild(b);
+      });
+      li.append(pic, name, act);
+      li.addEventListener('click', () => { state.sel = i === state.sel ? -1 : i; sync(); paint(); });
+      list.appendChild(li);
+    }
+    const ph = state.photos[state.sel];
+    $('photoTools').hidden = !ph;
+    if (ph) {
+      const z = Math.round(1 + (ph.zoom - 1) / 2 * 99);
+      $('zoom').value = z; $('zoomOut').textContent = z;
+    }
+    $('slideRemove').hidden = state.slides < 2;
+  }
+
+  document.querySelectorAll('#formats button[data-format]').forEach(b => b.addEventListener('click', () => { state.format = b.dataset.format; sync(); settle(); }));
+  $('guidesToggle').addEventListener('click', toggleGuides);
+  $('shuffle').addEventListener('click', shuffle);
+  $('compose').addEventListener('click', compose);
+  $('resetParams').addEventListener('click', () => {
+    Object.assign(state, DEFAULTS, { fx: .5, fy: .5, align: 4 }); state.manual = Array(10).fill(0); state.composed = false; sync(); settle();
+  });
+
+  // ── Foto
+  function addPhotos(files) {
+    [...files].filter(f => f && f.type.startsWith('image/')).forEach(file => {
+      const url = URL.createObjectURL(file), img = new Image();
+      img.onload = () => {
+        // Ogni nuova foto riempie la slide successiva (poi la sposti dove vuoi).
+        const slot = state.photos.length % state.slides;
+        state.photos.push({ img, url, name: file.name.replace(/\.[^.]+$/, ''), w: img.naturalWidth, h: img.naturalHeight, u: slot + .5, v: .5, zoom: 1 });
+        state.sel = state.photos.length - 1;
+        renderPhotos(); sync(); paint(); commit();
+      };
+      img.src = url;
+    });
+  }
+  function removePhoto(i) {
+    state.photos.splice(i, 1);   // l'URL resta valido: la foto si può recuperare con ⌘Z
+    state.sel = Math.min(state.sel, state.photos.length - 1);
+    renderPhotos(); sync(); paint();
+  }
+  function moveLayer(dir, i = state.sel) {
+    const j = i + dir;
+    if (i < 0 || j < 0 || j >= state.photos.length) return;
+    [state.photos[i], state.photos[j]] = [state.photos[j], state.photos[i]];
+    state.sel = j; renderPhotos(); sync(); paint();
+  }
+  $('photoPick').addEventListener('click', () => $('photoInput').click());
+  $('photoInput').addEventListener('change', e => { addPhotos(e.target.files); e.target.value = ''; });
+  // Zoom 1–100: 1 = la foto copre esattamente una slide, 100 = 3×. Resta centrata.
+  $('zoom').addEventListener('input', e => {
+    const ph = state.photos[state.sel]; if (!ph) return;
+    ph.zoom = 1 + (e.target.value - 1) / 99 * 2; $('zoomOut').textContent = e.target.value; paint();
+  });
+  let dragDepth = 0;
+  window.addEventListener('dragenter', e => { e.preventDefault(); dragDepth++; document.body.classList.add('dragging'); });
+  window.addEventListener('dragleave', () => { if (--dragDepth <= 0) { dragDepth = 0; document.body.classList.remove('dragging'); } });
+  window.addEventListener('dragover', e => e.preventDefault());
+  window.addEventListener('drop', e => { e.preventDefault(); dragDepth = 0; document.body.classList.remove('dragging'); addPhotos(e.dataTransfer.files); });
+
+  // ── Interazione sul canvas
+  //    click → rimescola · trascina una lettera → solo quella, in verticale
+  //    trascina dentro il box → sposta il box (aggancio a griglia)
+  //    trascina fuori dalil box → inquadra la foto
+  const toArt = e => {
+    const r = art.getBoundingClientRect(), g = geo();
+    // coordinate nel disegno: la larghezza è quella di TUTTO il carosello
+    return { x: (e.clientX - r.left) * g.TW / r.width, y: (e.clientY - r.top) * g.H / r.height, k: g.TW / r.width };
+  };
+  function hitLetter(p) {
+    const g = geo(), pad = 6 * p.k;
+    let best = null, dist = Infinity;
+    bounds.forEach((b, i) => {
+      const x0 = g.left + b.x * g.s, x1 = x0 + b.w * g.s, y0 = shownY[i] + b.y * g.s, y1 = y0 + b.h * g.s;
+      if (p.x < x0 - pad || p.x > x1 + pad || p.y < y0 - pad || p.y > y1 + pad) return;
+      const d = Math.hypot(p.x - (x0 + x1) / 2, p.y - (y0 + y1) / 2);
+      if (d < dist) { dist = d; best = i; }
+    });
+    return best;
+  }
+  const inBand = p => { const g = geo(); return p.x >= g.left && p.x <= g.left + g.logoW && p.y >= g.top && p.y <= g.top + g.bandH; };
+  const snap = v => Math.round(clamp(v, 0, 1) * SNAP) / SNAP;
+  // In orizzontale il box si aggancia a sedicesimi di slide (quindi anche
+  // ai confini tra le slide) e ai bordi della safe area.
+  function snapLeft(x, g) {
+    const lo = g.safe.x, hi = g.safe.x + Math.max(0, g.safe.w - g.logoW), step = g.W / SNAP;
+    const cands = [lo, hi];
+    for (let v = Math.ceil(lo / step) * step; v <= hi; v += step) cands.push(v);
+    // anche il bordo destro e il centro delil box si agganciano alla griglia
+    for (let v = 0; v <= g.TW; v += step) { cands.push(v - g.logoW); cands.push(v - g.logoW / 2); }
+    const ok = cands.filter(c => c >= lo - .01 && c <= hi + .01);
+    return ok.reduce((b, c) => Math.abs(c - x) < Math.abs(b - x) ? c : b, clamp(x, lo, hi));
+  }
+  function hitPhoto(p) {
+    const g = geo();
+    for (let i = state.photos.length - 1; i >= 0; i--) {
+      const r = photoRect(state.photos[i], g);
+      if (p.x >= r.x && p.x <= r.x + r.w && p.y >= r.y && p.y <= r.y + r.h) return i;
+    }
+    return -1;
+  }
+  // ── Aggancio magnetico delle foto (come Figma): bordi e centro della foto
+  //    si attaccano a bordi, centri e safe area delle slide e alle altre foto.
+  //    Tieni premuto Alt per spostare senza aggancio.
+  const SNAP_PX = 8;   // distanza di aggancio, in pixel dello schermo
+  function snapPhoto(ph, g, k, free, lock) {
+    const r = photoRect(ph, g);
+    const xs = [], ys = [0, g.H / 2, g.H, g.tb, g.H - g.tb];
+    for (let i = 0; i <= g.n; i++) xs.push(i * g.W);
+    for (let i = 0; i < g.n; i++) xs.push(i * g.W + g.W / 2, i * g.W + g.edge, (i + 1) * g.W - g.edge);
+    state.photos.forEach(o => {
+      if (o === ph) return;
+      const q = photoRect(o, g);
+      xs.push(q.x, q.x + q.w / 2, q.x + q.w); ys.push(q.y, q.y + q.h / 2, q.y + q.h);
+    });
+    const lines = [];
+    const best = (edges, targets) => {
+      let d = Infinity, hit = null;
+      edges.forEach(e => targets.forEach(t => { if (Math.abs(t - e) < Math.abs(d)) { d = t - e; hit = t; } }));
+      return Math.abs(d) <= SNAP_PX * k ? { d, hit } : null;
+    };
+    if (!free) {
+      const sx = best([r.x, r.x + r.w / 2, r.x + r.w], xs);
+      const sy = best([r.y, r.y + r.h / 2, r.y + r.h], ys);
+      if (sx && lock !== 'x') { ph.u += sx.d / g.W; lines.push(`<line x1="${sx.hit}" y1="-2000" x2="${sx.hit}" y2="${g.H + 2000}"/>`); }
+      if (sy && lock !== 'y') { ph.v += sy.d / g.H; lines.push(`<line x1="-2000" y1="${sy.hit}" x2="${g.TW + 2000}" y2="${sy.hit}"/>`); }
+    }
+    $('guideSnap').innerHTML = lines.join('');
+    snapping = lines.length > 0;
+  }
+
+  // ── Mouse sul canvas
+  //    · lettera: trascini solo quella; click = rimescola
+  //    · foto selezionata: la trascini ovunque, anche sotto il logo e tra le slide
+  //    · box del logo: lo trascini; click = rimescola
+  //    · altra foto: la selezioni e la trascini
+  //    · click sul vuoto: deseleziona
+  let drag = null;
+  // Maiusc mentre trascini: si muove solo lungo l'asse principale del gesto
+  // (come Figma e Illustrator). Restituisce l'asse bloccato.
+  function axisLock(e, p) {
+    if (!e.shiftKey) return null;
+    return Math.abs(p.x - drag.p0.x) >= Math.abs(p.y - drag.p0.y) ? 'y' : 'x';
+  }
+  function pick(p, target, deep) {
+    // 0. maniglie del box (quando le guide sono visibili)
+    if (state.guides) {
+      const g = geo(), r = HANDLE_PX * canvasPerPx(g) * 0.9;
+      const h = handles(g).find(h => Math.abs(p.x - h.x) <= r && Math.abs(p.y - h.y) <= r);
+      if (h) return { mode: 'resize', handle: h.id };
+    }
+    // 1. dentro il box comanda il logo: click = rimescola, trascina = sposta il box
+    //    (sul pieno di una lettera: sposta solo quella lettera).
+    //    Con ⌘ / Ctrl premuto si prende invece la foto che sta sotto.
+    const under = hitPhoto(p);
+    if (inBand(p) && !(deep && under >= 0)) {
+      if (target && target.classList && target.classList.contains('glyph')) return { mode: 'letter', letter: +target.dataset.index };
+      return { mode: 'band' };
+    }
+    // 2. fuori dal box: la foto più in alto sotto il puntatore
+    if (under >= 0) return { mode: 'photo', photo: under };
+    return { mode: 'none' };
+  }
+  art.addEventListener('pointerdown', e => {
+    if (e.button !== 0) return;
+    const p = toArt(e), g = geo(), hit = pick(p, e.target, e.metaKey || e.ctrlKey), ph = state.photos[hit.photo];
+    drag = { id: e.pointerId, x0: e.clientX, y0: e.clientY, p0: p, last: p, moved: false, ...hit,
+             u: ph && ph.u, v: ph && ph.v, left: g.left, top: g.top, fx: state.fx, fy: state.fy,
+             box: { left: g.left, top: g.top, logoW: g.logoW, bandH: g.bandH } };
+    if (hit.mode === 'photo' && state.sel !== hit.photo) { state.sel = hit.photo; sync(); paint(); }
+    art.setPointerCapture(e.pointerId);
+  });
+  art.addEventListener('pointermove', e => {
+    const p = toArt(e);
+    if (!drag) {
+      const hit = pick(p, e.target, e.metaKey || e.ctrlKey), m = hit.mode;
+      art.style.cursor = m === 'resize' ? CURSORS[hit.handle] : m === 'letter' ? 'ns-resize' : m === 'band' || m === 'photo' ? 'move' : 'default';
+      return;
+    }
+    if (e.pointerId !== drag.id) return;
+    // tasto già rilasciato (magari fuori dalla finestra): chiudi l'azione e basta
+    if (e.buttons === 0) { endDrag({ pointerId: drag.id, type: 'pointercancel' }); return; }
+    if (!drag.moved && Math.hypot(e.clientX - drag.x0, e.clientY - drag.y0) < 4) return;
+    drag.moved = true;
+    const g = geo();
+    if (drag.mode === 'letter') {
+      cancelAnimationFrame(anim); anim = 0;
+      // Ritocco: sposta solo questa lettera, sempre dentro il box.
+      const i = drag.letter, b = bounds[i];
+      const y = clamp(shownY[i] + p.y - drag.last.y, g.top - b.y * g.s, g.top + g.bandH - (b.y + b.h) * g.s);
+      state.manual[i] = (state.manual[i] || 0) + (y - targetY(g)[i]) / g.bandH;
+      drag.last = p; shownY = targetY(g); paint();
+    } else if (drag.mode === 'resize') {
+      cancelAnimationFrame(anim); anim = 0;
+      resizeBox(drag, p);
+      sync(); guides(true); shownY = targetY(geo()); paint();
+    } else if (drag.mode === 'band') {
+      cancelAnimationFrame(anim); anim = 0;
+      const freeX = g.safe.w - g.logoW, freeY = g.safe.h - g.bandH, lock = axisLock(e, p);
+      state.align = null;   // trascinata a mano: nessuna posizione della griglia è attiva
+      state.fx = lock === 'x' || freeX <= 0 ? drag.fx : clamp((snapLeft(drag.left + p.x - drag.p0.x, g) - g.safe.x) / freeX, 0, 1);
+      state.fy = lock === 'y' || freeY <= 0 ? drag.fy : snap((drag.top + p.y - drag.p0.y - g.safe.y) / freeY);
+      sync(); guides(true); shownY = targetY(geo()); paint();
+    } else if (drag.mode === 'photo') {
+      const ph = state.photos[drag.photo], lock = axisLock(e, p);
+      ph.u = lock === 'x' ? drag.u : drag.u + (p.x - drag.p0.x) / g.W;
+      ph.v = lock === 'y' ? drag.v : drag.v + (p.y - drag.p0.y) / g.H;
+      snapPhoto(ph, g, p.k, e.altKey, lock);
+      paint();
+    }
+  });
+  const endDrag = e => {
+    if (!drag || e.pointerId !== drag.id) return;
+    const d = drag, click = !d.moved && e.type === 'pointerup';
+    drag = null; guides(false); $('guideSnap').innerHTML = ''; art.style.cursor = '';
+    if (snapping) { snapping = false; paint(); }
+    if (!click) return;
+    if (d.mode === 'letter' || d.mode === 'band') shuffle();              // click nel box: il gioco del logo
+    else if (d.mode === 'none') { state.sel = -1; sync(); paint(); }     // click sul vuoto
+  };
+  // L'azione si chiude ovunque rilasci il tasto: sul canvas, fuori dal canvas,
+  // fuori dalla finestra, o se il browser perde il puntatore.
+  art.addEventListener('pointerup', endDrag);
+  art.addEventListener('pointercancel', endDrag);
+  art.addEventListener('lostpointercapture', e => endDrag({ pointerId: e.pointerId, type: 'pointercancel' }));
+  window.addEventListener('pointerup', endDrag);
+  window.addEventListener('pointercancel', endDrag);
+  window.addEventListener('blur', () => { if (drag) endDrag({ pointerId: drag.id, type: 'pointercancel' }); });
+  window.addEventListener('keydown', e => {
+    // ⌘Z / Ctrl+Z annulla · ⇧⌘Z / Ctrl+Y ripristina
+    const mod = e.metaKey || e.ctrlKey, key = e.key.toLowerCase();
+    if (mod && key === 'z') { e.preventDefault(); e.shiftKey ? redo() : undo(); return; }
+    if (mod && key === 'y') { e.preventDefault(); redo(); return; }
+    if (e.target.closest('input, textarea') && e.target.type !== 'range') return;
+    if (e.code === 'Space') { e.preventDefault(); shuffle(); }
+    else if (e.key === 'r' || e.key === 'R') compose();
+    else if (e.key === 'g' || e.key === 'G') toggleGuides();
+    else if (e.key === 'Escape') { state.sel = -1; sync(); paint(); }
+    else if ((e.key === 'Delete' || e.key === 'Backspace') && state.sel >= 0) { e.preventDefault(); removePhoto(state.sel); }
+    else if (e.key.startsWith('Arrow') && state.sel >= 0) {
+      // frecce: sposta di 1 px (10 con Maiusc), come in Figma
+      e.preventDefault();
+      const ph = state.photos[state.sel], g = geo(), step = e.shiftKey ? 10 : 1;
+      if (e.key === 'ArrowLeft') ph.u -= step / g.W; if (e.key === 'ArrowRight') ph.u += step / g.W;
+      if (e.key === 'ArrowUp') ph.v -= step / g.H; if (e.key === 'ArrowDown') ph.v += step / g.H;
+      paint();
+    }
+  });
+  new ResizeObserver(fit).observe($('stage'));
+
+  // ── Annulla / ripristina (5 passi)
+  //    Si salva uno stato alla fine di ogni azione: fine di un trascinamento,
+  //    rilascio di uno slider, click su un pulsante, frecce, foto caricata.
+  const HISTORY = 5;
+  const snapshot = () => ({
+    format: state.format, bg: state.bg, logo: state.logo, fx: state.fx, fy: state.fy, align: state.align,
+    size: state.size, band: state.band, jitter: state.jitter, gap: state.gap, slope: state.slope, duration: state.duration,
+    slides: state.slides, composed: state.composed, draw: state.draw, manual: [...state.manual], sel: state.sel,
+    photos: state.photos.map(({ img, url, name, w, h, u, v, zoom }) => ({ img, url, name, w, h, u, v, zoom })),
+  });
+  // la sola selezione non conta come modifica
+  const keyOf = s => JSON.stringify(s, (k, v) => k === 'img' || k === 'sel' ? undefined : v);
+  let past = [], future = [];
+  function commit() {
+    const s = snapshot();
+    if (past.length && keyOf(past[past.length - 1]) === keyOf(s)) return;
+    past.push(s); future = [];
+    if (past.length > HISTORY + 1) past.shift();
+  }
+  function restore(s) {
+    Object.assign(state, s, { manual: [...s.manual], photos: s.photos.map(p => ({ ...p })) });
+    state.sel = Math.min(state.sel, state.photos.length - 1);
+    renderPhotos(); sync(); settle();   // senza animazione
+  }
+  function undo() { if (past.length > 1) { future.push(past.pop()); restore(past[past.length - 1]); } }
+  function redo() { if (future.length) { const s = future.pop(); past.push(s); restore(s); } }
+  const later = () => setTimeout(commit, 30);   // dopo che click e handler hanno finito
+  window.addEventListener('pointerup', later, true);
+  window.addEventListener('change', later, true);
+  window.addEventListener('keyup', e => { if (!(e.metaKey || e.ctrlKey)) later(); }, true);
+
+  // ── Esportazione
+  //    Ogni slide è un ritaglio dello stesso disegno, a confini interi di pixel:
+  //    una foto a cavallo tra due slide continua senza nessuno spazio.
+  //    PNG: sempre con canale alfa (sfondo trasparente = alfa). Risoluzione: quella
+  //    nativa della foto più definita, altrimenti 4×. SVG: logo + colore di sfondo.
+  //    Con più slide si scarica uno ZIP con un file per slide.
+  const MAX_SIDE = 8192;
+  const stamp = () => Date.now().toString(36);
+  const base = () => `dagostudio_${state.format.replace(':', 'x')}`;
+  function download(blob, name) {
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob); a.download = name;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+  }
+  // ZIP senza compressione (PNG e SVG sono già leggeri o compressi).
+  const CRC = (() => { const t = new Uint32Array(256); for (let n = 0; n < 256; n++) { let c = n; for (let k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1; t[n] = c >>> 0; } return t; })();
+  const crc32 = d => { let c = 0xFFFFFFFF; for (let i = 0; i < d.length; i++) c = CRC[(c ^ d[i]) & 255] ^ (c >>> 8); return (c ^ 0xFFFFFFFF) >>> 0; };
+  function zip(files) {
+    const enc = new TextEncoder(), parts = [], dir = [];
+    let offset = 0;
+    files.forEach(f => {
+      const name = enc.encode(f.name), crc = crc32(f.data), size = f.data.length;
+      const h = new DataView(new ArrayBuffer(30));
+      h.setUint32(0, 0x04034b50, true); h.setUint16(4, 20, true); h.setUint16(8, 0, true);
+      h.setUint32(14, crc, true); h.setUint32(18, size, true); h.setUint32(22, size, true); h.setUint16(26, name.length, true);
+      parts.push(h, name, f.data);
+      const c = new DataView(new ArrayBuffer(46));
+      c.setUint32(0, 0x02014b50, true); c.setUint16(4, 20, true); c.setUint16(6, 20, true);
+      c.setUint32(16, crc, true); c.setUint32(20, size, true); c.setUint32(24, size, true); c.setUint16(28, name.length, true);
+      c.setUint32(42, offset, true);
+      dir.push(c, name);
+      offset += 30 + name.length + size;
+    });
+    const dirSize = dir.reduce((s, p) => s + p.byteLength, 0);
+    const end = new DataView(new ArrayBuffer(22));
+    end.setUint32(0, 0x06054b50, true); end.setUint16(8, files.length, true); end.setUint16(10, files.length, true);
+    end.setUint32(12, dirSize, true); end.setUint32(16, offset, true);
+    return new Blob([...parts, ...dir, end], { type: 'application/zip' });
+  }
+  function deliver(files, ext) {
+    if (files.length === 1) download(new Blob([files[0].data], { type: ext === 'png' ? 'image/png' : 'image/svg+xml' }), `${base()}_${stamp()}.${ext}`);
+    else download(zip(files), `${base()}_carosello_${ext}_${stamp()}.zip`);
+  }
+  const num = i => String(i + 1).padStart(2, '0');
+  $('exportPng').addEventListener('click', async () => {
+    settle();
+    const g = geo();
+    let k = state.photos.length ? Math.max(1, ...state.photos.map(ph => 1 / photoRect(ph, g).scale)) : 4;
+    k = Math.min(k, MAX_SIDE / Math.max(g.W, g.H));
+    const Wpx = Math.round(g.W * k), Hpx = Math.round(g.H * k), sx = Wpx / g.W, sy = Hpx / g.H;
+    const files = [];
+    for (let i = 0; i < g.n; i++) {
+      const c = document.createElement('canvas');
+      c.width = Wpx; c.height = Hpx;
+      const ctx = c.getContext('2d');
+      ctx.setTransform(sx, 0, 0, sy, -i * Wpx, 0);   // spostamento intero: nessun gap
+      if (state.bg !== 'none') { ctx.fillStyle = state.bg; ctx.fillRect(0, 0, g.TW, g.H); }
+      ctx.imageSmoothingQuality = 'high';
+      state.photos.forEach(ph => { const r = photoRect(ph, g); ctx.drawImage(ph.img, r.x, r.y, r.w, r.h); });
+      ctx.fillStyle = state.logo;
+      paths2d.forEach((p, j) => { ctx.save(); ctx.translate(g.left, shownY[j]); ctx.scale(g.s, g.s); ctx.fill(p); ctx.restore(); });
+      const blob = await new Promise(r => c.toBlob(r, 'image/png'));
+      files.push({ name: `${base()}_${num(i)}.png`, data: new Uint8Array(await blob.arrayBuffer()) });
+    }
+    deliver(files, 'png');
+  });
+  $('exportSvg').addEventListener('click', () => {
+    settle();
+    const g = geo(), n = v => +v.toFixed(3), enc = new TextEncoder();
+    const bg = state.bg !== 'none' ? ` <rect width="${g.TW}" height="${g.H}" fill="${state.bg}"/>\n` : '';
+    const body = GLYPHS.map((gl, i) => `  <path transform="translate(${n(g.left)} ${n(shownY[i])}) scale(${+g.s.toFixed(6)})" d="${gl.d}"/>`).join('\n');
+    const files = [];
+    for (let i = 0; i < g.n; i++) {
+      const svg = `<?xml version="1.0" encoding="UTF-8"?>\n<svg xmlns="http://www.w3.org/2000/svg" width="${g.W}" height="${g.H}" viewBox="${i * g.W} 0 ${g.W} ${g.H}">\n${bg} <g fill="${state.logo}">\n${body}\n </g>\n</svg>\n`;
+      files.push({ name: `${base()}_${num(i)}.svg`, data: enc.encode(svg) });
+    }
+    deliver(files, 'svg');
+  });
+
+  // ── Avvio
+  sync();
+  state.draw = draw();
+  settle();
+  guides(false);
+  commit();   // primo stato della cronologia
+  (document.fonts ? document.fonts.ready : Promise.resolve()).then(fit);
+})();
+</script>
+</body>
+</html>
