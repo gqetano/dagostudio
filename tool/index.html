@@ -155,17 +155,17 @@
   .undo svg { width: 20px; height: 20px; stroke: currentColor; stroke-width: 1.8; fill: none; stroke-linecap: round; stroke-linejoin: round; }
   .undo:disabled { opacity: .25; }
 
-  /* ── Mobile: area di lavoro libera in alto; sotto, fissi, i pallini e la barra
-        "Dago Tool"; in fondo i parametri divisi in sezioni che scorrono di lato ── */
+  /* ── Mobile: area di lavoro libera in alto, con i pallini delle sezioni in fondo;
+        sotto, fissa, la barra "Dago Tool"; poi i parametri che scorrono di lato ── */
   @media (max-width: 760px) {
     html, body { height: 100%; }
     body { grid-template-columns: 1fr; grid-template-rows: minmax(0, 1fr) auto auto 26vh; grid-template-rows: minmax(0, 1fr) auto auto 26dvh;
       height: 100vh; height: 100dvh; overflow: hidden; }
     aside { display: contents; }
-    .brand { grid-row: 3; position: static; padding: 4px 20px 12px; }
+    .brand { grid-row: 3; position: static; padding: 14px 20px 12px; border-top: 1px solid var(--line); }
     main { grid-row: 1; height: auto; min-height: 0; }
     .undo { display: grid; }
-    .dots { grid-row: 2; display: flex; justify-content: center; gap: 2px; padding: 6px 0 2px; background: #fff; border-top: 1px solid var(--line); }
+    .dots { grid-row: 2; display: flex; justify-content: center; gap: 2px; padding: 0 0 6px; background: var(--stage); }
     .dots button { width: 22px; height: 22px; border: 0; background: none; padding: 0; display: grid; place-items: center; }
     .dots button::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: #cdcdcd; transition: background 120ms ease; }
     .dots button[aria-current="true"]::before { background: var(--ink); }
@@ -549,7 +549,7 @@
     // La dimensione dipende da UNA slide: aggiungendone altre non si rimpicciolisce,
     // il carosello si allunga e scorre.
     const g = geo(), box = $('stage').getBoundingClientRect();
-    const padX = window.innerWidth < 760 ? 20 : 100, padY = window.innerWidth < 760 ? 44 : 64;
+    const padX = window.innerWidth < 760 ? 64 : 100, padY = window.innerWidth < 760 ? 44 : 64;
     const k = Math.min((box.width - padX * 2) / g.W, (box.height - padY * 2) / g.H);
     const sw = Math.max(10, g.W * k);
     $('frame').style.width = sw * g.n + 'px';
