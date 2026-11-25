@@ -23,6 +23,8 @@
   button, input { font: inherit; color: inherit; letter-spacing: inherit; }
   button { cursor: pointer; }
   [hidden] { display: none !important; }
+  /* niente zoom con il doppio tocco: i tocchi rapidi sul logo servono a rimescolare */
+  html, body, body * { touch-action: manipulation; }
   :focus-visible { outline: 1px solid var(--red); outline-offset: 2px; }
 
   /* ── Sidebar ───────────────────────────────────────────── */
@@ -914,6 +916,9 @@
     }
   });
   new ResizeObserver(fit).observe($('stage'));
+
+  // Doppio tocco / doppio click: nessuno zoom della pagina né selezione del testo
+  document.addEventListener('dblclick', e => e.preventDefault(), { passive: false });
 
   // ── Mobile: pallini per le sezioni degli strumenti ──
   (() => {
