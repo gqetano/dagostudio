@@ -163,9 +163,13 @@
       height: 100vh; height: 100dvh; overflow: hidden; }
     aside { display: contents; }
     .brand { grid-row: 3; position: static; padding: 14px 20px 12px; border-top: 1px solid var(--line); }
-    main { grid-row: 1; height: auto; min-height: 0; }
+    /* l'area di lavoro arriva fin sotto i pallini, così lo switch delle guide
+       (senza scritta) sta in basso a destra, centrato sulla riga dei pallini */
+    main { grid-row: 1 / 3; grid-column: 1; height: auto; min-height: 0; }
     .undo { display: grid; }
-    .dots { grid-row: 2; display: flex; justify-content: center; gap: 2px; padding: 0 0 6px; background: var(--stage); }
+    .toggle { bottom: 5px; right: 24px; }
+    .toggle span { display: none; }
+    .dots { grid-row: 2; grid-column: 1; z-index: 3; align-self: end; justify-self: center; display: flex; gap: 2px; padding: 0 0 6px; }
     .dots button { width: 22px; height: 22px; border: 0; background: none; padding: 0; display: grid; place-items: center; }
     .dots button::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: #cdcdcd; transition: background 120ms ease; }
     .dots button[aria-current="true"]::before { background: var(--ink); }
@@ -292,7 +296,7 @@
     </div>
     </div>
   </div>
-  <button type="button" class="toggle" id="guidesToggle" title="Safe area e box del logo (tasto G)">
+  <button type="button" class="toggle" id="guidesToggle" aria-label="Guide" title="Safe area e box del logo (tasto G)">
     <span>Guide</span><i aria-hidden="true"></i>
   </button>
   <div id="drop">Rilascia la foto</div>
@@ -549,7 +553,7 @@
     // La dimensione dipende da UNA slide: aggiungendone altre non si rimpicciolisce,
     // il carosello si allunga e scorre.
     const g = geo(), box = $('stage').getBoundingClientRect();
-    const padX = window.innerWidth < 760 ? 64 : 100, padY = window.innerWidth < 760 ? 44 : 64;
+    const padX = window.innerWidth < 760 ? 52 : 100, padY = window.innerWidth < 760 ? 46 : 64;
     const k = Math.min((box.width - padX * 2) / g.W, (box.height - padY * 2) / g.H);
     const sw = Math.max(10, g.W * k);
     $('frame').style.width = sw * g.n + 'px';
