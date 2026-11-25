@@ -131,11 +131,11 @@
   .formats button[aria-pressed="true"] { opacity: 1; }
   /* interruttore */
   /* in basso a destra nell'area del canvas */
-  .toggle { position: absolute; right: 24px; bottom: 18px; z-index: 2; display: flex; align-items: flex-end; gap: 10px;
+  .toggle { position: absolute; right: 24px; bottom: 18px; z-index: 2; display: flex; align-items: baseline; gap: 10px;
     border: 0; background: none; padding: 4px 0; font-size: 13px; }
-  /* la linea di base di "Guide" coincide con la base dello switch */
-  .toggle span { line-height: 1; text-box: trim-both cap alphabetic; }   /* il box del testo finisce esattamente sulla linea di base */
-  @supports not (text-box: trim-both cap alphabetic) { .toggle span { position: relative; top: 2px; } }
+  /* la linea di base di "Guide" coincide con la base dello switch: lo switch non ha
+     testo, quindi in un flex "baseline" la sua linea di base è il suo bordo inferiore */
+  .toggle span { line-height: 1; }
   .toggle i { width: 30px; height: 16px; border-radius: 8px; background: #d6d6d6; position: relative; transition: background 140ms ease; }
   .toggle i::after { content: ''; position: absolute; top: 2px; left: 2px; width: 12px; height: 12px; border-radius: 50%;
     background: #fff; transition: transform 140ms ease; }
@@ -178,7 +178,7 @@
     /* formati grandi quanto la freccia, sulla stessa riga */
     .formats { top: 14px; gap: 18px; }
     .formats button { font-size: 21px; line-height: 1; padding: 6px 0; }
-    .toggle { bottom: 5px; right: 24px; }
+    .toggle { bottom: 10px; right: 24px; }   /* base dello switch = base dei pallini */
     .toggle span { display: none; }
     .dots { grid-row: 2; grid-column: 1; z-index: 3; align-self: end; justify-self: center; display: flex; gap: 2px; padding: 0 0 6px; }
     .dots button { width: 22px; height: 22px; border: 0; background: none; padding: 0; display: grid; place-items: center; }
