@@ -189,13 +189,17 @@
 
   <div class="panels" id="panels">
   <section>
-    <h2>Sfondo</h2>
+    <h2>Colori</h2>
     <div class="row">
-      <div class="label"><span>Colore</span><output id="bgName"></output></div>
+      <div class="label"><span>Sfondo</span><output id="bgName"></output></div>
       <div class="swatches" id="bgSwatches"></div>
     </div>
     <div class="row">
-      <div class="label"><span>Livelli</span></div>
+      <div class="label"><span>Logo</span><output id="logoName"></output></div>
+      <div class="swatches" id="logoSwatches"></div>
+    </div>
+    <div class="row">
+      <div class="label"><span>Immagini</span></div>
       <ul class="layers" id="layers"></ul>
       <button type="button" class="add-photo" id="photoPick"><b>+</b>Aggiungi foto</button>
       <input type="file" id="photoInput" accept="image/*" multiple hidden>
@@ -209,20 +213,13 @@
   </section>
 
   <section>
-    <h2>Logo</h2>
+    <h2>Posizione e dimensione</h2>
     <div class="row">
-      <div class="label"><span>Colore</span><output id="logoName"></output></div>
-      <div class="swatches" id="logoSwatches"></div>
-    </div>
-    <div class="row">
-      <div class="label"><span>Dimensione</span><output id="sizeOut"></output></div>
+      <div class="label"><span>Dimensione logo</span><output id="sizeOut"></output></div>
       <input type="range" id="size" min="0" max="100" step="1">
     </div>
-  </section>
-
-  <section>
-    <h2>Posizione</h2>
     <div class="row">
+      <div class="label"><span>Posizione logo</span></div>
       <div class="pos-row">
         <div class="align" id="align"></div>
         <p>Oppure trascina il box nel canvas e ridimensionalo dalle maniglie.</p>
