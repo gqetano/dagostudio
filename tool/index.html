@@ -148,18 +148,23 @@
   }
   body.dragging #drop { opacity: 1; }
 
-  /* pallini delle sezioni: solo da mobile */
-  .dots { display: none; }
+  /* pallini delle sezioni e freccia "annulla": solo da mobile */
+  .dots, .undo { display: none; }
+  .undo { position: absolute; top: 12px; left: 16px; z-index: 2; width: 34px; height: 34px; border: 0; background: none;
+    padding: 0; color: var(--ink); place-items: center; transition: opacity 120ms ease; }
+  .undo svg { width: 20px; height: 20px; stroke: currentColor; stroke-width: 1.8; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+  .undo:disabled { opacity: .25; }
 
   /* ── Mobile: area di lavoro libera in alto; sotto, fissi, i pallini e la barra
         "Dago Tool"; in fondo i parametri divisi in sezioni che scorrono di lato ── */
   @media (max-width: 760px) {
     html, body { height: 100%; }
-    body { grid-template-columns: 1fr; grid-template-rows: minmax(0, 1fr) auto auto 40vh; grid-template-rows: minmax(0, 1fr) auto auto 40dvh;
+    body { grid-template-columns: 1fr; grid-template-rows: minmax(0, 1fr) auto auto 26vh; grid-template-rows: minmax(0, 1fr) auto auto 26dvh;
       height: 100vh; height: 100dvh; overflow: hidden; }
     aside { display: contents; }
     .brand { grid-row: 3; position: static; padding: 4px 20px 12px; }
     main { grid-row: 1; height: auto; min-height: 0; }
+    .undo { display: grid; }
     .dots { grid-row: 2; display: flex; justify-content: center; gap: 2px; padding: 6px 0 2px; background: #fff; border-top: 1px solid var(--line); }
     .dots button { width: 22px; height: 22px; border: 0; background: none; padding: 0; display: grid; place-items: center; }
     .dots button::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: #cdcdcd; transition: background 120ms ease; }
@@ -261,6 +266,9 @@
 </aside>
 
 <main>
+  <button type="button" class="undo" id="undoBtn" aria-label="Annulla" title="Annulla" disabled>
+    <svg viewBox="0 0 20 20"><path d="M7 4 3 8l4 4"/><path d="M3 8h9a5 5 0 0 1 0 10H8"/></svg>
+  </button>
   <div class="formats" id="formats">
     <button type="button" data-format="1:1">1:1</button>
     <button type="button" data-format="3:4">3:4</button>
@@ -959,14 +967,18 @@
     if (past.length && keyOf(past[past.length - 1]) === keyOf(s)) return;
     past.push(s); future = [];
     if (past.length > HISTORY + 1) past.shift();
+    updUndo();
   }
+  const undoBtn = $('undoBtn');
+  const updUndo = () => { undoBtn.disabled = past.length <= 1; };
+  undoBtn.addEventListener('click', undo);
   function restore(s) {
     Object.assign(state, s, { manual: [...s.manual], photos: s.photos.map(p => ({ ...p })) });
     state.sel = Math.min(state.sel, state.photos.length - 1);
     renderPhotos(); sync(); settle();   // senza animazione
   }
-  function undo() { if (past.length > 1) { future.push(past.pop()); restore(past[past.length - 1]); } }
-  function redo() { if (future.length) { const s = future.pop(); past.push(s); restore(s); } }
+  function undo() { if (past.length > 1) { future.push(past.pop()); restore(past[past.length - 1]); } updUndo(); }
+  function redo() { if (future.length) { const s = future.pop(); past.push(s); restore(s); } updUndo(); }
   const later = () => setTimeout(commit, 30);   // dopo che click e handler hanno finito
   window.addEventListener('pointerup', later, true);
   window.addEventListener('change', later, true);
