@@ -98,6 +98,13 @@
   input[type=range]::-moz-range-track { height: 1px; background: var(--ink); }
   input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 11px; height: 11px; border-radius: 50%; background: var(--ink); margin-top: -5px; border: 0; }
   input[type=range]::-moz-range-thumb { width: 11px; height: 11px; border-radius: 50%; background: var(--ink); border: 0; }
+  /* lo slider si prende il trascinamento orizzontale (non fa scorrere le sezioni) */
+  input[type=range] { touch-action: pan-y; }
+  @media (pointer: coarse) {
+    input[type=range] { height: 36px; }
+    input[type=range]::-webkit-slider-thumb { width: 24px; height: 24px; margin-top: -11.5px; }
+    input[type=range]::-moz-range-thumb { width: 24px; height: 24px; }
+  }
 
   /* pulsanti */
   .btn { width: 100%; border: 1px solid var(--ink); background: #fff; padding: 10px 12px 9px; border-radius: 0; text-align: left; }
@@ -230,14 +237,6 @@
   <section>
     <h2>Movimento</h2>
     <div class="row">
-      <div class="label"><span>Escursione</span><output id="bandOut"></output></div>
-      <input type="range" id="band" min="0" max="100" step="1">
-    </div>
-    <div class="row">
-      <div class="label"><span>Dispersione lettere</span><output id="jitterOut"></output></div>
-      <input type="range" id="jitter" min="0" max="100" step="1">
-    </div>
-    <div class="row">
       <div class="label"><span>Distanza DAGO / STUDIO</span><output id="gapOut"></output></div>
       <input type="range" id="gap" min="0" max="100" step="1">
     </div>
@@ -326,7 +325,7 @@
   const sizeToMargin = v => 0.20 - 0.18 * v / 100;
   // I parametri interni del sito, riportati su una scala 0–100.
   const SNAP = 16;   // il box si aggancia a 16 posizioni per asse
-  const DEFAULTS = { size: 83, band: 45, jitter: 75, gap: 50, slope: 30, duration: 560 };
+  const DEFAULTS = { size: 83, band: 45, jitter: 100, gap: 50, slope: 30, duration: 560 };
 
   const state = {
     format: '3:4', bg: '#000000', logo: '#FFFFFF', fx: .5, fy: .5, align: 4,
@@ -640,7 +639,8 @@
   });
 
   const nameOf = hex => hex === 'none' ? TRANSPARENT.name : ((LOGO_COLORS.find(c => c.hex === hex) || {}).name || hex);
-  const SLIDERS = { size: 'sizeOut', band: 'bandOut', jitter: 'jitterOut', gap: 'gapOut', slope: 'slopeOut', duration: 'durOut' };
+  // Escursione = altezza del box (dalle maniglie); dispersione lettere fissa a 100
+  const SLIDERS = { size: 'sizeOut', gap: 'gapOut', slope: 'slopeOut', duration: 'durOut' };
   const fmt = (k, v) => k === 'duration' ? v + ' ms' : String(Math.round(v));
   Object.keys(SLIDERS).forEach(key => {
     $(key).addEventListener('input', e => {
